@@ -67,7 +67,7 @@ export default async function handler(req, res) {
 
   // Forward only the fields the Messages API expects; ignore anything else.
   const forward = {
-    model: body.model || 'claude-sonnet-4-20250514',
+    model: body.model || 'claude-sonnet-4-6',
     max_tokens: body.max_tokens || 1024,
     messages: body.messages,
   };

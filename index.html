@@ -2780,7 +2780,7 @@ For EACH kbr include a "tr" object with natural Spanish (es), French (fr) and Po
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:4000,
+        model:'claude-sonnet-4-6', max_tokens:4000,
         system:'You are BOBee, a journey-design assistant. Return ONLY valid JSON. No markdown fences, no preamble.',
         messages:[{role:'user', content:prompt}]
       })
@@ -3497,7 +3497,7 @@ Return ONLY valid JSON — no markdown, no code fences, no explanation:
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        model:'claude-sonnet-4-6', max_tokens:1000,
         system:'You are BOBee, the AI intelligence assistant for MOMENTUM by Boss.Technology. Return ONLY valid JSON. No markdown fences. No preamble. No explanation outside the JSON.',
         messages:[{role:'user', content:prompt}]
       })
@@ -3568,7 +3568,7 @@ async function sendMoBobby(){
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        model:'claude-sonnet-4-6', max_tokens:1000,
         system:`You are BOBee, the higher-level AI assistant for the WHOLE business in MOMENTUM by Boss.Technology. You see every journey stage and every Key Business Result. Answer concisely in 2-4 sentences, prioritising what matters most across the business. Be practical: where's the biggest risk, what to fix first.
 
 ${buildMoContext()}`,
@@ -4706,7 +4706,7 @@ async function aiSuggestQuery(tid, sid){
     const prompt = `Draft a ${def.lang} for the platform "${src.platform}" to measure the touchpoint "${tp.name||'this touchpoint'}" in a business-journey observability tool. Return ONLY the raw query/script with no markdown fences and no explanation. Keep it concise and realistic.`;
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:600,
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:600,
         messages:[{role:'user', content:prompt}] })
     });
     if(!resp.ok) throw new Error('API '+resp.status);
@@ -5060,7 +5060,7 @@ async function sendBobby(){
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        model:'claude-sonnet-4-6', max_tokens:1000,
         system:`You are BOBee, the focused AI assistant for a single journey stage in the MOMENTUM business-observer platform by Boss.Technology. Answer concisely in 2-3 sentences, referencing the stage's actual touchpoints, weights, and statuses. Be practical and specific.
 
 Current stage:
@@ -7286,7 +7286,7 @@ async function sendAeBobby(){
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        model:'claude-sonnet-4-6', max_tokens:1000,
         system:`You are BOBee, the focused AI assistant for the ANSWER ENGINE of a single Key Business Result in MOMENTUM by Boss.Technology. The Answer Engine surfaces a specific business answer (a name or a value) drawn from the data \u2014 it does NOT set thresholds or alerts. Answer concisely in 2-3 sentences, referencing the current answer, which source drove it, and how it's trending. Be practical.
 
 ${buildAeContext(kbr)}`,
@@ -7743,7 +7743,7 @@ async function sendRmBobby(){
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        model:'claude-sonnet-4-6', max_tokens:1000,
         system:`You are BOBee, the focused AI assistant for the RISK METER (alerts engine) of a single Key Business Result in MOMENTUM by Boss.Technology. Answer concisely in 2-3 sentences, referencing the actual alert conditions, anomalies, risk score, and tolerance setting. Be practical: suggest which conditions to tune, what's driving risk, or how to set tolerance.
 
 ${buildRmContext(kbr)}`,
@@ -7863,7 +7863,7 @@ async function sendKbrBobby(){
     const resp = await fetch(endpoint, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        model:'claude-sonnet-4-6', max_tokens:1000,
         system:`You are BOBee, the focused AI assistant for a single Key Business Result in the MOMENTUM business-observer platform by Boss.Technology. Answer concisely in 2-3 sentences, referencing the result's actual value, risk meter, and the touchpoints that drive it. Be practical and specific.
 
 ${buildKbrContext(kbr)}`,
