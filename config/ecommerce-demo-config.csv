@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Ecommerce Ops,,,,,demo distribution list — replace before a client sees it,,,,,,,,,ops@example.com,email,,,
+channel,,Duty Manager,,,,,demo number,,,,,,,,,+1-555-0142,sms,,,
+channel,,#store-alerts,,,,,demo Slack channel,,,,,,,,,#store-alerts,slack,,,
+channel,,Fulfilment Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/fulfilment,webhook,,,
+kbr,Gross Merchandise Value,,USD,currency,up,850000,demo target,,,,,,,,,,,,,
+kbr,Cart Conversion,,%,percentage,up,3.4,demo target,,,,,,,,,,,,,
+kbr,Cart Abandonment,,%,percentage,down,68,demo target,,,,,,,,,,,,,
+risk,Gross Merchandise Value,Checkout Latency,,,,,signature 60s,,,,,,,,,,Digital,HVY,signature,
+risk,Gross Merchandise Value,Payment Gateway,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Cart Conversion,Product Page Load,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Cart Conversion,Search Relevance,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Cart Abandonment,Shipping Quote Delay,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Cart Abandonment,Inventory Accuracy,,,,,,,,,,,,,,,Analog,MED,worst,
+condition,Gross Merchandise Value,Revenue falls below the daily floor,,,,,,,,,,,lt,760000,alarm,Ecommerce Ops;#store-alerts,,,,120
+condition,Gross Merchandise Value,Checkout slower than three seconds,,,,,,,,,,,gt,3000,alert,#store-alerts,,,,60
+condition,Gross Merchandise Value,Payment gateway degraded,,,,,,,,,,,gt,2,action,Fulfilment Webhook,,,,60
+condition,Cart Conversion,Conversion drops below target,,,,,,,,,,,lt,3,alarm,Ecommerce Ops;Duty Manager,,,,300
+condition,Cart Conversion,Search returning no results,,,,,,,,,,,gt,5,alert,#store-alerts,,,,120
+condition,Cart Abandonment,Abandonment climbing past tolerance,,,,,,,,,,,gt,72,alarm,Ecommerce Ops,,,,300
+condition,Cart Abandonment,Shipping quote timing out,,,,,,,,,,,gt,4000,alert,#store-alerts,,,,60
+anomrule,Gross Merchandise Value,Payment declines clustering,,,,,,Payment Gateway,"declined, timeout, retry",,frequency,,,4,alert,#store-alerts,,,,
+anomrule,Gross Merchandise Value,Checkout errors reported,,,,,,Checkout Latency,"error, 500, failed",,contains,,,,alarm,Ecommerce Ops,,,,
+anomrule,Cart Conversion,Search returning nothing,,,,,,Search Relevance,"no results, zero results",,contains,,,,alert,#store-alerts,,,,
+anomrule,Cart Abandonment,Stock mismatch pattern,,,,,,Inventory Accuracy,three oversells on one SKU in a day,,pattern,,,,alarm,Ecommerce Ops,,,,

@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Nursing Station,,,,,demo distribution list — replace before a client sees it,,,,,,,,,nursing@example.com,email,,,
+channel,,Charge Nurse,,,,,demo number,,,,,,,,,+1-555-0177,sms,,,
+channel,,#ward-coordination,,,,,demo Slack channel,,,,,,,,,#ward-coordination,slack,,,
+channel,,EHR Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/ehr,webhook,,,
+kbr,Patient Volume,,patients,count,up,,demo target,,,,,,,,,,,,,
+kbr,Appointment Adherence,,%,percentage,up,88,demo target,,,,,,,,,,,,,
+kbr,Readmission Rate,,%,percentage,down,9,demo target,,,,,,,,,,,,,
+risk,Patient Volume,Triage Wait,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature,
+risk,Patient Volume,Bed Availability,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Patient Volume,Imaging Turnaround,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Appointment Adherence,Reminder Delivery,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Appointment Adherence,Transport Availability,,,,,,,,,,,,,,,Analog,LGT,weighted,
+risk,Readmission Rate,Discharge Instruction Clarity,,,,,,,,,,,,,,,Analog,MED,worst,
+condition,Patient Volume,Triage wait over forty minutes,,,,,,,,,,,gt,40,alarm,Nursing Station;Charge Nurse,,,,300
+condition,Patient Volume,Bed availability under two,,,,,,,,,,,lt,2,alert,#ward-coordination,,,,180
+condition,Patient Volume,Imaging turnaround over ninety minutes,,,,,,,,,,,gt,90,action,EHR Webhook,,,,600
+condition,Appointment Adherence,Adherence below target,,,,,,,,,,,lt,84,alarm,Nursing Station,,,,900
+condition,Appointment Adherence,Reminder delivery failing,,,,,,,,,,,lt,90,alert,#ward-coordination,,,,300
+condition,Readmission Rate,Readmissions above threshold,,,,,,,,,,,gt,11,alarm,Nursing Station;Charge Nurse,,,,1800
+condition,Readmission Rate,Discharge follow-up not logged,,,,,,,,,,,lt,70,action,EHR Webhook,,,,900
+anomrule,Patient Volume,Repeated triage escalation,,,,,,Triage Wait,"escalated, re-triage, deteriorating",,frequency,,,3,alarm,Charge Nurse,,,,
+anomrule,Patient Volume,Imaging backlog language,,,,,,Imaging Turnaround,"backlog, queue, delayed read",,contains,,,,alert,#ward-coordination,,,,
+anomrule,Appointment Adherence,No-show cluster,,,,,,Reminder Delivery,four no-shows in one clinic inside an hour,,pattern,,,,alert,Nursing Station,,,,
+anomrule,Readmission Rate,Discharge comprehension flagged,,,,,,Discharge Instruction Clarity,"unclear, repeated question, interpreter",,contains,,,,alert,Nursing Station,,,,

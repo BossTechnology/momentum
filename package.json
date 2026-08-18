@@ -1,0 +1,19 @@
+{
+  "name": "momentum",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MOMENTUM — business-journey observability simulation · Boss.Technology",
+  "scripts": {
+    "build": "node build/build.js",
+    "check": "node build/check.js",
+    "pregate": "node build/fixtures.js",
+    "gate": "node test/gen-accept.js && node test/acceptance-s19.js && node test/verify5.js && node test/verify45.js && node test/verify20.js && node test/verify6.js && node test/verify7.js && node test/identity45.js && node test/verify-mirror.js && node test/verify-leakage.js",
+    "profile:local": "node harness/profile-local.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

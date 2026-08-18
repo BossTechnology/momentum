@@ -1,0 +1,17 @@
+{
+  "_profile-core.js": "mom-core-profile",
+  "_ingest-core.js": "mom-core-ingest",
+  "_generator-core.js": "mom-core-generator",
+  "_risk-core.js": "mom-core-risk",
+  "_answer-core.js": "mom-answer-core",
+  "_channels-core.js": "mom-channels-core",
+  "_risklog-core.js": "mom-risklog-core",
+  "_configdoc-core.js": "mom-configdoc-core",
+  "_configapply-core.js": "mom-configapply-core",
+  "_configtemplate-core.js": "mom-configtemplate-core",
+  "_officedoc-core.js": "mom-officedoc-core",
+  "phase16-anomalies-ui.js": "mom-anomalies-ui",
+  "phase17-header.js": "mom-header-global",
+  "phase7-answer-ui.js": "mom-phase7-ui",
+  "phase9-channels-ui.js": "mom-channels-ui"
+}

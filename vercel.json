@@ -1,8 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install --omit=dev",
+  "buildCommand": "node build/build.js",
+  "outputDirectory": "public",
   "functions": {
-    "api/bobby.js": {
+    "api/bobby.mjs": {
       "maxDuration": 60
+    },
+    "api/profile.js": {
+      "maxDuration": 300,
+      "includeFiles": "api/_*.js"
     }
   },
   "rewrites": [

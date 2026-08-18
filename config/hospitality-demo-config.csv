@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Front Desk,,,,,demo distribution list — replace before a client sees it,,,,,,,,,frontdesk@example.com,email,,,
+channel,,Duty Manager,,,,,demo number,,,,,,,,,+1-555-0155,sms,,,
+channel,,#hotel-ops,,,,,demo Slack channel,,,,,,,,,#hotel-ops,slack,,,
+channel,,Housekeeping Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/housekeeping,webhook,,,
+kbr,Total Bookings,,%,percentage,up,82,demo target,,,,,,,,,,,,,
+kbr,Occupancy Rate,,%,percentage,up,88,demo target,,,,,,,,,,,,,
+kbr,Guest Return Rate,,USD,currency,up,210,demo target,,,,,,,,,,,,,
+risk,Total Bookings,Check-in Wait,,,,,signature 60s,,,,,,,,,,Analog,HVY,signature,
+risk,Total Bookings,Room Readiness,,,,,,,,,,,,,,,Analog,HVY,worst,
+risk,Occupancy Rate,Housekeeping Turnaround,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Occupancy Rate,Maintenance Response,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Guest Return Rate,Booking Channel Health,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Guest Return Rate,Upsell Capture,,,,,,,,,,,,,,,Analog,MED,worst,
+condition,Total Bookings,Occupancy below the nightly floor,,,,,,,,,,,lt,74,alarm,Front Desk;#hotel-ops,,,,300
+condition,Total Bookings,Check-in queue over ten minutes,,,,,,,,,,,gt,600,alert,#hotel-ops,,,,120
+condition,Total Bookings,Rooms not ready at cutoff,,,,,,,,,,,gt,8,action,Housekeeping Webhook,,,,180
+condition,Occupancy Rate,Satisfaction below target,,,,,,,,,,,lt,84,alarm,Front Desk;Duty Manager,,,,300
+condition,Occupancy Rate,Maintenance calls unanswered,,,,,,,,,,,gt,3,alert,#hotel-ops,,,,180
+condition,Guest Return Rate,Revenue per room below floor,,,,,,,,,,,lt,180,alarm,Front Desk,,,,300
+condition,Guest Return Rate,Booking channel degraded,,,,,,,,,,,gt,2,alert,#hotel-ops,,,,120
+anomrule,Total Bookings,Check-in delays repeating,,,,,,Check-in Wait,"queue, wait, delay",,frequency,,,3,alert,#hotel-ops,,,,
+anomrule,Total Bookings,Room blocked reported,,,,,,Room Readiness,"out of order, blocked, maintenance",,contains,,,,alarm,Front Desk,,,,
+anomrule,Occupancy Rate,Complaint keywords rising,,,,,,Maintenance Response,"complaint, escalation, refund",,contains,,,,alarm,Duty Manager,,,,
+anomrule,Guest Return Rate,Same channel underperforming,,,,,,Booking Channel Health,three low-yield nights on one channel,,pattern,,,,alert,#hotel-ops,,,,

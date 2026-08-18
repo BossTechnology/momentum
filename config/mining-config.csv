@@ -1,0 +1,36 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup
+channel,,Operations Team,,,,,replace with the real distribution list,,,,,,,,,ops@example.com,email,,
+channel,,On-Call Manager,,,,,replace with the real on-call number,,,,,,,,,+1-555-0199,sms,,
+kbr,Combustible por Tonelada,,gal/ton,count,down,0.478,provisional,,,,,,,,,,,,
+answer,Combustible por Tonelada,Mayor Desviación por Unidad,gal/ton,count,,,target 0.478 provisional,unit,__gallons,__tons,ratio,max,,,,,,,
+answer,Combustible por Tonelada,Turno con Mayor Consumo,gal/h,count,,,,Shift ID,Fuel Consumption Rate-Engine,,mean,max,,,,,,,
+answer,Combustible por Tonelada,Operador con Mayor Variación,,percentage,,,,roster,__deviation,,mean,max,,,,,,,
+answer,Combustible por Tonelada,Segmento de Mayor Consumo,gal/h,count,,,,Pit Position,Fuel Consumption Rate-Engine,,mean,max,,,,,,,
+answer,Combustible por Tonelada,Causa Principal,,percentage,,,,incident,__excess,,mean,max,,,,,,,
+kbr,Toneladas Movidas,,ton,count,up,,,,,,,,,,,,,,
+answer,Toneladas Movidas,Viajes Completados,,count,,,,unit,__cycles,,count,none,,,,,,,
+answer,Toneladas Movidas,Unidad de Mayor Tonelaje,ton,count,,,,unit,__tons,,mean,max,,,,,,,
+answer,Toneladas Movidas,Turno de Mayor Carga,ton,count,,,,Shift ID,Truck Payload-Communication Gateway #2,,mean,max,,,,,,,
+answer,Toneladas Movidas,Segmento de Mayor Carga,ton,count,,,,Pit Position,Truck Payload-Communication Gateway #2,,mean,max,,,,,,,
+answer,Toneladas Movidas,Operador de Mayor Rendimiento,gal,count,,,,roster,__value,,mean,min,,,,,,,
+kbr,Horas en Ralentí,,h,count,down,,,,,,,,,,,,,,
+answer,Horas en Ralentí,Unidad con Mayor Ralentí,mph,count,,,,unit,Ground Speed-Trans Ctrl,,mean,min,,,,,,,
+answer,Horas en Ralentí,Zona de Mayor Detención,gal/h,count,,,,Pit Position,Fuel Consumption Rate-Engine,,mean,min,,,,,,,
+answer,Horas en Ralentí,Turno con Mayor Ralentí,mph,count,,,,Shift ID,Ground Speed-Trans Ctrl,,mean,min,,,,,,,
+answer,Horas en Ralentí,Estado de Mayor Permanencia,gal/h,count,,,,OHT Truck Payload State-Communication Gateway #2,Fuel Consumption Rate-Engine,,mean,min,,,,,,,
+answer,Horas en Ralentí,Condición de Vía Predominante,gal/h,count,,,,Road Condition,Fuel Consumption Rate-Engine,,mean,max,,,,,,,
+risk,Combustible por Tonelada,Restricción de Filtro,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature
+risk,Combustible por Tonelada,Presión de Boost,,,,,,,,,,,,,,,Analog,HVY,worst
+risk,Combustible por Tonelada,Eficiencia de Transmisión,,,,,,,,,,,,,,,Analog,MED,worst
+risk,Combustible por Tonelada,Condición de Vía,,,,,,,,,,,,,,,Analog,MED,worst
+risk,Combustible por Tonelada,Variación por Operador,,,,,,,,,,,,,,,Analog,LGT,worst
+channel,,#turno-noche,,,,,demo Slack channel,,,,,,,,,#turno-noche,slack,,
+channel,,Mantenimiento Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/mantenimiento,webhook,,
+condition,Combustible por Tonelada,Consumo por tonelada sobre objetivo,,,,,,,,,,,gt,0.52,alarm,Operations Team;#turno-noche,,,
+condition,Combustible por Tonelada,Restricción de filtro sostenida,,,,,,,,,,,gt,11,alert,#turno-noche,,,
+condition,Combustible por Tonelada,Presión de boost fuera de rango,,,,,,,,,,,lt,180,action,Mantenimiento Webhook,,,
+condition,Toneladas Movidas,Tonelaje por debajo del plan,,,,,,,,,,,lt,110000,alarm,Operations Team,,,
+condition,Horas en Ralentí,Ralentí excesivo por turno,,,,,,,,,,,gt,4,alert,On-Call Manager,,,
+anomrule,Combustible por Tonelada,Saturación de filtro repetida,,,,,,Restricción de Filtro,"saturación, filtro, restricción",,frequency,,,3,alert,#turno-noche,,,
+anomrule,Combustible por Tonelada,Vía en mal estado reportada,,,,,,Condición de Vía,"bache, derrape, vía húmeda",,contains,,,,alarm,Operations Team,,,
+anomrule,Combustible por Tonelada,Desviación por operador,,,,,,Variación por Operador,tres desviaciones del mismo operador en un turno,,pattern,,,,alert,On-Call Manager,,,

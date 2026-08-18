@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Store Operations,,,,,demo distribution list — replace before a client sees it,,,,,,,,,ops@example.com,email,,,
+channel,,Duty Manager,,,,,demo number,,,,,,,,,+1-555-0142,sms,,,
+channel,,#retail-floor,,,,,demo Slack channel,,,,,,,,,#retail-floor,slack,,,
+channel,,Inventory Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/inventory,webhook,,,
+kbr,Total Sales,,USD,currency,up,420000,demo target,,,,,,,,,,,,,
+kbr,Basket Conversion,,%,percentage,up,32,demo target,,,,,,,,,,,,,
+kbr,Repeat Purchase Rate,,%,percentage,up,55,demo target,,,,,,,,,,,,,
+risk,Total Sales,Queue Length at Till,,,,,signature 90s,,,,,,,,,,Analog,HVY,signature,
+risk,Total Sales,Card Terminal Latency,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Total Sales,Stock Availability,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Basket Conversion,Fitting Room Wait,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Basket Conversion,Assisted Sale Coverage,,,,,,,,,,,,,,,Analog,LGT,weighted,
+risk,Repeat Purchase Rate,Loyalty Enrolment Rate,,,,,,,,,,,,,,,Digital,MED,worst,
+condition,Total Sales,Sales fall below the daily floor,,,,,,,,,,,lt,380000,alarm,Store Operations;#retail-floor,,,,120
+condition,Total Sales,Till queue sustained over five deep,,,,,,,,,,,gt,5,alert,#retail-floor,,,,180
+condition,Total Sales,Card terminal round-trip over two seconds,,,,,,,,,,,gt,2000,action,Inventory Webhook,,,,60
+condition,Basket Conversion,Conversion drops below target,,,,,,,,,,,lt,28,alarm,Store Operations;Duty Manager,,,,300
+condition,Basket Conversion,Fitting room wait over ten minutes,,,,,,,,,,,gt,10,alert,#retail-floor,,,,240
+condition,Repeat Purchase Rate,Repeat purchase rate slipping,,,,,,,,,,,lt,50,alert,Store Operations,,,,600
+condition,Repeat Purchase Rate,Loyalty enrolment stalls,,,,,,,,,,,lt,15,action,Inventory Webhook,,,,300
+anomrule,Total Sales,Terminal declining repeatedly,,,,,,Card Terminal Latency,"declined, timeout, retry",,frequency,,,4,alert,#retail-floor,,,,
+anomrule,Total Sales,Shelf gap reported,,,,,,Stock Availability,"out of stock, gap, empty facing",,contains,,,,alarm,Store Operations,,,,
+anomrule,Basket Conversion,Walkout after long wait,,,,,,Fitting Room Wait,three walkouts inside fifteen minutes on one floor,,pattern,,,,alert,Duty Manager,,,,
+anomrule,Repeat Purchase Rate,Enrolment abandoned at consent step,,,,,,Loyalty Enrolment Rate,"consent, declined, abandoned",,contains,,,,alert,Store Operations,,,,
