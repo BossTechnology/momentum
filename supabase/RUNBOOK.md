@@ -101,6 +101,24 @@ missed step in this procedure.
 **Expected result:** the setting shows your new value after saving.
 **If it fails:** if the field is capped at 50 MB, the project is not on Pro.
 
+> **Do this before Step 3, not after.** The global limit must be greater than or
+> equal to every individual bucket limit. `phase3-data-profiles.sql` sets
+> `momentum-data` to 512 MB, so running the SQL first makes Supabase reject any
+> global value below 512 MB:
+>
+> ```
+> Global limit must be greater than that of individual buckets.
+> Remove or decrease the limit on momentum-data (512 MB).
+> ```
+>
+> If you hit it, clear the bucket limit, set the global to 512 MB, then put the
+> bucket limit back. The Storage settings page caches the bucket value — reload
+> it before believing the error. Confirm the real state in SQL:
+>
+> ```sql
+> select id, file_size_limit from storage.buckets where id = 'momentum-data';
+> ```
+
 > The global limit **overrides** any per-bucket limit. `phase3-data-profiles.sql`
 > sets the bucket to 512 MB; on a default global limit that is silently ceilinged
 > and the 84 MB upload fails with a **413 that looks like a bug in the app**.
