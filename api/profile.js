@@ -75,9 +75,24 @@ module.exports = async (req, res) => {
   }
 };
 
+/* ── 0 · input bounds ────────────────────────────────────────────────────── */
+// datasetId reaches a Storage path and a primary key, and this endpoint takes
+// no authentication, so it is bounded here rather than trusted. Supabase
+// already rejects a traversed path, but nothing capped the length: a 400
+// character id was accepted and produced a 406 character object path.
+// The ids the app generates look like 'ds_m4x7q2_a1b', and the bundled mining
+// profile uses 'mineria-2026'; both fit well inside this.
+function assertDatasetId(id) {
+  const s = String(id || '');
+  if (!s) throw new Error('datasetId required');
+  if (s.length > 128 || !/^[\w.\-]+$/.test(s))
+    throw new Error('datasetId must be 1-128 characters of A-Z a-z 0-9 _ . -');
+  return s;
+}
+
 /* ── 1 · signed upload ───────────────────────────────────────────────────── */
 async function signUpload({ datasetId, filename }) {
-  if (!datasetId) throw new Error('datasetId required');
+  datasetId = assertDatasetId(datasetId);
   const safe = String(filename || 'data').replace(/[^\w.\-]+/g, '_').slice(-120);
   const storagePath = `${datasetId}/${safe}`;
   const r = await fetch(
@@ -164,6 +179,12 @@ const REF = /^(l[ií]mites|limits|anomal[ií]as|anomalies|turnos|shifts|roster|m
 
 async function profileObject({ datasetId, path: storagePath, sourceName, sizeBytes }) {
   if (!storagePath) throw new Error('storage path required');
+  // The browser gets this path back from sign, which builds it as
+  // `${datasetId}/${filename}`. Requiring that shape keeps a caller from
+  // naming any other object in the bucket and having the service key read it.
+  datasetId = assertDatasetId(datasetId);
+  if (!String(storagePath).startsWith(datasetId + '/'))
+    throw new Error('storage path must sit under its datasetId');
   const opts = { datasetId, sourceName, sizeBytes, path: 'heavy',
                  sourceType: (String(sourceName || '').split('.').pop() || '').toLowerCase() };
 
@@ -223,7 +244,8 @@ async function profileTabular(storagePath, sourceName, opts) {
 
 /* ── 5 · profile persistence, keyed by dataset id ────────────────────────── */
 async function storeProfile({ datasetId, profile }) {
-  if (!datasetId || !profile) throw new Error('datasetId and profile required');
+  datasetId = assertDatasetId(datasetId);
+  if (!profile) throw new Error('profile required');
   const row = {
     dataset_id: datasetId,
     schema_version: profile.schemaVersion,
@@ -245,6 +267,7 @@ async function storeProfile({ datasetId, profile }) {
 
 async function loadProfile(datasetId) {
   if (!datasetId) return null;
+  datasetId = assertDatasetId(datasetId);
   const r = await fetch(
     `${SUPABASE_URL}/rest/v1/data_profiles?dataset_id=eq.${encodeURIComponent(datasetId)}&select=profile`,
     { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
