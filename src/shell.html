@@ -2975,6 +2975,12 @@ const I18N = {
   "Weather Conditions": { es:"Condiciones Climáticas", fr:"Conditions Météo", pt:"Condições Climáticas" },
   "Worst-Performing Line": { es:"Línea de Peor Rendimiento", fr:"Ligne la Moins Performante", pt:"Linha de Pior Desempenho" },
 };
+const BOBBY_LANG_NAMES = { es:'Spanish', en:'English', fr:'French', pt:'Portuguese' };
+// BOBee answers in the board's language, not the language of the question.
+function bobbyLang(){
+  const lang = (typeof SB_CFG!=='undefined' && SB_CFG.lang) ? SB_CFG.lang : 'en';
+  return BOBBY_LANG_NAMES[lang] || 'English';
+}
 function tr(str){
   const lang = (typeof SB_CFG!=='undefined' && SB_CFG.lang) ? SB_CFG.lang : 'en';
   if(lang==='en' || !str) return str;
@@ -4606,7 +4612,7 @@ async function sendMoBobby(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'claude-sonnet-4-6', max_tokens:1000,
-        system:`You are BOBee, the higher-level AI assistant for the WHOLE business in MOMENTUM by Boss.Technology. You see every journey stage and every Key Business Result. Answer concisely in 2-4 sentences, prioritising what matters most across the business. Be practical: where's the biggest risk, what to fix first. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally.
+        system:`You are BOBee, the higher-level AI assistant for the WHOLE business in MOMENTUM by Boss.Technology. You see every journey stage and every Key Business Result. Answer concisely in 2-4 sentences, prioritising what matters most across the business. Be practical: where's the biggest risk, what to fix first. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally. Reply in ${bobbyLang()}.
 
 ${buildMoContext()}`,
         messages: moBobbyHistory
@@ -7110,7 +7116,7 @@ async function sendBobby(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'claude-sonnet-4-6', max_tokens:1000,
-        system:`You are BOBee, the focused AI assistant for a single journey stage in the MOMENTUM business-observer platform by Boss.Technology. Answer concisely in 2-3 sentences, referencing the stage's actual touchpoints, weights, and statuses. Be practical and specific. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally.
+        system:`You are BOBee, the focused AI assistant for a single journey stage in the MOMENTUM business-observer platform by Boss.Technology. Answer concisely in 2-3 sentences, referencing the stage's actual touchpoints, weights, and statuses. Be practical and specific. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally. Reply in ${bobbyLang()}.
 
 Current stage:
 ${ctx}`,
@@ -9965,7 +9971,7 @@ async function sendAeBobby(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'claude-sonnet-4-6', max_tokens:1000,
-        system:`You are BOBee, the focused AI assistant for the ANSWER ENGINE of a single Key Business Result in MOMENTUM by Boss.Technology. The Answer Engine surfaces a specific business answer (a name or a value) drawn from the data \u2014 it does NOT set thresholds or alerts. Answer concisely in 2-3 sentences, referencing the current answer, which source drove it, and how it's trending. Be practical. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally.
+        system:`You are BOBee, the focused AI assistant for the ANSWER ENGINE of a single Key Business Result in MOMENTUM by Boss.Technology. The Answer Engine surfaces a specific business answer (a name or a value) drawn from the data \u2014 it does NOT set thresholds or alerts. Answer concisely in 2-3 sentences, referencing the current answer, which source drove it, and how it's trending. Be practical. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally. Reply in ${bobbyLang()}.
 
 ${buildAeContext(kbr)}`,
         messages: aeBobbyHistory
@@ -10584,7 +10590,7 @@ async function sendRmBobby(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'claude-sonnet-4-6', max_tokens:1000,
-        system:`You are BOBee, the focused AI assistant for the RISK METER (alerts engine) of a single Key Business Result in MOMENTUM by Boss.Technology. Answer concisely in 2-3 sentences, referencing the actual alert conditions, anomalies, risk score, and tolerance setting. Be practical: suggest which conditions to tune, what's driving risk, or how to set tolerance. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally.
+        system:`You are BOBee, the focused AI assistant for the RISK METER (alerts engine) of a single Key Business Result in MOMENTUM by Boss.Technology. Answer concisely in 2-3 sentences, referencing the actual alert conditions, anomalies, risk score, and tolerance setting. Be practical: suggest which conditions to tune, what's driving risk, or how to set tolerance. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally. Reply in ${bobbyLang()}.
 
 ${buildRmContext(kbr)}`,
         messages: rmBobbyHistory
@@ -10704,7 +10710,7 @@ async function sendKbrBobby(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'claude-sonnet-4-6', max_tokens:1000,
-        system:`You are BOBee, the focused AI assistant for a single Key Business Result in the MOMENTUM business-observer platform by Boss.Technology. Answer concisely in 2-3 sentences, referencing the result's actual value, risk meter, and the touchpoints that drive it. Be practical and specific. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally.
+        system:`You are BOBee, the focused AI assistant for a single Key Business Result in the MOMENTUM business-observer platform by Boss.Technology. Answer concisely in 2-3 sentences, referencing the result's actual value, risk meter, and the touchpoints that drive it. Be practical and specific. Reply in plain text: no markdown, no headings, no asterisks, no bullet characters — the answer is rendered as raw text and any markup shows up literally. Reply in ${bobbyLang()}.
 
 ${buildKbrContext(kbr)}`,
         messages: kbrBobbyHistory
