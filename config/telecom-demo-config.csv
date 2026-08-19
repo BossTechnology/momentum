@@ -3,23 +3,23 @@ channel,,Network Operations,,,,,demo distribution list — replace before a clie
 channel,,Field Engineer,,,,,demo number,,,,,,,,,+1-555-0164,sms,,,
 channel,,#network-ops,,,,,demo Slack channel,,,,,,,,,#network-ops,slack,,,
 channel,,Provisioning Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/provisioning,webhook,,,
-kbr,Service Activations,,count,count,up,2400,demo target,,,,,,,,,,,,,
-kbr,Network Availability,,%,percentage,up,99.5,demo target,,,,,,,,,,,,,
+kbr,Net Subscriber Adds,,count,count,up,2400,demo target,,,,,,,,,,,,,
+kbr,Activation Rate,,%,percentage,up,94,demo target,,,,,,,,,,,,,
 kbr,Churn Rate,,%,percentage,down,1.8,demo target,,,,,,,,,,,,,
-risk,Service Activations,SIM Provisioning,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
-risk,Service Activations,Credit Check Latency,,,,,,,,,,,,,,,Digital,HVY,worst,
-risk,Service Activations,Store Activation Queue,,,,,,,,,,,,,,,Analog,MED,worst,
-risk,Network Availability,Cell Site Uptime,,,,,,,,,,,,,,,Digital,HVY,worst,
-risk,Network Availability,Backhaul Latency,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Net Subscriber Adds,SIM Provisioning,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Net Subscriber Adds,Credit Check Latency,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Net Subscriber Adds,Store Activation Queue,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Activation Rate,Porting Request Delay,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Activation Rate,Coverage Check Accuracy,,,,,,,,,,,,,,,Digital,MED,mean,
 risk,Churn Rate,Support Call Wait,,,,,,,,,,,,,,,Analog,MED,mean,
-condition,Service Activations,Activations below the daily floor,,,,,,,,,,,lt,2000,alarm,Network Operations;#network-ops,,,,300
-condition,Service Activations,SIM provisioning held over five minutes,,,,,,,,,,,gt,300,alert,#network-ops,,,,180
-condition,Service Activations,Credit check round-trip over four seconds,,,,,,,,,,,gt,4000,action,Provisioning Webhook,,,,60
-condition,Network Availability,Availability below the service floor,,,,,,,,,,,lt,99,alarm,Network Operations;Field Engineer,,,,120
-condition,Network Availability,Backhaul latency over tolerance,,,,,,,,,,,gt,80,alert,#network-ops,,,,180
+condition,Net Subscriber Adds,Net adds below the daily floor,,,,,,,,,,,lt,2000,alarm,Network Operations;#network-ops,,,,300
+condition,Net Subscriber Adds,SIM provisioning held over five minutes,,,,,,,,,,,gt,300,alert,#network-ops,,,,180
+condition,Net Subscriber Adds,Credit check round-trip over four seconds,,,,,,,,,,,gt,4000,action,Provisioning Webhook,,,,60
+condition,Activation Rate,Activation rate below target,,,,,,,,,,,lt,90,alarm,Network Operations;Field Engineer,,,,300
+condition,Activation Rate,Porting delay over one hour,,,,,,,,,,,gt,3600,alert,#network-ops,,,,240
 condition,Churn Rate,Churn above the monthly ceiling,,,,,,,,,,,gt,2.5,alarm,Network Operations,,,,600
 condition,Churn Rate,Support wait over twelve minutes,,,,,,,,,,,gt,12,alert,#network-ops,,,,240
-anomrule,Service Activations,Provisioning failures clustering,,,,,,SIM Provisioning,"failed, timeout, rejected",,frequency,,,4,alert,#network-ops,,,,
-anomrule,Service Activations,Credit checks declining repeatedly,,,,,,Credit Check Latency,"declined, refer, error",,contains,,,,alert,Network Operations,,,,
-anomrule,Network Availability,Sector reported unreachable,,,,,,Cell Site Uptime,"outage, unreachable, down",,contains,,,,alarm,Network Operations,,,,
-anomrule,Churn Rate,Cancellations after long hold,,,,,,Support Call Wait,three cancellations inside one hour after a long hold,,pattern,,,,alert,Field Engineer,,,,
+anomrule,Net Subscriber Adds,Provisioning failures clustering,,,,,,SIM Provisioning,"failed, timeout, rejected",,frequency,,,4,alert,#network-ops,,,,
+anomrule,Net Subscriber Adds,Credit checks declining repeatedly,,,,,,Credit Check Latency,"declined, refer, error",,contains,,,,alert,Network Operations,,,,
+anomrule,Activation Rate,Porting rejected upstream,,,,,,Porting Request Delay,"rejected, mismatch, invalid",,contains,,,,alarm,Network Operations,,,,
+anomrule,Churn Rate,Cancellations after a long hold,,,,,,Support Call Wait,three cancellations inside one hour after a long hold,,pattern,,,,alert,Field Engineer,,,,
