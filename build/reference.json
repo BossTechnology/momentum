@@ -1,7 +1,7 @@
 {
   "_comment": "Expected output of build/build.js. check.js compares against this when no reference path is given. Update it in the same commit as any intentional change to src/shell.html or a module in api/ — the new values are printed by `node build/check.js` when it fails.",
-  "sha1": "83580c7530364150e5c33d09e97ae0fc444da86d",
-  "bytes": 1248402,
-  "builtFrom": "2f938be",
-  "note": "Matches the build promoted to production. The previous reference, momentum-Simulation_80.html, predates the two BOBee prompt changes and is 1000 bytes behind."
+  "sha1": "d084ac686f34fbc14d73e58b9c50245046ee42ec",
+  "bytes": 1251067,
+  "builtFrom": "pending",
+  "note": "Matches the build with telecom added to DEMO_CONFIG."
 }
