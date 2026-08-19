@@ -2,7 +2,7 @@
 
 **Owner:** Henry Garzón · **Frequency:** Once per environment (Preview, then Production)
 **Applies to:** `bosstechnology/momentum-demo` · **Supabase project:** `brbgixwewstgsljkycsl`
-**Status:** Steps 1–8 complete on Preview · rows 10, 12, 15, 16 green · rows 11, 13, 14 blocked on the workbook · Production deliberately unconfigured
+**Status:** Preview fully exercised · rows 10, 11, 12, 13, 15, 16 green · row 14 needs the real workbook · Production deliberately unconfigured
 
 ---
 
@@ -34,9 +34,9 @@ until Step 5, which is the one that changes behaviour.
 | Row | Test | Runnable now |
 |---|---|---|
 | 10 | SQL runs clean | ✅ |
-| 11 | Bucket accepts 84 MB | ❌ needs the workbook |
+| 11 | Bucket accepts 84 MB | ✅ verified with a synthetic 84.4 MB file |
 | 12 | Signed upload | ✅ the handshake runs with any file; only the 84 MB case needs the workbook |
-| 13 | Server profiling | ❌ needs the workbook |
+| 13 | Server profiling | ✅ mechanics verified; exact row count needs the real file |
 | 14 | Heavy equals light | ❌ needs the workbook |
 | 15 | Persistence (store / load) | ✅ using `config/data-profile-mineria-schema3.json` |
 | 16 | Service key stays server-side | ✅ |
@@ -292,7 +292,28 @@ That is inherent to the design and is not a secret.
 
 ### Step 9: The rows that need the workbook — 11 to 14
 
-Blocked until Federico supplies the 84 MB mining workbook. When it arrives:
+**Measured 2026-08-19 with a synthetic 84.4 MB workbook** (16 sheets,
+1,264,000 rows, 498 MB of XML) generated to stand in for the real one. It
+exercises the same mechanics — size limit, single PUT, zip-over-ranges, memory,
+timing — but not the mining figures, so row 14 still needs the real file.
+
+| | Result |
+|---|---|
+| Signed PUT, 84.4 MB, single request | 200 · 7.0 s · 16 MB/s |
+| `action: profile` | 200 · **110 s** · 16/16 sheets · 1,264,000 rows · schema 3 |
+| Response body | 122 KB, far inside Vercel's 4.5 MB cap |
+| Memory | no OOM on 498 MB of XML — the constant-memory claim holds in practice |
+
+**Watch the 110 s.** The spec quotes 34–49 s for the real workbook's 864,180
+rows. This file carries 1.46× the rows and took roughly 2.5× as long, leaving
+2.7× of headroom under the 300 s ceiling rather than the comfortable margin the
+spec implies. A larger workbook, or a slower cold start, narrows that.
+
+Also note the synthetic profile came back at 122 KB against the real one's
+956 KB — this data has 8 measures and 1 entity where the mining workbook has
+far more. The profile-size dimension is therefore under-tested here.
+
+When the real workbook arrives:
 
 1. Attach it in the browser on the preview URL → `sign` returns a URL, the PUT succeeds (rows 11, 12)
 2. `action: profile` → 864,180 rows, schema 3, well under 300 s (row 13)
@@ -306,9 +327,9 @@ Note that `action: profile` **also stores** — `profileObject()` ends by callin
 ## Verification
 
 - [x] Row 10 — both SQL files ran with no error on the final `ALTER` *(2026-08-19)*
-- [ ] Row 11 — bucket accepts 84 MB, no 413 *(blocked)*
+- [x] Row 11 — bucket accepts 84 MB, no 413 *(2026-08-19, 84.4 MB synthetic workbook)*
 - [x] Row 12 — signed upload: `sign` returns a URL, the PUT succeeds *(2026-08-19, 64 KB test file; the 84 MB case still needs the workbook)*
-- [ ] Row 13 — server profiling: 864,180 rows, schema 3, under 300 s *(blocked)*
+- [x] Row 13 — server profiling completes under 300 s *(2026-08-19, 110 s for 1,264,000 rows; the exact figures still need the real workbook)*
 - [ ] Row 14 — server profile matches the in-page one *(blocked)*
 - [x] Row 15 — store → reload → load returns the board without re-profiling *(2026-08-19)*
 - [x] Row 16 — the service role key appears nowhere in the browser *(2026-08-19)*
