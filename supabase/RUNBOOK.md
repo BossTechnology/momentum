@@ -2,7 +2,7 @@
 
 **Owner:** Henry Garzón · **Frequency:** Once per environment (Preview, then Production)
 **Applies to:** `bosstechnology/momentum-demo` · **Supabase project:** `brbgixwewstgsljkycsl`
-**Status:** Steps 1–8 complete on Preview · rows 10, 12, 15, 16 green · rows 11, 13, 14 blocked on the workbook
+**Status:** Steps 1–8 complete on Preview · rows 10, 12, 15, 16 green · rows 11, 13, 14 blocked on the workbook · Production deliberately unconfigured
 
 ---
 
@@ -268,9 +268,27 @@ curl -s "$PREVIEW/" | grep -c "service_role"      # expected: 0
 curl -s "$PREVIEW/" | grep -c "SUPABASE_SERVICE"  # expected: 0
 ```
 
-Then open the deployed page, DevTools → Network, exercise the UI, and confirm no
-request carries the service role key. The only credential the browser may hold is
-the anon key.
+Then exercise the persistence path and check what actually crosses the wire. The
+`sign` response legitimately contains a JWT — that is the signed upload token,
+scoped to one object path and short-lived. Confirm it is not the service key:
+
+```js
+const r = await fetch('/api/profile', { method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({action:'sign', datasetId:'row16', filename:'x.bin'}) });
+const { uploadUrl } = await r.json();
+const tok = new URL(uploadUrl).searchParams.get('token');
+console.log({ isServiceKey: /^sb_secret_/.test(tok), isScopedToken: /^eyJ/.test(tok) });
+// expected: { isServiceKey: false, isScopedToken: true }
+```
+
+Measured on 2026-08-19: zero occurrences of `sb_secret_`, `service_role`,
+`SUPABASE_SERVICE` or any JWT across the 1.27 MB page; no reference to
+`supabase.co`; no Supabase client in the browser. The `store` and `load`
+responses carry nothing sensitive at all.
+
+Note the signed URL does reveal the project ref to anyone who triggers an upload.
+That is inherent to the design and is not a secret.
 
 ### Step 9: The rows that need the workbook — 11 to 14
 
@@ -293,7 +311,7 @@ Note that `action: profile` **also stores** — `profileObject()` ends by callin
 - [ ] Row 13 — server profiling: 864,180 rows, schema 3, under 300 s *(blocked)*
 - [ ] Row 14 — server profile matches the in-page one *(blocked)*
 - [x] Row 15 — store → reload → load returns the board without re-profiling *(2026-08-19)*
-- [ ] Row 16 — the service role key appears nowhere in the browser
+- [x] Row 16 — the service role key appears nowhere in the browser *(2026-08-19)*
 
 ---
 
