@@ -2,7 +2,7 @@
 
 **Owner:** Henry Garzón · **Frequency:** Once per environment (Preview, then Production)
 **Applies to:** `bosstechnology/momentum-demo` · **Supabase project:** `brbgixwewstgsljkycsl`
-**Status:** Steps 1, 3, 4 complete · Step 2 pending · Step 5 not started
+**Status:** Steps 1–8 complete on Preview · rows 10, 12, 15, 16 green · rows 11, 13, 14 blocked on the workbook
 
 ---
 
@@ -12,7 +12,8 @@ Stand up the Supabase layer the simulator has never used: five base tables, a
 private storage bucket, the `data_profiles` table, and the four environment
 variables that let `api/profile.js` reach them.
 
-Nothing here has ever executed. Treat it as first-time setup, not maintenance.
+First run completed 2026-08-19 against Preview. Two defects surfaced on that
+first execution and are fixed; see the History table.
 Part A is already live in production and is unaffected by every step below —
 until Step 5, which is the one that changes behaviour.
 
@@ -34,7 +35,7 @@ until Step 5, which is the one that changes behaviour.
 |---|---|---|
 | 10 | SQL runs clean | ✅ |
 | 11 | Bucket accepts 84 MB | ❌ needs the workbook |
-| 12 | Signed upload | ❌ needs the workbook |
+| 12 | Signed upload | ✅ the handshake runs with any file; only the 84 MB case needs the workbook |
 | 13 | Server profiling | ❌ needs the workbook |
 | 14 | Heavy equals light | ❌ needs the workbook |
 | 15 | Persistence (store / load) | ✅ using `config/data-profile-mineria-schema3.json` |
@@ -180,13 +181,31 @@ update storage.buckets set file_size_limit = 536870912 where id = 'momentum-data
 | `ANTHROPIC_API_KEY` | already set | leave alone |
 | `SUPABASE_URL` | `https://<ref>.supabase.co` | Project URL |
 | `SUPABASE_ANON_KEY` | the anon/publishable key | public by design |
-| `SUPABASE_SERVICE_ROLE_KEY` | the service role key | **never** in the browser |
+| `SUPABASE_SERVICE_ROLE_KEY` | the **secret** key | **never** in the browser |
 
 Use **separate values for Preview and Production** when Production is eventually
 enabled, so testing against a scratch project cannot write into the one holding
 real client configurations.
 
-**Expected result:** four variables listed under Preview.
+> **Copy the secret key, not the publishable one.** Newer projects issue opaque
+> keys — `sb_secret_...` and `sb_publishable_...` — instead of the legacy `eyJ...`
+> JWTs that the spec and `.env.example` used to describe. The publishable key is
+> accepted everywhere but fails on write:
+>
+> ```
+> store → 500  new row violates row-level security policy for table "data_profiles"
+> ```
+>
+> because it resolves to `anon`, which has no INSERT policy. Confirm which key a
+> request actually used from the logs, without exposing it:
+>
+> ```sql
+> select log_attributes['request.sb.apikey.apikey.prefix'] as prefix,
+>        log_attributes['response.status_code'] as status
+> from logs where source = 'edge_logs' order by timestamp desc limit 5
+> ```
+
+**Expected result:** two new variables listed under Preview.
 **If it fails:** `api/profile.js` returns 500 *"Supabase is not configured"* when
 either `SUPABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY` is missing. The anon key is
 read by the front end, not the function.
@@ -270,10 +289,10 @@ Note that `action: profile` **also stores** — `profileObject()` ends by callin
 
 - [x] Row 10 — both SQL files ran with no error on the final `ALTER` *(2026-08-19)*
 - [ ] Row 11 — bucket accepts 84 MB, no 413 *(blocked)*
-- [ ] Row 12 — signed upload: `sign` returns a URL, the PUT succeeds *(blocked)*
+- [x] Row 12 — signed upload: `sign` returns a URL, the PUT succeeds *(2026-08-19, 64 KB test file; the 84 MB case still needs the workbook)*
 - [ ] Row 13 — server profiling: 864,180 rows, schema 3, under 300 s *(blocked)*
 - [ ] Row 14 — server profile matches the in-page one *(blocked)*
-- [ ] Row 15 — store → reload → load returns the board without re-profiling
+- [x] Row 15 — store → reload → load returns the board without re-profiling *(2026-08-19)*
 - [ ] Row 16 — the service role key appears nowhere in the browser
 
 ---
@@ -343,4 +362,5 @@ vercel rollback https://momentum-demo-1g884c0p5-bosstechnology.vercel.app
 
 | Date | Run by | Notes |
 |---|---|---|
+| 2026-08-19 | Henry Garzón | Rows 12 and 15 green. Two defects found on first execution and fixed: the Storage calls sent no `apikey` header, which the newer opaque keys require (`403 Invalid Compact JWS`), and `sign` posted `expiresIn` to an endpoint that does not accept it. `sign` also reported only a status code, so the first failure carried no cause; it now includes the body like `store` does. |
 | 2026-08-19 | Henry Garzón | Project `brbgixwewstgsljkycsl` created. Steps 3 and 4 run against it: both SQL files applied in order, six tables present, `configs.data_profile_id` links to `data_profiles`, bucket `momentum-data` private at 512 MB, trigger and both policies in place. **Row 10 green** — the final `ALTER` succeeded. Steps 1–4 done; Step 2 (global file size limit) still pending in the dashboard. Step 5 not started: env vars are unset, so `/api/profile` remains inert. |
