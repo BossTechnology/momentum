@@ -1,7 +1,8 @@
 # Runbook: MOMENTUM Part B — Supabase enablement
 
 **Owner:** Henry Garzón · **Frequency:** Once per environment (Preview, then Production)
-**Applies to:** `bosstechnology/momentum-demo` · **Status:** not yet run anywhere
+**Applies to:** `bosstechnology/momentum-demo` · **Supabase project:** `brbgixwewstgsljkycsl`
+**Status:** Steps 1, 3, 4 complete · Step 2 pending · Step 5 not started
 
 ---
 
@@ -249,7 +250,7 @@ Note that `action: profile` **also stores** — `profileObject()` ends by callin
 
 ## Verification
 
-- [ ] Row 10 — both SQL files ran with no error on the final `ALTER`
+- [x] Row 10 — both SQL files ran with no error on the final `ALTER` *(2026-08-19)*
 - [ ] Row 11 — bucket accepts 84 MB, no 413 *(blocked)*
 - [ ] Row 12 — signed upload: `sign` returns a URL, the PUT succeeds *(blocked)*
 - [ ] Row 13 — server profiling: 864,180 rows, schema 3, under 300 s *(blocked)*
@@ -324,4 +325,4 @@ vercel rollback https://momentum-demo-1g884c0p5-bosstechnology.vercel.app
 
 | Date | Run by | Notes |
 |---|---|---|
-| — | — | Not yet run in any environment |
+| 2026-08-19 | Henry Garzón | Project `brbgixwewstgsljkycsl` created. Steps 3 and 4 run against it: both SQL files applied in order, six tables present, `configs.data_profile_id` links to `data_profiles`, bucket `momentum-data` private at 512 MB, trigger and both policies in place. **Row 10 green** — the final `ALTER` succeeded. Steps 1–4 done; Step 2 (global file size limit) still pending in the dashboard. Step 5 not started: env vars are unset, so `/api/profile` remains inert. |
