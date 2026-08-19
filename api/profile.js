@@ -83,9 +83,12 @@ async function signUpload({ datasetId, filename }) {
   const r = await fetch(
     `${SUPABASE_URL}/storage/v1/object/upload/sign/${BUCKET}/${storagePath}`,
     { method: 'POST',
-      headers: { Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ expiresIn: 3600 }) });
-  if (!r.ok) throw new Error(`could not sign upload (${r.status})`);
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
+      // The upload-sign endpoint does not take expiresIn — a signed upload URL
+      // is fixed at 2 hours. upsert is the option it does accept, and it
+      // matches the x-upsert header returned for the PUT below.
+      body: JSON.stringify({ upsert: true }) });
+  if (!r.ok) throw new Error(`could not sign upload (${r.status}: ${await r.text()})`);
   const d = await r.json();
   return {
     storagePath,
@@ -101,7 +104,7 @@ function objectUrl(storagePath) {
 }
 async function objectSize(storagePath) {
   const r = await fetch(objectUrl(storagePath), {
-    method: 'HEAD', headers: { Authorization: `Bearer ${SERVICE_KEY}` } });
+    method: 'HEAD', headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
   if (!r.ok) throw new Error(`stored object not found (${r.status})`);
   const len = r.headers.get('content-length');
   if (!len) throw new Error('storage did not report a content-length');
@@ -109,14 +112,14 @@ async function objectSize(storagePath) {
 }
 async function rangeBytes(storagePath, start, len) {
   const r = await fetch(objectUrl(storagePath), {
-    headers: { Authorization: `Bearer ${SERVICE_KEY}`,
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`,
                Range: `bytes=${start}-${start + len - 1}` } });
   if (!r.ok && r.status !== 206) throw new Error(`range read failed (${r.status})`);
   return new Uint8Array(await r.arrayBuffer());
 }
 async function rangeStream(storagePath, start, len) {
   const r = await fetch(objectUrl(storagePath), {
-    headers: { Authorization: `Bearer ${SERVICE_KEY}`,
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`,
                Range: `bytes=${start}-${start + len - 1}` } });
   if (!r.ok && r.status !== 206) throw new Error(`range stream failed (${r.status})`);
   return Readable.fromWeb(r.body);
