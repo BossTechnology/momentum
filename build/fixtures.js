@@ -18,8 +18,10 @@ const COPIES = [
   ['public/index.html', 'momentum-Simulation_68.html'],
 ];
 
-// Read by verify7 (1 assertion) and identity45 (1 assertion) as the previous
-// build to diff the unbound configuration against. Must be supplied.
+// Read by verify7 and identity45 as the previous build to diff the unbound
+// configuration against. It is committed rather than generated: it is a
+// recording of an earlier build, and rebuilding it from today's source would
+// compare the build to itself and pass without testing anything.
 const BASELINE = 'momentum-Simulation_19.html';
 
 for (const [from, to] of COPIES) {
@@ -34,6 +36,6 @@ for (const [from, to] of COPIES) {
 
 if (!fs.existsSync(r(BASELINE))) {
   console.log(`\n  ${BASELINE} is absent — verify7 and identity45 will not run.`);
-  console.log('  It is the previous build the unbound configuration is diffed');
-  console.log('  against; it is not in the repo and cannot be built from it.\n');
+  console.log('  It is committed at the repo root; restore it rather than');
+  console.log('  regenerating it, which would make both suites pass vacuously.\n');
 }
