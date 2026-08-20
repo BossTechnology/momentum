@@ -11692,8 +11692,30 @@ async function handleDataFile(input){
 
   var heavy = !!(window.MOMENTUM_API_BASE && file.size > HEAVY_BYTES);
   try{
-    progress(1, heavy ? 'Uploading\u2026' : 'Reading file\u2026');
-    var profile = heavy ? await runHeavy(file, opts) : await runLight(file, opts);
+    var profile;
+    if(heavy){
+      /* The serverless path is an optimisation, not a requirement — the worker
+         profiles the same file, and on the 84 MB reference workbook it does so
+         in 56 s against the function's 252 s, because the browser already holds
+         the bytes the function has to fetch back over HTTP in ranges.
+
+         Without this fallback a deployment whose ingest function is unreachable
+         — unconfigured, rate-limited, cold, or simply down — refuses every
+         document over 8 MB with "Signed upload unavailable", which reads like a
+         bug in the app rather than a missing backend. */
+      try{
+        progress(1, 'Uploading\u2026');
+        profile = await runHeavy(file, opts);
+      }catch(heavyErr){
+        console.warn('heavy ingest unavailable, profiling in the worker instead:',
+                     (heavyErr && heavyErr.message) || heavyErr);
+        progress(1, 'Reading file\u2026');
+        profile = await runLight(file, opts);
+      }
+    } else {
+      progress(1, 'Reading file\u2026');
+      profile = await runLight(file, opts);
+    }
     state.profile = profile;
     if(MOMENTUM.Bind) MOMENTUM.Bind.attach(profile);
     SB_CFG.dataProfileId = profile.meta.datasetId;
