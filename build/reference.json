@@ -1,7 +1,7 @@
 {
   "_comment": "Expected output of build/build.js. check.js compares against this when no reference path is given. Update it in the same commit as any intentional change to src/shell.html or a module in api/ — the new values are printed by `node build/check.js` when it fails.",
-  "sha1": "c3c3bb32035d4df4c183fec45e03557a018b20d1",
-  "bytes": 1251041,
+  "sha1": "d11dcb1a429729995d07d9b8d30cf45e169ec672",
+  "bytes": 1274251,
   "builtFrom": "pending",
-  "note": "Matches the build with telecom added to DEMO_CONFIG."
+  "note": "Matches the build with all seventeen industries populated."
 }

@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Live Ops,,,,,demo distribution list — replace before a client sees it,,,,,,,,,liveops@example.com,email,,,
+channel,,On-Call Producer,,,,,demo number,,,,,,,,,+1-555-0155,sms,,,
+channel,,#live-ops,,,,,demo Slack channel,,,,,,,,,#live-ops,slack,,,
+channel,,Telemetry Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/telemetry,webhook,,,
+kbr,Daily Active Players,,count,count,up,42000,demo target,,,,,,,,,,,,,
+kbr,Install Conversion,,%,percentage,up,26,demo target,,,,,,,,,,,,,
+kbr,D30 Retention,,%,percentage,up,18,demo target,,,,,,,,,,,,,
+risk,Daily Active Players,Matchmaking Wait,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Daily Active Players,Server Tick Stability,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Daily Active Players,Crash-Free Sessions,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Install Conversion,Store Page Load,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Install Conversion,First Session Completion,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,D30 Retention,Day-7 Return Rate,,,,,,,,,,,,,,,Digital,MED,mean,
+condition,Daily Active Players,Active players below the daily floor,,,,,,,,,,,lt,36000,alarm,Live Ops;#live-ops,,,,300
+condition,Daily Active Players,Matchmaking wait over ninety seconds,,,,,,,,,,,gt,90,alert,#live-ops,,,,180
+condition,Daily Active Players,Tick rate below stable,,,,,,,,,,,lt,55,action,Telemetry Webhook,,,,60
+condition,Install Conversion,Install conversion below target,,,,,,,,,,,lt,22,alarm,Live Ops;On-Call Producer,,,,300
+condition,Install Conversion,Store page over four seconds,,,,,,,,,,,gt,4000,alert,#live-ops,,,,240
+condition,D30 Retention,Thirty-day retention below floor,,,,,,,,,,,lt,15,alarm,Live Ops,,,,600
+condition,D30 Retention,Day-seven returns slipping,,,,,,,,,,,lt,30,alert,#live-ops,,,,600
+anomrule,Daily Active Players,Disconnects clustering in a region,,,,,,Server Tick Stability,"disconnect, timeout, packet loss",,frequency,,,4,alert,#live-ops,,,,
+anomrule,Daily Active Players,Crashes reported after a build,,,,,,Crash-Free Sessions,"crash, freeze, hang",,contains,,,,alarm,On-Call Producer,,,,
+anomrule,Install Conversion,Same device failing to complete first session,,,,,,First Session Completion,three failed first sessions on one device,,pattern,,,,alert,#live-ops,,,,
+anomrule,D30 Retention,Churn language in exit surveys,,,,,,Day-7 Return Rate,"boring, grind, uninstall",,contains,,,,alert,Live Ops,,,,

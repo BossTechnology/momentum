@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Terminal Control,,,,,demo distribution list — replace before a client sees it,,,,,,,,,control@example.com,email,,,
+channel,,Duty Superintendent,,,,,demo number,,,,,,,,,+1-555-0172,sms,,,
+channel,,#terminal-ops,,,,,demo Slack channel,,,,,,,,,#terminal-ops,slack,,,
+channel,,TOS Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/tos,webhook,,,
+kbr,Container Throughput,,count,count,up,5200,demo target,,,,,,,,,,,,,
+kbr,Berth Utilization,,%,percentage,up,78,demo target,,,,,,,,,,,,,
+kbr,Dwell Time,,%,percentage,down,3.5,demo target,,,,,,,,,,,,,
+risk,Container Throughput,Crane Cycle Time,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature,
+risk,Container Throughput,Gate Truck Turnaround,,,,,,,,,,,,,,,Analog,HVY,worst,
+risk,Container Throughput,Yard Congestion,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Berth Utilization,Vessel Berthing Delay,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Berth Utilization,Pilot Availability,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Dwell Time,Customs Hold Rate,,,,,,,,,,,,,,,Digital,MED,mean,
+condition,Container Throughput,Throughput below the daily floor,,,,,,,,,,,lt,4600,alarm,Terminal Control;#terminal-ops,,,,300
+condition,Container Throughput,Crane cycle over three minutes,,,,,,,,,,,gt,180,alert,#terminal-ops,,,,180
+condition,Container Throughput,Gate turnaround over an hour,,,,,,,,,,,gt,60,action,TOS Webhook,,,,300
+condition,Berth Utilization,Berth utilisation below target,,,,,,,,,,,lt,72,alarm,Terminal Control;Duty Superintendent,,,,600
+condition,Berth Utilization,Berthing delayed over four hours,,,,,,,,,,,gt,240,alert,#terminal-ops,,,,300
+condition,Dwell Time,Dwell above the ceiling,,,,,,,,,,,gt,5,alarm,Terminal Control,,,,600
+condition,Dwell Time,Customs holds climbing,,,,,,,,,,,gt,8,alert,#terminal-ops,,,,300
+anomrule,Container Throughput,Crane stoppages clustering,,,,,,Crane Cycle Time,"stop, fault, hold",,frequency,,,3,alert,#terminal-ops,,,,
+anomrule,Container Throughput,Yard blocks reported full,,,,,,Yard Congestion,"full, blocked, no slot",,contains,,,,alarm,Terminal Control,,,,
+anomrule,Berth Utilization,Same vessel delayed repeatedly,,,,,,Vessel Berthing Delay,three delays on one vessel in a call,,pattern,,,,alert,Duty Superintendent,,,,
+anomrule,Dwell Time,Documentation holds recurring,,,,,,Customs Hold Rate,"hold, inspection, missing paperwork",,contains,,,,alert,Terminal Control,,,,

@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Route Supervisor,,,,,demo distribution list — replace before a client sees it,,,,,,,,,routes@example.com,email,,,
+channel,,Field Technician,,,,,demo number,,,,,,,,,+1-555-0161,sms,,,
+channel,,#route-ops,,,,,demo Slack channel,,,,,,,,,#route-ops,slack,,,
+channel,,Telemetry Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/telemetry,webhook,,,
+kbr,Machine Revenue,,USD,currency,up,96000,demo target,,,,,,,,,,,,,
+kbr,Restock Efficiency,,%,percentage,up,88,demo target,,,,,,,,,,,,,
+kbr,Stockout Rate,,%,percentage,down,4,demo target,,,,,,,,,,,,,
+risk,Machine Revenue,Cashless Payment Failures,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Machine Revenue,Machine Uptime,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Machine Revenue,Coin Mechanism Faults,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Restock Efficiency,Route Completion Time,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Restock Efficiency,Planogram Compliance,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Stockout Rate,Slot Depletion Rate,,,,,,,,,,,,,,,Digital,MED,mean,
+condition,Machine Revenue,Revenue below the monthly floor,,,,,,,,,,,lt,84000,alarm,Route Supervisor;#route-ops,,,,600
+condition,Machine Revenue,Cashless failures over four percent,,,,,,,,,,,gt,4,alert,#route-ops,,,,180
+condition,Machine Revenue,Machine offline over two hours,,,,,,,,,,,gt,120,action,Telemetry Webhook,,,,300
+condition,Restock Efficiency,Restock efficiency below target,,,,,,,,,,,lt,82,alarm,Route Supervisor;Field Technician,,,,300
+condition,Restock Efficiency,Route running over schedule,,,,,,,,,,,gt,60,alert,#route-ops,,,,240
+condition,Stockout Rate,Stockouts above the ceiling,,,,,,,,,,,gt,6,alarm,Route Supervisor,,,,600
+condition,Stockout Rate,Slots depleting early,,,,,,,,,,,gt,70,alert,#route-ops,,,,300
+anomrule,Machine Revenue,Card readers failing on a route,,,,,,Cashless Payment Failures,"declined, reader error, offline",,frequency,,,4,alert,#route-ops,,,,
+anomrule,Machine Revenue,Coin jams reported repeatedly,,,,,,Coin Mechanism Faults,"jam, stuck, no change",,contains,,,,alarm,Field Technician,,,,
+anomrule,Restock Efficiency,Same machine skipped on the route,,,,,,Planogram Compliance,three skips on one machine in a month,,pattern,,,,alert,Route Supervisor,,,,
+anomrule,Stockout Rate,Best sellers emptying first,,,,,,Slot Depletion Rate,"empty, sold out, depleted",,contains,,,,alert,Route Supervisor,,,,

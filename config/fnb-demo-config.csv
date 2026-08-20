@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Floor Manager,,,,,demo distribution list — replace before a client sees it,,,,,,,,,floor@example.com,email,,,
+channel,,Kitchen Lead,,,,,demo number,,,,,,,,,+1-555-0126,sms,,,
+channel,,#service-floor,,,,,demo Slack channel,,,,,,,,,#service-floor,slack,,,
+channel,,POS Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/pos,webhook,,,
+kbr,Daily Revenue,,USD,currency,up,18000,demo target,,,,,,,,,,,,,
+kbr,Table Turnover,,%,percentage,up,72,demo target,,,,,,,,,,,,,
+kbr,Repeat Diner Rate,,%,percentage,up,38,demo target,,,,,,,,,,,,,
+risk,Daily Revenue,POS Terminal Latency,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Daily Revenue,Order Ticket Time,,,,,,,,,,,,,,,Analog,HVY,worst,
+risk,Daily Revenue,Menu Item Availability,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Table Turnover,Table Reset Time,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Table Turnover,Waitlist Length,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Repeat Diner Rate,Loyalty Sign-up Rate,,,,,,,,,,,,,,,Digital,MED,mean,
+condition,Daily Revenue,Revenue below the nightly floor,,,,,,,,,,,lt,15000,alarm,Floor Manager;#service-floor,,,,300
+condition,Daily Revenue,Ticket time over eighteen minutes,,,,,,,,,,,gt,18,alert,Kitchen Lead,,,,180
+condition,Daily Revenue,Terminal round-trip over two seconds,,,,,,,,,,,gt,2000,action,POS Webhook,,,,60
+condition,Table Turnover,Turnover below target,,,,,,,,,,,lt,65,alarm,Floor Manager,,,,300
+condition,Table Turnover,Waitlist over twelve parties,,,,,,,,,,,gt,12,alert,#service-floor,,,,120
+condition,Repeat Diner Rate,Repeat diners slipping,,,,,,,,,,,lt,32,alarm,Floor Manager,,,,600
+condition,Repeat Diner Rate,Loyalty sign-ups stalling,,,,,,,,,,,lt,15,alert,#service-floor,,,,300
+anomrule,Daily Revenue,Terminal declining repeatedly,,,,,,POS Terminal Latency,"declined, timeout, retry",,frequency,,,4,alert,#service-floor,,,,
+anomrule,Daily Revenue,Items called off the menu,,,,,,Menu Item Availability,"86, out, unavailable",,contains,,,,alarm,Kitchen Lead,,,,
+anomrule,Table Turnover,Walkouts after a long wait,,,,,,Waitlist Length,three walkouts inside thirty minutes,,pattern,,,,alert,Floor Manager,,,,
+anomrule,Repeat Diner Rate,Sign-up abandoned at consent,,,,,,Loyalty Sign-up Rate,"consent, declined, abandoned",,contains,,,,alert,Floor Manager,,,,

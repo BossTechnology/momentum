@@ -101,22 +101,26 @@ async function board(page, industry, bindProfile) {
   ok('the results are healthcare results',
      b.kbrs.every(k => !MINING.some(re => re.test(k.name))), JSON.stringify(b.kbrs.map(k => k.name)));
 
-  /* Was ecommerce; ecommerce now bundles a document of its own. `tech` is the
-     control: an industry with nothing bundled must stay empty, and must not
-     inherit from whichever industry was applied before it. */
-  console.log('\n4 · tech — an industry with NO bundled document, profile bound');
+  /* This check used an industry that bundled nothing as its control: reach it
+     by switching and any touchpoint on the board had to have leaked from the
+     previous one. The control moved from ecommerce to tech as each got
+     populated, and now every industry bundles a document, so there is no empty
+     one left to borrow.
+
+     The invariant never depended on the control being empty. What it forbids is
+     one industry's touchpoints surviving onto the next board — retail's tills
+     on an ecommerce board — because applyConfig() adds without clearing.
+     Comparing the two sets says exactly that, and says it for any pair rather
+     than only when one side happens to be blank. */
+  const previas = b.risk.slice();          // healthcare's, from section 3
+  console.log('\n4 \u00b7 tech \u2014 switching industry must not carry the previous board');
   b = await board(page, 'tech', true);
   ok('no mining vocabulary on the board', hits(b.surface).length === 0, hits(b.surface).join(', '));
 
-  /* Ecommerce bundles no document, so on a fresh page it correctly gets none.
-     Reached by SWITCHING industry it inherits whatever the previous industry
-     declared, because applyConfig() adds without clearing. That is the demo
-     failure this section exists to catch: retail's tills on an ecommerce
-     board. It is not mining-specific — it is every industry leaking into the
-     next one within a single session. */
+  const heredadas = b.risk.filter(n => previas.includes(n));
   ok('switching industry does not carry the previous one\u2019s touchpoints',
-     b.risk.length === 0,
-     b.risk.length + ' inherited: ' + JSON.stringify(b.risk).slice(0, 110));
+     heredadas.length === 0,
+     heredadas.length + ' inherited from healthcare: ' + JSON.stringify(heredadas).slice(0, 110));
 
   /* Seven industries now bundle a document. Seven is seven more chances for one
      industry's content to appear on another's board, so every one is checked

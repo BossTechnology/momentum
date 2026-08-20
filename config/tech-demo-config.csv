@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Revenue Ops,,,,,demo distribution list — replace before a client sees it,,,,,,,,,revops@example.com,email,,,
+channel,,On-Call Engineer,,,,,demo number,,,,,,,,,+1-555-0133,sms,,,
+channel,,#growth,,,,,demo Slack channel,,,,,,,,,#growth,slack,,,
+channel,,Billing Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/billing,webhook,,,
+kbr,Monthly Recurring Revenue,,USD,currency,up,280000,demo target,,,,,,,,,,,,,
+kbr,Trial Conversion,,%,percentage,up,24,demo target,,,,,,,,,,,,,
+kbr,Net Revenue Retention,,%,percentage,up,112,demo target,,,,,,,,,,,,,
+risk,Monthly Recurring Revenue,Checkout Failure Rate,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Monthly Recurring Revenue,Onboarding Completion,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Monthly Recurring Revenue,Support First Response,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Trial Conversion,Activation Milestone Rate,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Trial Conversion,Demo Request Latency,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Net Revenue Retention,Seat Expansion Rate,,,,,,,,,,,,,,,Digital,MED,mean,
+condition,Monthly Recurring Revenue,Recurring revenue below the floor,,,,,,,,,,,lt,250000,alarm,Revenue Ops;#growth,,,,600
+condition,Monthly Recurring Revenue,Checkout failures over three percent,,,,,,,,,,,gt,3,alert,#growth,,,,180
+condition,Monthly Recurring Revenue,Support first response over four hours,,,,,,,,,,,gt,240,action,Billing Webhook,,,,300
+condition,Trial Conversion,Trial conversion below target,,,,,,,,,,,lt,20,alarm,Revenue Ops;On-Call Engineer,,,,600
+condition,Trial Conversion,Demo requests waiting over a day,,,,,,,,,,,gt,1440,alert,#growth,,,,300
+condition,Net Revenue Retention,Net retention under one hundred,,,,,,,,,,,lt,100,alarm,Revenue Ops,,,,600
+condition,Net Revenue Retention,Seat expansion stalling,,,,,,,,,,,lt,5,alert,#growth,,,,600
+anomrule,Monthly Recurring Revenue,Card failures clustering,,,,,,Checkout Failure Rate,"declined, expired, insufficient",,frequency,,,4,alert,#growth,,,,
+anomrule,Monthly Recurring Revenue,Onboarding abandoned midway,,,,,,Onboarding Completion,"skipped, abandoned, incomplete",,contains,,,,alarm,Revenue Ops,,,,
+anomrule,Trial Conversion,Same account stalling at activation,,,,,,Activation Milestone Rate,three stalls on one account inside a trial,,pattern,,,,alert,On-Call Engineer,,,,
+anomrule,Net Revenue Retention,Downgrades mentioned at renewal,,,,,,Seat Expansion Rate,"downgrade, reduce, fewer seats",,contains,,,,alert,Revenue Ops,,,,

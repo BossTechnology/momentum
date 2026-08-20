@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Admissions Office,,,,,demo distribution list — replace before a client sees it,,,,,,,,,admissions@example.com,email,,,
+channel,,Duty Registrar,,,,,demo number,,,,,,,,,+1-555-0118,sms,,,
+channel,,#admissions,,,,,demo Slack channel,,,,,,,,,#admissions,slack,,,
+channel,,SIS Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/sis,webhook,,,
+kbr,Enrollment Volume,,count,count,up,1800,demo target,,,,,,,,,,,,,
+kbr,Acceptance Rate,,%,percentage,up,55,demo target,,,,,,,,,,,,,
+kbr,Student Retention,,%,percentage,up,82,demo target,,,,,,,,,,,,,
+risk,Enrollment Volume,Application Portal Latency,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Enrollment Volume,Document Verification Backlog,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Enrollment Volume,Campus Tour Attendance,,,,,,,,,,,,,,,Analog,MED,worst,
+risk,Acceptance Rate,Application Review Time,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Acceptance Rate,Interview Scheduling Gap,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Student Retention,Advising Contact Rate,,,,,,,,,,,,,,,Analog,MED,mean,
+condition,Enrollment Volume,Enrolment below the intake floor,,,,,,,,,,,lt,1600,alarm,Admissions Office;#admissions,,,,300
+condition,Enrollment Volume,Portal response over three seconds,,,,,,,,,,,gt,3000,alert,#admissions,,,,180
+condition,Enrollment Volume,Verification backlog over fifty files,,,,,,,,,,,gt,50,action,SIS Webhook,,,,600
+condition,Acceptance Rate,Acceptance rate below target,,,,,,,,,,,lt,50,alarm,Admissions Office;Duty Registrar,,,,300
+condition,Acceptance Rate,Review taking over ten days,,,,,,,,,,,gt,10,alert,#admissions,,,,240
+condition,Student Retention,Retention slipping below floor,,,,,,,,,,,lt,78,alarm,Admissions Office,,,,600
+condition,Student Retention,Advising contact under target,,,,,,,,,,,lt,60,alert,#admissions,,,,300
+anomrule,Enrollment Volume,Portal errors clustering,,,,,,Application Portal Latency,"timeout, error, retry",,frequency,,,4,alert,#admissions,,,,
+anomrule,Enrollment Volume,Documents rejected repeatedly,,,,,,Document Verification Backlog,"missing, illegible, rejected",,contains,,,,alarm,Admissions Office,,,,
+anomrule,Acceptance Rate,Interviews rescheduled repeatedly,,,,,,Interview Scheduling Gap,three reschedules on one applicant in a week,,pattern,,,,alert,Duty Registrar,,,,
+anomrule,Student Retention,Advising sessions missed,,,,,,Advising Contact Rate,"no-show, missed, cancelled",,contains,,,,alert,Admissions Office,,,,

@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Control Room,,,,,demo distribution list — replace before a client sees it,,,,,,,,,control@example.com,email,,,
+channel,,Field Crew,,,,,demo number,,,,,,,,,+1-555-0183,sms,,,
+channel,,#grid-ops,,,,,demo Slack channel,,,,,,,,,#grid-ops,slack,,,
+channel,,SCADA Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/scada,webhook,,,
+kbr,Energy Delivered,,count,count,up,48000,demo target,,,,,,,,,,,,,
+kbr,Grid Reliability,,%,percentage,up,99.2,demo target,,,,,,,,,,,,,
+kbr,Outage Frequency,,%,percentage,down,1.2,demo target,,,,,,,,,,,,,
+risk,Energy Delivered,Feeder Load Balance,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Energy Delivered,Substation Temperature,,,,,,,,,,,,,,,Analog,HVY,worst,
+risk,Energy Delivered,Generation Dispatch Lag,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Grid Reliability,Voltage Deviation,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Grid Reliability,Protection Relay Trips,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Outage Frequency,Restoration Crew Response,,,,,,,,,,,,,,,Analog,MED,mean,
+condition,Energy Delivered,Delivery below the daily floor,,,,,,,,,,,lt,44000,alarm,Control Room;#grid-ops,,,,300
+condition,Energy Delivered,Feeder imbalance over ten percent,,,,,,,,,,,gt,10,alert,#grid-ops,,,,180
+condition,Energy Delivered,Substation over temperature,,,,,,,,,,,gt,85,action,SCADA Webhook,,,,60
+condition,Grid Reliability,Reliability below the service floor,,,,,,,,,,,lt,98.5,alarm,Control Room;Field Crew,,,,120
+condition,Grid Reliability,Voltage outside tolerance,,,,,,,,,,,gt,6,alert,#grid-ops,,,,180
+condition,Outage Frequency,Outages above the ceiling,,,,,,,,,,,gt,2,alarm,Control Room,,,,600
+condition,Outage Frequency,Restoration over ninety minutes,,,,,,,,,,,gt,90,alert,#grid-ops,,,,300
+anomrule,Energy Delivered,Dispatch lag repeating on a feeder,,,,,,Generation Dispatch Lag,"lag, delayed, no response",,frequency,,,4,alert,#grid-ops,,,,
+anomrule,Energy Delivered,Thermal alarms on a substation,,,,,,Substation Temperature,"over temperature, thermal, overheating",,contains,,,,alarm,Control Room,,,,
+anomrule,Grid Reliability,Same relay tripping repeatedly,,,,,,Protection Relay Trips,three trips on one relay in a shift,,pattern,,,,alert,Field Crew,,,,
+anomrule,Outage Frequency,Crews reporting access problems,,,,,,Restoration Crew Response,"no access, blocked, permit",,contains,,,,alert,Control Room,,,,

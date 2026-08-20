@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Plant Operations,,,,,demo distribution list — replace before a client sees it,,,,,,,,,plant@example.com,email,,,
+channel,,Shift Supervisor,,,,,demo number,,,,,,,,,+1-555-0194,sms,,,
+channel,,#plant-floor,,,,,demo Slack channel,,,,,,,,,#plant-floor,slack,,,
+channel,,MES Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/mes,webhook,,,
+kbr,Units Produced,,count,count,up,12500,demo target,,,,,,,,,,,,,
+kbr,First-Pass Yield,,%,percentage,up,96,demo target,,,,,,,,,,,,,
+kbr,Defect Rate,,%,percentage,down,1.5,demo target,,,,,,,,,,,,,
+risk,Units Produced,Line Changeover Time,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature,
+risk,Units Produced,Machine Downtime,,,,,,,,,,,,,,,Digital,HVY,worst,
+risk,Units Produced,Material Feed Rate,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,First-Pass Yield,Inspection Reject Rate,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,First-Pass Yield,Torque Calibration Drift,,,,,,,,,,,,,,,Digital,MED,mean,
+risk,Defect Rate,Rework Queue,,,,,,,,,,,,,,,Analog,MED,mean,
+condition,Units Produced,Output below the shift floor,,,,,,,,,,,lt,11000,alarm,Plant Operations;#plant-floor,,,,300
+condition,Units Produced,Changeover over forty minutes,,,,,,,,,,,gt,40,alert,#plant-floor,,,,180
+condition,Units Produced,Downtime over thirty minutes,,,,,,,,,,,gt,30,action,MES Webhook,,,,120
+condition,First-Pass Yield,Yield below target,,,,,,,,,,,lt,93,alarm,Plant Operations;Shift Supervisor,,,,300
+condition,First-Pass Yield,Rejects climbing at inspection,,,,,,,,,,,gt,5,alert,#plant-floor,,,,240
+condition,Defect Rate,Defects above the ceiling,,,,,,,,,,,gt,2.5,alarm,Plant Operations,,,,600
+condition,Defect Rate,Rework queue over fifty units,,,,,,,,,,,gt,50,alert,#plant-floor,,,,300
+anomrule,Units Produced,Stoppages clustering on a line,,,,,,Machine Downtime,"stop, fault, jam",,frequency,,,4,alert,#plant-floor,,,,
+anomrule,Units Produced,Feed starvation reported,,,,,,Material Feed Rate,"starved, empty, no feed",,contains,,,,alarm,Plant Operations,,,,
+anomrule,First-Pass Yield,Same station rejecting repeatedly,,,,,,Inspection Reject Rate,three rejects from one station in an hour,,pattern,,,,alert,Shift Supervisor,,,,
+anomrule,Defect Rate,Rework piling up on one station,,,,,,Rework Queue,"rework, scrap, repair",,contains,,,,alert,Shift Supervisor,,,,

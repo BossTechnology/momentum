@@ -1,0 +1,25 @@
+kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec
+channel,,Underwriting Desk,,,,,demo distribution list — replace before a client sees it,,,,,,,,,underwriting@example.com,email,,,
+channel,,Duty Underwriter,,,,,demo number,,,,,,,,,+1-555-0147,sms,,,
+channel,,#policy-ops,,,,,demo Slack channel,,,,,,,,,#policy-ops,slack,,,
+channel,,Policy Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/policy,webhook,,,
+kbr,Premium Written,,USD,currency,up,640000,demo target,,,,,,,,,,,,,
+kbr,Quote-to-Bind Rate,,%,percentage,up,34,demo target,,,,,,,,,,,,,
+kbr,Policy Renewal Rate,,%,percentage,up,88,demo target,,,,,,,,,,,,,
+risk,Premium Written,Quote Engine Latency,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
+risk,Premium Written,Underwriting Queue,,,,,,,,,,,,,,,Analog,HVY,worst,
+risk,Premium Written,Document Completeness,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Quote-to-Bind Rate,Bind Step Abandonment,,,,,,,,,,,,,,,Digital,MED,worst,
+risk,Quote-to-Bind Rate,Agent Response Time,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Policy Renewal Rate,Renewal Notice Delivery,,,,,,,,,,,,,,,Digital,MED,mean,
+condition,Premium Written,Premium below the monthly floor,,,,,,,,,,,lt,580000,alarm,Underwriting Desk;#policy-ops,,,,600
+condition,Premium Written,Quote engine over five seconds,,,,,,,,,,,gt,5000,alert,#policy-ops,,,,180
+condition,Premium Written,Underwriting queue over forty files,,,,,,,,,,,gt,40,action,Policy Webhook,,,,300
+condition,Quote-to-Bind Rate,Bind rate below target,,,,,,,,,,,lt,30,alarm,Underwriting Desk;Duty Underwriter,,,,300
+condition,Quote-to-Bind Rate,Agent response over two hours,,,,,,,,,,,gt,120,alert,#policy-ops,,,,240
+condition,Policy Renewal Rate,Renewals below the floor,,,,,,,,,,,lt,84,alarm,Underwriting Desk,,,,600
+condition,Policy Renewal Rate,Renewal notices undelivered,,,,,,,,,,,gt,5,alert,#policy-ops,,,,300
+anomrule,Premium Written,Quote timeouts clustering,,,,,,Quote Engine Latency,"timeout, unavailable, retry",,frequency,,,4,alert,#policy-ops,,,,
+anomrule,Premium Written,Documents returned incomplete,,,,,,Document Completeness,"missing, unsigned, illegible",,contains,,,,alarm,Underwriting Desk,,,,
+anomrule,Quote-to-Bind Rate,Same quote abandoned repeatedly,,,,,,Bind Step Abandonment,three abandonments on one quote in a day,,pattern,,,,alert,Duty Underwriter,,,,
+anomrule,Policy Renewal Rate,Cancellation intent in renewal replies,,,,,,Renewal Notice Delivery,"cancel, shop around, switch",,contains,,,,alert,Underwriting Desk,,,,
