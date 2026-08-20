@@ -8625,7 +8625,14 @@ function computeKbrValue(kbr){
   }
   const h = kbr.rollupHealth;            // 0..100
   if(kbr.type === 'percentage'){
-    const v = 8 + (h/100) * 84;          // 8%..92%
+    /* rollupHealth is direction-agnostic: 100 means healthy whichever way the
+       result is supposed to move. Mapping it straight onto the percentage only
+       suits a KBR that should RISE. For one that should fall — churn, defects,
+       readmissions, outages, stockouts, dwell — it inverted the reading, so a
+       board in good shape displayed its worst possible number: healthcare
+       showed a Readmission Rate of 88%, where the real figure is nearer 15. */
+    const good = (kbr.direction === 'down') ? (100 - h) : h;
+    const v = 8 + (good/100) * 84;       // 8%..92%, healthy end first
     return Math.round(v*10)/10;
   }
   // value type — pick a sensible MAGNITUDE from the KBR's meaning so a "days to
