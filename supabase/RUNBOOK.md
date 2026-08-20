@@ -24,21 +24,22 @@ until Step 5, which is the one that changes behaviour.
 - [ ] Supabase account with a **Pro** plan (Free cannot raise the file size limit past 50 MB)
 - [ ] Access to the Vercel project `bosstechnology/momentum-demo`
 - [ ] A decision on Step 0 (below)
-- [ ] **BLOCKED — the 84 MB mining workbook.** Not in the repo and not on this
-      machine. `config/mining-config.xlsx` is the *Config Doc* (7 KB), a
-      different artifact. Without the workbook, checklist rows 11–14 cannot run.
-      Ask Federico for it alongside `momentum-Simulation_19.html`.
+- [x] The 84 MB mining workbook, `Simulacion_flota_10_camiones_24h_por_segundo.xlsx`.
+      Supplied 2026-08-19 and used for rows 11–14. It is **not** in the repo —
+      `config/mining-config.xlsx` is the Config Doc (7 KB), a different artifact.
+      Without it, rows 11–14 cannot be verified against the real figures, though
+      `harness/gen-synthetic-workbook.js` exercises every mechanic except those.
 
-### What can be done without the workbook
+### Status of the seven Part B rows
 
-| Row | Test | Runnable now |
+| Row | Test | State |
 |---|---|---|
 | 10 | SQL runs clean | ✅ |
-| 11 | Bucket accepts 84 MB | ✅ verified with a synthetic 84.4 MB file |
-| 12 | Signed upload | ✅ the handshake runs with any file; only the 84 MB case needs the workbook |
-| 13 | Server profiling | ✅ mechanics verified; exact row count needs the real file |
-| 14 | Heavy equals light | ✅ verified against the real workbook |
-| 15 | Persistence (store / load) | ✅ using `config/data-profile-mineria-schema3.json` |
+| 11 | Bucket accepts 84 MB | ✅ |
+| 12 | Signed upload | ✅ single PUT, 7.4 s |
+| 13 | Server profiling | ✅ 251.9 s — see the ceiling note |
+| 14 | Heavy equals light | ✅ exact |
+| 15 | Persistence (store / load) | ✅ |
 | 16 | Service key stays server-side | ✅ |
 
 ---
