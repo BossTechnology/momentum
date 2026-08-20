@@ -2,7 +2,7 @@
 
 **Owner:** Henry Garzón · **Frequency:** Once per environment (Preview, then Production)
 **Applies to:** `bosstechnology/momentum-demo` · **Supabase project:** `brbgixwewstgsljkycsl`
-**Status:** Preview fully exercised · rows 10, 11, 12, 13, 15, 16 green · row 14 needs the real workbook · Production deliberately unconfigured
+**Status:** All seven Part B rows green on Preview · Production deliberately unconfigured
 
 ---
 
@@ -37,7 +37,7 @@ until Step 5, which is the one that changes behaviour.
 | 11 | Bucket accepts 84 MB | ✅ verified with a synthetic 84.4 MB file |
 | 12 | Signed upload | ✅ the handshake runs with any file; only the 84 MB case needs the workbook |
 | 13 | Server profiling | ✅ mechanics verified; exact row count needs the real file |
-| 14 | Heavy equals light | ❌ needs the workbook |
+| 14 | Heavy equals light | ✅ verified against the real workbook |
 | 15 | Persistence (store / load) | ✅ using `config/data-profile-mineria-schema3.json` |
 | 16 | Service key stays server-side | ✅ |
 
@@ -304,20 +304,42 @@ timing — but not the mining figures, so row 14 still needs the real file.
 | Response body | 122 KB, far inside Vercel's 4.5 MB cap |
 | Memory | no OOM on 498 MB of XML — the constant-memory claim holds in practice |
 
-**Watch the 110 s.** The spec quotes 34–49 s for the real workbook's 864,180
-rows. This file carries 1.46× the rows and took roughly 2.5× as long, leaving
-2.7× of headroom under the 300 s ceiling rather than the comfortable margin the
-spec implies. A larger workbook, or a slower cold start, narrows that.
+**The real workbook took 251.9 s.** Measured 2026-08-19 through the deployed
+function, against a `maxDuration` of 300 s — **48 seconds of headroom, 1.19×**.
+
+The spec quotes 34–49 s for this same file. That figure does not describe the
+deployed path: profiling it locally with `harness/profile-local.js`, which runs
+the same cores over `fs` instead of HTTP ranges, takes **21.4 s**. The deployed
+function is roughly twelve times slower, and the difference is the range reads,
+not the parsing. Both ends already sit in `us-east-1`, so there is no region
+mismatch to fix — moving 84 MB over HTTP inside a serverless function simply
+costs that.
+
+Treat 300 s as nearly exhausted. A slightly larger workbook, a cold start, or a
+slow day at Supabase pushes an ingest over the limit, and the failure will look
+like a hung upload rather than a timeout. Raising `maxDuration` past 300 s, or
+reading larger ranges per request, are the levers.
 
 Also note the synthetic profile came back at 122 KB against the real one's
 956 KB — this data has 8 measures and 1 entity where the mining workbook has
 far more. The profile-size dimension is therefore under-tested here.
 
-When the real workbook arrives:
+**Run against the real workbook, 2026-08-19.** `Simulacion_flota_10_camiones_24h_por_segundo.xlsx`,
+84,451,951 bytes, 846,906,763 bytes of XML, 16 sheets.
 
-1. Attach it in the browser on the preview URL → `sign` returns a URL, the PUT succeeds (rows 11, 12)
-2. `action: profile` → 864,180 rows, schema 3, well under 300 s (row 13)
-3. Compare against the in-page profile → 299 cycles, 123,867.3 t (row 14)
+| | Reference profile | Server produced |
+|---|---|---|
+| cycles | 299 | 299 |
+| tons | 123,869 | 123,869 |
+| gallons | 19,644.6 | 19,644.6 |
+| **gal/ton** | **0.1586** | **0.1586** |
+| rows | 864,122 | 864,122 |
+| sheets | 16 | 16 |
+
+The per-sheet fingerprint matches exactly as well — all sixteen names, row counts
+and column counts, including the ten 86,400-row telemetry sheets. The server
+computed the ratio from the raw xlsx on its own; the denominator law holds on the
+heavy path.
 
 Note that `action: profile` **also stores** — `profileObject()` ends by calling
 `storeProfile()` — so row 13 does part of row 15's work.
@@ -329,8 +351,8 @@ Note that `action: profile` **also stores** — `profileObject()` ends by callin
 - [x] Row 10 — both SQL files ran with no error on the final `ALTER` *(2026-08-19)*
 - [x] Row 11 — bucket accepts 84 MB, no 413 *(2026-08-19, 84.4 MB synthetic workbook)*
 - [x] Row 12 — signed upload: `sign` returns a URL, the PUT succeeds *(2026-08-19, 64 KB test file; the 84 MB case still needs the workbook)*
-- [x] Row 13 — server profiling completes under 300 s *(2026-08-19, 110 s for 1,264,000 rows; the exact figures still need the real workbook)*
-- [ ] Row 14 — server profile matches the in-page one *(blocked)*
+- [x] Row 13 — server profiling completes under 300 s *(2026-08-19, **251.9 s** on the real workbook — see the ceiling note)*
+- [x] Row 14 — server profile matches the in-page one *(2026-08-19, exactly)*
 - [x] Row 15 — store → reload → load returns the board without re-profiling *(2026-08-19)*
 - [x] Row 16 — the service role key appears nowhere in the browser *(2026-08-19)*
 
