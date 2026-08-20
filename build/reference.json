@@ -1,7 +1,7 @@
 {
   "_comment": "Expected output of build/build.js. check.js compares against this when no reference path is given. Update it in the same commit as any intentional change to src/shell.html or a module in api/ — the new values are printed by `node build/check.js` when it fails.",
-  "sha1": "1d9325ee0ac5bb7770bb8cebc365695e62ed969e",
-  "bytes": 1275766,
-  "builtFrom": "pending",
+  "sha1": "f243482d2e1b58818452cea0884e675eca1ef1dd",
+  "bytes": 1308582,
+  "builtFrom": "src/shell.html + api/_*.js — findings A, B2, C, D, F",
   "note": "Matches the build with the light-path fallback for heavy ingest."
 }

@@ -89,6 +89,24 @@ function apply(doc, kbrs, profile, opts){
     /* ── answers ─────────────────────────────────────────────────────────── */
     if(dk.answers && dk.answers.length){
       if(!Array.isArray(kbr.answers)) kbr.answers = [];
+
+      /* A DOCUMENT THAT DECLARES ANSWERS REPLACES THE SCAFFOLDING.
+
+         `seedKbrAnswers` fills every result with five generic answers so a
+         fresh board is never empty. This then pushed the declared ones in
+         alongside, matching only on name — and the names never matched,
+         because the seeds are English archetypes and the declarations are the
+         client's own vocabulary. Mining showed ten answers per result:
+         'Top Contributor', 'Headline Value' and 'Best Performer' sitting
+         ABOVE 'Mayor Desviación por Unidad', in a board that had a document
+         telling it exactly what to ask.
+
+         Applying is replacing, at every level — the same rule already applied
+         to riskTouchpoints and to declared riskConditions. Only `seeded`
+         scaffolding goes: an answer someone added by hand carries no flag and
+         is theirs to keep. */
+      kbr.answers = kbr.answers.filter(function(a){ return !a.seeded; });
+
       dk.answers.forEach(function(da){
         var q = buildQuery(da, profile, report);
         var existing = kbr.answers.filter(function(a){ return a.name === da.name; })[0];

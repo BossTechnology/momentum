@@ -3,23 +3,23 @@ channel,,Dispatch Desk,,,,,demo distribution list — replace before a client se
 channel,,Night Controller,,,,,demo number,,,,,,,,,+1-555-0177,sms,,,
 channel,,#fleet-ops,,,,,demo Slack channel,,,,,,,,,#fleet-ops,slack,,,
 channel,,Telematics Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/telematics,webhook,,,
-kbr,Shipment Volume,,%,percentage,up,94,demo target,,,,,,,,,,,,,
-kbr,On-Time Delivery,,USD,currency,down,7.4,demo target,,,,,,,,,,,,,
-kbr,Damage Rate,,%,percentage,up,78,demo target,,,,,,,,,,,,,
+kbr,Shipment Volume,,shipments,count,up,4800,demo target,,,,,,,,,,,,,
+kbr,On-Time Delivery,,%,percentage,up,94,demo target,,,,,,,,,,,,,
+kbr,Damage Rate,,%,percentage,down,1.2,demo target,,,,,,,,,,,,,
 risk,Shipment Volume,Depot Dispatch Delay,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature,
 risk,Shipment Volume,Route Deviation,,,,,,,,,,,,,,,Digital,HVY,worst,
-risk,On-Time Delivery,Fuel Draw,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,On-Time Delivery,Traffic Delay Exposure,,,,,,,,,,,,,,,Analog,MED,mean,
 risk,On-Time Delivery,Failed Delivery Rate,,,,,,,,,,,,,,,Digital,MED,mean,
-risk,Damage Rate,Idle Time,,,,,,,,,,,,,,,Analog,MED,mean,
+risk,Damage Rate,Load Securing Compliance,,,,,,,,,,,,,,,Analog,MED,mean,
 risk,Damage Rate,Maintenance Backlog,,,,,,,,,,,,,,,Analog,MED,worst,
-condition,Shipment Volume,On-time rate below the daily floor,,,,,,,,,,,lt,90,alarm,Dispatch Desk;#fleet-ops,,,,300
+condition,Shipment Volume,Shipments below the daily floor,,,,,,,,,,,lt,4200,alarm,Dispatch Desk;#fleet-ops,,,,300
 condition,Shipment Volume,Dispatch held over twenty minutes,,,,,,,,,,,gt,1200,alert,#fleet-ops,,,,120
 condition,Shipment Volume,Route deviation sustained,,,,,,,,,,,gt,5,action,Telematics Webhook,,,,180
-condition,On-Time Delivery,Cost per drop over tolerance,,,,,,,,,,,gt,8.5,alarm,Dispatch Desk,,,,300
+condition,On-Time Delivery,On-time rate below the daily floor,,,,,,,,,,,lt,90,alarm,Dispatch Desk,,,,300
 condition,On-Time Delivery,Failed deliveries climbing,,,,,,,,,,,gt,4,alert,#fleet-ops,,,,180
-condition,Damage Rate,Utilisation below floor,,,,,,,,,,,lt,70,alarm,Dispatch Desk;Night Controller,,,,300
-condition,Damage Rate,Idle time over threshold,,,,,,,,,,,gt,90,alert,#fleet-ops,,,,120
+condition,Damage Rate,Damage rate above the ceiling,,,,,,,,,,,gt,2,alarm,Dispatch Desk;Night Controller,,,,300
+condition,Damage Rate,Maintenance backlog over twenty units,,,,,,,,,,,gt,20,alert,#fleet-ops,,,,120
 anomrule,Shipment Volume,Depot delays repeating,,,,,,Depot Dispatch Delay,"delay, held, waiting",,frequency,,,3,alert,#fleet-ops,,,,
 anomrule,Shipment Volume,Route problem reported,,,,,,Route Deviation,"detour, closure, roadworks",,contains,,,,alarm,Dispatch Desk,,,,
-anomrule,On-Time Delivery,Fuel draw abnormal,,,,,,Fuel Draw,"spike, drain, leak",,contains,,,,alarm,Dispatch Desk,,,,
-anomrule,Damage Rate,Same vehicle idling repeatedly,,,,,,Idle Time,three long idles on one vehicle in a shift,,pattern,,,,alert,Night Controller,,,,
+anomrule,On-Time Delivery,Delivery attempts failing repeatedly,,,,,,Failed Delivery Rate,"no access, refused, missed",,contains,,,,alarm,Dispatch Desk,,,,
+anomrule,Damage Rate,Same vehicle damaging load,,,,,,Load Securing Compliance,three damage reports on one vehicle in a week,,pattern,,,,alert,Night Controller,,,,

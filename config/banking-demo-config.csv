@@ -4,7 +4,7 @@ channel,,Duty Risk Officer,,,,,demo number,,,,,,,,,+1-555-0188,sms,,,
 channel,,#banking-ops,,,,,demo Slack channel,,,,,,,,,#banking-ops,slack,,,
 channel,,Core Banking Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/core,webhook,,,
 kbr,Loan Portfolio Growth,,count,count,up,1200,demo target,,,,,,,,,,,,,
-kbr,Application Approval Rate,,h,count,down,18,demo target,,,,,,,,,,,,,
+kbr,Application Approval Rate,,%,percentage,up,64,demo target,,,,,,,,,,,,,
 kbr,Customer Retention,,%,percentage,up,64,demo target,,,,,,,,,,,,,
 risk,Loan Portfolio Growth,Identity Verification,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,
 risk,Loan Portfolio Growth,Credit Bureau Response,,,,,,,,,,,,,,,Digital,HVY,worst,
@@ -12,12 +12,12 @@ risk,Application Approval Rate,Underwriting Queue,,,,,,,,,,,,,,,Analog,MED,mean,
 risk,Application Approval Rate,Document Collection,,,,,,,,,,,,,,,Analog,MED,mean,
 risk,Customer Retention,Mobile Login Success,,,,,,,,,,,,,,,Digital,MED,mean,
 risk,Customer Retention,Branch Handoff Rate,,,,,,,,,,,,,,,Analog,MED,worst,
-condition,Loan Portfolio Growth,Approvals below the daily floor,,,,,,,,,,,lt,1000,alarm,Branch Operations;#banking-ops,,,,300
+condition,Loan Portfolio Growth,Originations below the daily floor,,,,,,,,,,,lt,1000,alarm,Branch Operations;#banking-ops,,,,300
 condition,Loan Portfolio Growth,Identity checks failing,,,,,,,,,,,gt,6,alert,#banking-ops,,,,120
 condition,Loan Portfolio Growth,Credit bureau unreachable,,,,,,,,,,,gt,2,action,Core Banking Webhook,,,,60
-condition,Application Approval Rate,Decision time over tolerance,,,,,,,,,,,gt,24,alarm,Branch Operations;Duty Risk Officer,,,,300
+condition,Application Approval Rate,Approval rate below target,,,,,,,,,,,lt,58,alarm,Branch Operations;Duty Risk Officer,,,,300
 condition,Application Approval Rate,Underwriting queue backing up,,,,,,,,,,,gt,40,alert,#banking-ops,,,,180
-condition,Customer Retention,Digital adoption below floor,,,,,,,,,,,lt,58,alarm,Branch Operations,,,,300
+condition,Customer Retention,Retention below the monthly floor,,,,,,,,,,,lt,60,alarm,Branch Operations,,,,300
 condition,Customer Retention,Mobile logins failing,,,,,,,,,,,gt,5,alert,#banking-ops,,,,120
 anomrule,Loan Portfolio Growth,Verification failures clustering,,,,,,Identity Verification,"mismatch, expired, rejected",,frequency,,,4,alert,#banking-ops,,,,
 anomrule,Loan Portfolio Growth,Bureau timeouts reported,,,,,,Credit Bureau Response,"timeout, unavailable, retry",,contains,,,,alarm,Branch Operations,,,,

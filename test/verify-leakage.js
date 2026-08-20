@@ -126,7 +126,9 @@ async function board(page, industry, bindProfile) {
      industry's content to appear on another's board, so every one is checked
      against the mining vocabulary AND asserted to bring its own routing. */
   console.log('\n4b · every bundled industry arrives populated and routed, and none of it is mining');
-  for(const ind of ['retail', 'healthcare', 'ecommerce', 'logistics', 'banking', 'hospitality']){
+  for(const ind of ['education', 'retail', 'banking', 'healthcare', 'hospitality', 'telecom',
+                    'fnb', 'ecommerce', 'tech', 'insurance', 'gaming', 'vending',
+                    'ports', 'logistics', 'energy', 'manufacturing']){
     const x = await board(page, ind, true);
     const counts = await page.evaluate(() => {
       const tps = KBRS.reduce((a, k) => a.concat(k.riskTouchpoints || []), []);
@@ -144,6 +146,74 @@ async function board(page, industry, bindProfile) {
     ok(ind + ' carries no mining vocabulary', hits(x.surface).length === 0,
        hits(x.surface).join(', '));
   }
+
+  /* WHAT 449 ASSERTIONS DID NOT SAY.
+
+     Section 4b above counted. It asserted that an industry brings touchpoints,
+     channels, routed conditions and rules — and every count was healthy while
+     all fifty-one results on the seventeen boards were measured by the same
+     two pairs, 'Revenue Stream / Order Volume' and 'Funnel Conversion /
+     Repeat Behaviour'. A mining board measured fuel with a Stripe settlement
+     feed and the suite called it populated.
+
+     Counting cannot see sameness. These three sections assert identity: that
+     the measurement layer differs BETWEEN industries, that it is reachable for
+     EVERY industry on the dropdown rather than the subset that had documents,
+     and that a declared result and the document beneath it agree about what
+     kind of number it is. Each corresponds to a defect that shipped. */
+  console.log('\n4c \u00b7 the measurement layer is industry-specific, not one pair repeated');
+  const seen = {};
+  let generic = 0;
+  const inds = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('#industrySelect option')).map(o => o.value).filter(Boolean));
+  ok('every industry on the dropdown is testable', inds.length >= 17, inds.length + ' industries');
+
+  for(const ind of inds){
+    await board(page, ind, true);
+    const tps = await page.evaluate(() =>
+      KBRS.map(k => (k.touchpoints || []).map(t => t.name).join(' / ')));
+    tps.forEach(sig => {
+      if(/Revenue Stream|Order Volume|Funnel Conversion|Repeat Behaviour/.test(sig)) generic++;
+      seen[sig] = (seen[sig] || 0) + 1;
+    });
+  }
+  const repeated = Object.entries(seen).filter(([, n]) => n > 1);
+  ok('no result falls back to the generic archetype pair', generic === 0,
+     generic + ' of ' + Object.values(seen).reduce((a, b) => a + b, 0) + ' results generic');
+  ok('no measurement signature is shared by two results', repeated.length === 0,
+     repeated.slice(0, 2).map(([s, n]) => s + ' \u00d7' + n).join(' | '));
+
+  console.log('\n4d \u00b7 the Risk Meter never shows a figure it cannot attribute');
+  for(const ind of ['mining', 'retail', 'manufacturing']){
+    await board(page, ind, true);
+    const attr = await page.evaluate(() => KBRS.map(k => {
+      const c = kbrCompositeRisk(k);
+      return { n:k.name, pct:c && c.pct, comps:c ? c.components.length : 0,
+               rtps:(k.riskTouchpoints || []).length };
+    }));
+    ok(ind + ' \u2014 every meter reading has at least one configured component',
+       attr.every(a => a.pct == null || a.comps > 0),
+       JSON.stringify(attr.map(a => a.n + ':' + a.pct + '/' + a.comps + 'c')).slice(0, 130));
+  }
+
+  console.log('\n4e \u00b7 a bundled document agrees with the result it declares');
+  const mismatched = await page.evaluate(() => {
+    const out = [];
+    Object.keys(DEMO_CONFIG).forEach(ind => {
+      const board = INDUSTRY_KBRS[ind]; if(!board) return;
+      const rows = DEMO_CONFIG[ind].trim().split('\n')
+        .filter(r => r.indexOf('kbr,') === 0).map(r => r.split(','));
+      board.forEach((k, i) => {
+        const d = rows[i]; if(!d) return;
+        if(d[5] !== k.direction) out.push(ind + '/' + k.name + ' direction ' + d[5] + ' vs ' + k.direction);
+        if((k.type === 'percentage') !== (d[4] === 'percentage'))
+          out.push(ind + '/' + k.name + ' format ' + d[4] + ' vs ' + k.type);
+      });
+    });
+    return out;
+  });
+  ok('no bundled document declares another metric\u2019s unit, format or direction',
+     mismatched.length === 0, mismatched.slice(0, 3).join(' | '));
 
   console.log('\n5 · mining — the same content IS present when mining is chosen');
   b = await board(page, 'mining', true);

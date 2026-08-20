@@ -59,9 +59,19 @@ function strip(o) {
      unbound CONFIGURATION is unchanged. A randomised rollup mode is seeded
      simulation state, in the same family as health, spark and value, all of
      which were already dropped for exactly this reason. */
+  /* `seeded` says HOW an answer was produced, not what anyone configured.
+     It marks the five generic answers `seedKbrAnswers` puts on a fresh result
+     so a Config Doc can replace its own scaffolding instead of stacking ten
+     answers on one KBR. Nothing user-facing reads it and no configuration
+     depends on it — it is provenance on generated content, the same family as
+     `rollup` above, which is likewise drawn at generation time.
+
+     Dropping it keeps this gate asserting what it is for: that the unbound
+     CONFIGURATION is unchanged. Dropped, the retail board is byte-identical
+     to the Simulation_19 baseline, which is the Optionality law holding. */
   const DROP = new Set(['health', 'status', 'state', 'score', '_pend', 'lastTest',
                         'spark', '_healthBase', '_scale', 'rollupHealth', 'value',
-                        'lastValue', '_aeSpin', 'connection', 'rollup']);
+                        'lastValue', '_aeSpin', 'connection', 'rollup', 'seeded']);
   const walk = v => {
     if (Array.isArray(v)) return v.map(walk);
     if (v && typeof v === 'object') {

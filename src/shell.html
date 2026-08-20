@@ -4018,9 +4018,9 @@ const DEMO_CONFIG = {
 "mining": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup\nchannel,,Operations Team,,,,,replace with the real distribution list,,,,,,,,,ops@example.com,email,,\nchannel,,On-Call Manager,,,,,replace with the real on-call number,,,,,,,,,+1-555-0199,sms,,\nkbr,Combustible por Tonelada,,gal/ton,count,down,0.478,provisional,,,,,,,,,,,,\nanswer,Combustible por Tonelada,Mayor Desviación por Unidad,gal/ton,count,,,target 0.478 provisional,unit,__gallons,__tons,ratio,max,,,,,,,\nanswer,Combustible por Tonelada,Turno con Mayor Consumo,gal/h,count,,,,Shift ID,Fuel Consumption Rate-Engine,,mean,max,,,,,,,\nanswer,Combustible por Tonelada,Operador con Mayor Variación,,percentage,,,,roster,__deviation,,mean,max,,,,,,,\nanswer,Combustible por Tonelada,Segmento de Mayor Consumo,gal/h,count,,,,Pit Position,Fuel Consumption Rate-Engine,,mean,max,,,,,,,\nanswer,Combustible por Tonelada,Causa Principal,,percentage,,,,incident,__excess,,mean,max,,,,,,,\nkbr,Toneladas Movidas,,ton,count,up,,,,,,,,,,,,,,\nanswer,Toneladas Movidas,Viajes Completados,,count,,,,unit,__cycles,,count,none,,,,,,,\nanswer,Toneladas Movidas,Unidad de Mayor Tonelaje,ton,count,,,,unit,__tons,,mean,max,,,,,,,\nanswer,Toneladas Movidas,Turno de Mayor Carga,ton,count,,,,Shift ID,Truck Payload-Communication Gateway #2,,mean,max,,,,,,,\nanswer,Toneladas Movidas,Segmento de Mayor Carga,ton,count,,,,Pit Position,Truck Payload-Communication Gateway #2,,mean,max,,,,,,,\nanswer,Toneladas Movidas,Operador de Mayor Rendimiento,gal,count,,,,roster,__value,,mean,min,,,,,,,\nkbr,Horas en Ralentí,,h,count,down,,,,,,,,,,,,,,\nanswer,Horas en Ralentí,Unidad con Mayor Ralentí,mph,count,,,,unit,Ground Speed-Trans Ctrl,,mean,min,,,,,,,\nanswer,Horas en Ralentí,Zona de Mayor Detención,gal/h,count,,,,Pit Position,Fuel Consumption Rate-Engine,,mean,min,,,,,,,\nanswer,Horas en Ralentí,Turno con Mayor Ralentí,mph,count,,,,Shift ID,Ground Speed-Trans Ctrl,,mean,min,,,,,,,\nanswer,Horas en Ralentí,Estado de Mayor Permanencia,gal/h,count,,,,OHT Truck Payload State-Communication Gateway #2,Fuel Consumption Rate-Engine,,mean,min,,,,,,,\nanswer,Horas en Ralentí,Condición de Vía Predominante,gal/h,count,,,,Road Condition,Fuel Consumption Rate-Engine,,mean,max,,,,,,,\nrisk,Combustible por Tonelada,Restricción de Filtro,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature\nrisk,Combustible por Tonelada,Presión de Boost,,,,,,,,,,,,,,,Analog,HVY,worst\nrisk,Combustible por Tonelada,Eficiencia de Transmisión,,,,,,,,,,,,,,,Analog,MED,worst\nrisk,Combustible por Tonelada,Condición de Vía,,,,,,,,,,,,,,,Analog,MED,worst\nrisk,Combustible por Tonelada,Variación por Operador,,,,,,,,,,,,,,,Analog,LGT,worst\nchannel,,#turno-noche,,,,,demo Slack channel,,,,,,,,,#turno-noche,slack,,\nchannel,,Mantenimiento Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/mantenimiento,webhook,,\ncondition,Combustible por Tonelada,Consumo por tonelada sobre objetivo,,,,,,,,,,,gt,0.52,alarm,Operations Team;#turno-noche,,,\ncondition,Combustible por Tonelada,Restricción de filtro sostenida,,,,,,,,,,,gt,11,alert,#turno-noche,,,\ncondition,Combustible por Tonelada,Presión de boost fuera de rango,,,,,,,,,,,lt,180,action,Mantenimiento Webhook,,,\ncondition,Toneladas Movidas,Tonelaje por debajo del plan,,,,,,,,,,,lt,110000,alarm,Operations Team,,,\ncondition,Horas en Ralentí,Ralentí excesivo por turno,,,,,,,,,,,gt,4,alert,On-Call Manager,,,\nanomrule,Combustible por Tonelada,Saturación de filtro repetida,,,,,,Restricción de Filtro,\"saturación, filtro, restricción\",,frequency,,,3,alert,#turno-noche,,,\nanomrule,Combustible por Tonelada,Vía en mal estado reportada,,,,,,Condición de Vía,\"bache, derrape, vía húmeda\",,contains,,,,alarm,Operations Team,,,\nanomrule,Combustible por Tonelada,Desviación por operador,,,,,,Variación por Operador,tres desviaciones del mismo operador en un turno,,pattern,,,,alert,On-Call Manager,,,\n",
 "healthcare": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Nursing Station,,,,,demo distribution list — replace before a client sees it,,,,,,,,,nursing@example.com,email,,,\nchannel,,Charge Nurse,,,,,demo number,,,,,,,,,+1-555-0177,sms,,,\nchannel,,#ward-coordination,,,,,demo Slack channel,,,,,,,,,#ward-coordination,slack,,,\nchannel,,EHR Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/ehr,webhook,,,\nkbr,Patient Volume,,patients,count,up,,demo target,,,,,,,,,,,,,\nkbr,Appointment Adherence,,%,percentage,up,88,demo target,,,,,,,,,,,,,\nkbr,Readmission Rate,,%,percentage,down,9,demo target,,,,,,,,,,,,,\nrisk,Patient Volume,Triage Wait,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature,\nrisk,Patient Volume,Bed Availability,,,,,,,,,,,,,,,Digital,HVY,worst,\nrisk,Patient Volume,Imaging Turnaround,,,,,,,,,,,,,,,Digital,MED,worst,\nrisk,Appointment Adherence,Reminder Delivery,,,,,,,,,,,,,,,Digital,MED,worst,\nrisk,Appointment Adherence,Transport Availability,,,,,,,,,,,,,,,Analog,LGT,weighted,\nrisk,Readmission Rate,Discharge Instruction Clarity,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Patient Volume,Triage wait over forty minutes,,,,,,,,,,,gt,40,alarm,Nursing Station;Charge Nurse,,,,300\ncondition,Patient Volume,Bed availability under two,,,,,,,,,,,lt,2,alert,#ward-coordination,,,,180\ncondition,Patient Volume,Imaging turnaround over ninety minutes,,,,,,,,,,,gt,90,action,EHR Webhook,,,,600\ncondition,Appointment Adherence,Adherence below target,,,,,,,,,,,lt,84,alarm,Nursing Station,,,,900\ncondition,Appointment Adherence,Reminder delivery failing,,,,,,,,,,,lt,90,alert,#ward-coordination,,,,300\ncondition,Readmission Rate,Readmissions above threshold,,,,,,,,,,,gt,11,alarm,Nursing Station;Charge Nurse,,,,1800\ncondition,Readmission Rate,Discharge follow-up not logged,,,,,,,,,,,lt,70,action,EHR Webhook,,,,900\nanomrule,Patient Volume,Repeated triage escalation,,,,,,Triage Wait,\"escalated, re-triage, deteriorating\",,frequency,,,3,alarm,Charge Nurse,,,,\nanomrule,Patient Volume,Imaging backlog language,,,,,,Imaging Turnaround,\"backlog, queue, delayed read\",,contains,,,,alert,#ward-coordination,,,,\nanomrule,Appointment Adherence,No-show cluster,,,,,,Reminder Delivery,four no-shows in one clinic inside an hour,,pattern,,,,alert,Nursing Station,,,,\nanomrule,Readmission Rate,Discharge comprehension flagged,,,,,,Discharge Instruction Clarity,\"unclear, repeated question, interpreter\",,contains,,,,alert,Nursing Station,,,,\n",
 "ecommerce": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Ecommerce Ops,,,,,demo distribution list \u2014 replace before a client sees it,,,,,,,,,ops@example.com,email,,,\nchannel,,Duty Manager,,,,,demo number,,,,,,,,,+1-555-0142,sms,,,\nchannel,,#store-alerts,,,,,demo Slack channel,,,,,,,,,#store-alerts,slack,,,\nchannel,,Fulfilment Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/fulfilment,webhook,,,\nkbr,Gross Merchandise Value,,USD,currency,up,850000,demo target,,,,,,,,,,,,,\nkbr,Cart Conversion,,%,percentage,up,3.4,demo target,,,,,,,,,,,,,\nkbr,Cart Abandonment,,%,percentage,down,68,demo target,,,,,,,,,,,,,\nrisk,Gross Merchandise Value,Checkout Latency,,,,,signature 60s,,,,,,,,,,Digital,HVY,signature,\nrisk,Gross Merchandise Value,Payment Gateway,,,,,,,,,,,,,,,Digital,HVY,worst,\nrisk,Cart Conversion,Product Page Load,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Cart Conversion,Search Relevance,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Cart Abandonment,Shipping Quote Delay,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Cart Abandonment,Inventory Accuracy,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Gross Merchandise Value,Revenue falls below the daily floor,,,,,,,,,,,lt,760000,alarm,Ecommerce Ops;#store-alerts,,,,120\ncondition,Gross Merchandise Value,Checkout slower than three seconds,,,,,,,,,,,gt,3000,alert,#store-alerts,,,,60\ncondition,Gross Merchandise Value,Payment gateway degraded,,,,,,,,,,,gt,2,action,Fulfilment Webhook,,,,60\ncondition,Cart Conversion,Conversion drops below target,,,,,,,,,,,lt,3,alarm,Ecommerce Ops;Duty Manager,,,,300\ncondition,Cart Conversion,Search returning no results,,,,,,,,,,,gt,5,alert,#store-alerts,,,,120\ncondition,Cart Abandonment,Abandonment climbing past tolerance,,,,,,,,,,,gt,72,alarm,Ecommerce Ops,,,,300\ncondition,Cart Abandonment,Shipping quote timing out,,,,,,,,,,,gt,4000,alert,#store-alerts,,,,60\nanomrule,Gross Merchandise Value,Payment declines clustering,,,,,,Payment Gateway,\"declined, timeout, retry\",,frequency,,,4,alert,#store-alerts,,,,\nanomrule,Gross Merchandise Value,Checkout errors reported,,,,,,Checkout Latency,\"error, 500, failed\",,contains,,,,alarm,Ecommerce Ops,,,,\nanomrule,Cart Conversion,Search returning nothing,,,,,,Search Relevance,\"no results, zero results\",,contains,,,,alert,#store-alerts,,,,\nanomrule,Cart Abandonment,Stock mismatch pattern,,,,,,Inventory Accuracy,three oversells on one SKU in a day,,pattern,,,,alarm,Ecommerce Ops,,,,",
-"logistics": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Dispatch Desk,,,,,demo distribution list \u2014 replace before a client sees it,,,,,,,,,dispatch@example.com,email,,,\nchannel,,Night Controller,,,,,demo number,,,,,,,,,+1-555-0177,sms,,,\nchannel,,#fleet-ops,,,,,demo Slack channel,,,,,,,,,#fleet-ops,slack,,,\nchannel,,Telematics Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/telematics,webhook,,,\nkbr,Shipment Volume,,%,percentage,up,94,demo target,,,,,,,,,,,,,\nkbr,On-Time Delivery,,USD,currency,down,7.4,demo target,,,,,,,,,,,,,\nkbr,Damage Rate,,%,percentage,up,78,demo target,,,,,,,,,,,,,\nrisk,Shipment Volume,Depot Dispatch Delay,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature,\nrisk,Shipment Volume,Route Deviation,,,,,,,,,,,,,,,Digital,HVY,worst,\nrisk,On-Time Delivery,Fuel Draw,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,On-Time Delivery,Failed Delivery Rate,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Damage Rate,Idle Time,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Damage Rate,Maintenance Backlog,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Shipment Volume,On-time rate below the daily floor,,,,,,,,,,,lt,90,alarm,Dispatch Desk;#fleet-ops,,,,300\ncondition,Shipment Volume,Dispatch held over twenty minutes,,,,,,,,,,,gt,1200,alert,#fleet-ops,,,,120\ncondition,Shipment Volume,Route deviation sustained,,,,,,,,,,,gt,5,action,Telematics Webhook,,,,180\ncondition,On-Time Delivery,Cost per drop over tolerance,,,,,,,,,,,gt,8.5,alarm,Dispatch Desk,,,,300\ncondition,On-Time Delivery,Failed deliveries climbing,,,,,,,,,,,gt,4,alert,#fleet-ops,,,,180\ncondition,Damage Rate,Utilisation below floor,,,,,,,,,,,lt,70,alarm,Dispatch Desk;Night Controller,,,,300\ncondition,Damage Rate,Idle time over threshold,,,,,,,,,,,gt,90,alert,#fleet-ops,,,,120\nanomrule,Shipment Volume,Depot delays repeating,,,,,,Depot Dispatch Delay,\"delay, held, waiting\",,frequency,,,3,alert,#fleet-ops,,,,\nanomrule,Shipment Volume,Route problem reported,,,,,,Route Deviation,\"detour, closure, roadworks\",,contains,,,,alarm,Dispatch Desk,,,,\nanomrule,On-Time Delivery,Fuel draw abnormal,,,,,,Fuel Draw,\"spike, drain, leak\",,contains,,,,alarm,Dispatch Desk,,,,\nanomrule,Damage Rate,Same vehicle idling repeatedly,,,,,,Idle Time,three long idles on one vehicle in a shift,,pattern,,,,alert,Night Controller,,,,",
-"banking": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Branch Operations,,,,,demo distribution list \u2014 replace before a client sees it,,,,,,,,,ops@example.com,email,,,\nchannel,,Duty Risk Officer,,,,,demo number,,,,,,,,,+1-555-0188,sms,,,\nchannel,,#banking-ops,,,,,demo Slack channel,,,,,,,,,#banking-ops,slack,,,\nchannel,,Core Banking Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/core,webhook,,,\nkbr,Loan Portfolio Growth,,count,count,up,1200,demo target,,,,,,,,,,,,,\nkbr,Application Approval Rate,,h,count,down,18,demo target,,,,,,,,,,,,,\nkbr,Customer Retention,,%,percentage,up,64,demo target,,,,,,,,,,,,,\nrisk,Loan Portfolio Growth,Identity Verification,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,\nrisk,Loan Portfolio Growth,Credit Bureau Response,,,,,,,,,,,,,,,Digital,HVY,worst,\nrisk,Application Approval Rate,Underwriting Queue,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Application Approval Rate,Document Collection,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Customer Retention,Mobile Login Success,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Customer Retention,Branch Handoff Rate,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Loan Portfolio Growth,Approvals below the daily floor,,,,,,,,,,,lt,1000,alarm,Branch Operations;#banking-ops,,,,300\ncondition,Loan Portfolio Growth,Identity checks failing,,,,,,,,,,,gt,6,alert,#banking-ops,,,,120\ncondition,Loan Portfolio Growth,Credit bureau unreachable,,,,,,,,,,,gt,2,action,Core Banking Webhook,,,,60\ncondition,Application Approval Rate,Decision time over tolerance,,,,,,,,,,,gt,24,alarm,Branch Operations;Duty Risk Officer,,,,300\ncondition,Application Approval Rate,Underwriting queue backing up,,,,,,,,,,,gt,40,alert,#banking-ops,,,,180\ncondition,Customer Retention,Digital adoption below floor,,,,,,,,,,,lt,58,alarm,Branch Operations,,,,300\ncondition,Customer Retention,Mobile logins failing,,,,,,,,,,,gt,5,alert,#banking-ops,,,,120\nanomrule,Loan Portfolio Growth,Verification failures clustering,,,,,,Identity Verification,\"mismatch, expired, rejected\",,frequency,,,4,alert,#banking-ops,,,,\nanomrule,Loan Portfolio Growth,Bureau timeouts reported,,,,,,Credit Bureau Response,\"timeout, unavailable, retry\",,contains,,,,alarm,Branch Operations,,,,\nanomrule,Application Approval Rate,Documents repeatedly missing,,,,,,Document Collection,\"missing, incomplete, resubmit\",,contains,,,,alert,#banking-ops,,,,\nanomrule,Customer Retention,Same channel failing repeatedly,,,,,,Mobile Login Success,three login failure spikes in one day,,pattern,,,,alarm,Duty Risk Officer,,,,",
-"hospitality": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Front Desk,,,,,demo distribution list \u2014 replace before a client sees it,,,,,,,,,frontdesk@example.com,email,,,\nchannel,,Duty Manager,,,,,demo number,,,,,,,,,+1-555-0155,sms,,,\nchannel,,#hotel-ops,,,,,demo Slack channel,,,,,,,,,#hotel-ops,slack,,,\nchannel,,Housekeeping Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/housekeeping,webhook,,,\nkbr,Total Bookings,,%,percentage,up,82,demo target,,,,,,,,,,,,,\nkbr,Occupancy Rate,,%,percentage,up,88,demo target,,,,,,,,,,,,,\nkbr,Guest Return Rate,,USD,currency,up,210,demo target,,,,,,,,,,,,,\nrisk,Total Bookings,Check-in Wait,,,,,signature 60s,,,,,,,,,,Analog,HVY,signature,\nrisk,Total Bookings,Room Readiness,,,,,,,,,,,,,,,Analog,HVY,worst,\nrisk,Occupancy Rate,Housekeeping Turnaround,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Occupancy Rate,Maintenance Response,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Guest Return Rate,Booking Channel Health,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Guest Return Rate,Upsell Capture,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Total Bookings,Occupancy below the nightly floor,,,,,,,,,,,lt,74,alarm,Front Desk;#hotel-ops,,,,300\ncondition,Total Bookings,Check-in queue over ten minutes,,,,,,,,,,,gt,600,alert,#hotel-ops,,,,120\ncondition,Total Bookings,Rooms not ready at cutoff,,,,,,,,,,,gt,8,action,Housekeeping Webhook,,,,180\ncondition,Occupancy Rate,Satisfaction below target,,,,,,,,,,,lt,84,alarm,Front Desk;Duty Manager,,,,300\ncondition,Occupancy Rate,Maintenance calls unanswered,,,,,,,,,,,gt,3,alert,#hotel-ops,,,,180\ncondition,Guest Return Rate,Revenue per room below floor,,,,,,,,,,,lt,180,alarm,Front Desk,,,,300\ncondition,Guest Return Rate,Booking channel degraded,,,,,,,,,,,gt,2,alert,#hotel-ops,,,,120\nanomrule,Total Bookings,Check-in delays repeating,,,,,,Check-in Wait,\"queue, wait, delay\",,frequency,,,3,alert,#hotel-ops,,,,\nanomrule,Total Bookings,Room blocked reported,,,,,,Room Readiness,\"out of order, blocked, maintenance\",,contains,,,,alarm,Front Desk,,,,\nanomrule,Occupancy Rate,Complaint keywords rising,,,,,,Maintenance Response,\"complaint, escalation, refund\",,contains,,,,alarm,Duty Manager,,,,\nanomrule,Guest Return Rate,Same channel underperforming,,,,,,Booking Channel Health,three low-yield nights on one channel,,pattern,,,,alert,#hotel-ops,,,,"
+"logistics": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Dispatch Desk,,,,,demo distribution list \u2014 replace before a client sees it,,,,,,,,,dispatch@example.com,email,,,\nchannel,,Night Controller,,,,,demo number,,,,,,,,,+1-555-0177,sms,,,\nchannel,,#fleet-ops,,,,,demo Slack channel,,,,,,,,,#fleet-ops,slack,,,\nchannel,,Telematics Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/telematics,webhook,,,\nkbr,Shipment Volume,,shipments,count,up,4800,demo target,,,,,,,,,,,,,\nkbr,On-Time Delivery,,%,percentage,up,94,demo target,,,,,,,,,,,,,\nkbr,Damage Rate,,%,percentage,down,1.2,demo target,,,,,,,,,,,,,\nrisk,Shipment Volume,Depot Dispatch Delay,,,,,signature 120s,,,,,,,,,,Analog,HVY,signature,\nrisk,Shipment Volume,Route Deviation,,,,,,,,,,,,,,,Digital,HVY,worst,\nrisk,On-Time Delivery,Traffic Delay Exposure,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,On-Time Delivery,Failed Delivery Rate,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Damage Rate,Load Securing Compliance,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Damage Rate,Maintenance Backlog,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Shipment Volume,Shipments below the daily floor,,,,,,,,,,,lt,4200,alarm,Dispatch Desk;#fleet-ops,,,,300\ncondition,Shipment Volume,Dispatch held over twenty minutes,,,,,,,,,,,gt,1200,alert,#fleet-ops,,,,120\ncondition,Shipment Volume,Route deviation sustained,,,,,,,,,,,gt,5,action,Telematics Webhook,,,,180\ncondition,On-Time Delivery,On-time rate below the daily floor,,,,,,,,,,,lt,90,alarm,Dispatch Desk,,,,300\ncondition,On-Time Delivery,Failed deliveries climbing,,,,,,,,,,,gt,4,alert,#fleet-ops,,,,180\ncondition,Damage Rate,Damage rate above the ceiling,,,,,,,,,,,gt,2,alarm,Dispatch Desk;Night Controller,,,,300\ncondition,Damage Rate,Maintenance backlog over twenty units,,,,,,,,,,,gt,20,alert,#fleet-ops,,,,120\nanomrule,Shipment Volume,Depot delays repeating,,,,,,Depot Dispatch Delay,\"delay, held, waiting\",,frequency,,,3,alert,#fleet-ops,,,,\nanomrule,Shipment Volume,Route problem reported,,,,,,Route Deviation,\"detour, closure, roadworks\",,contains,,,,alarm,Dispatch Desk,,,,\nanomrule,On-Time Delivery,Delivery attempts failing repeatedly,,,,,,Failed Delivery Rate,\"no access, refused, missed\",,contains,,,,alarm,Dispatch Desk,,,,\nanomrule,Damage Rate,Same vehicle damaging load,,,,,,Load Securing Compliance,three damage reports on one vehicle in a week,,pattern,,,,alert,Night Controller,,,,",
+"banking": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Branch Operations,,,,,demo distribution list \u2014 replace before a client sees it,,,,,,,,,ops@example.com,email,,,\nchannel,,Duty Risk Officer,,,,,demo number,,,,,,,,,+1-555-0188,sms,,,\nchannel,,#banking-ops,,,,,demo Slack channel,,,,,,,,,#banking-ops,slack,,,\nchannel,,Core Banking Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/core,webhook,,,\nkbr,Loan Portfolio Growth,,count,count,up,1200,demo target,,,,,,,,,,,,,\nkbr,Application Approval Rate,,%,percentage,up,64,demo target,,,,,,,,,,,,,\nkbr,Customer Retention,,%,percentage,up,64,demo target,,,,,,,,,,,,,\nrisk,Loan Portfolio Growth,Identity Verification,,,,,signature 90s,,,,,,,,,,Digital,HVY,signature,\nrisk,Loan Portfolio Growth,Credit Bureau Response,,,,,,,,,,,,,,,Digital,HVY,worst,\nrisk,Application Approval Rate,Underwriting Queue,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Application Approval Rate,Document Collection,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Customer Retention,Mobile Login Success,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Customer Retention,Branch Handoff Rate,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Loan Portfolio Growth,Originations below the daily floor,,,,,,,,,,,lt,1000,alarm,Branch Operations;#banking-ops,,,,300\ncondition,Loan Portfolio Growth,Identity checks failing,,,,,,,,,,,gt,6,alert,#banking-ops,,,,120\ncondition,Loan Portfolio Growth,Credit bureau unreachable,,,,,,,,,,,gt,2,action,Core Banking Webhook,,,,60\ncondition,Application Approval Rate,Approval rate below target,,,,,,,,,,,lt,58,alarm,Branch Operations;Duty Risk Officer,,,,300\ncondition,Application Approval Rate,Underwriting queue backing up,,,,,,,,,,,gt,40,alert,#banking-ops,,,,180\ncondition,Customer Retention,Retention below the monthly floor,,,,,,,,,,,lt,60,alarm,Branch Operations,,,,300\ncondition,Customer Retention,Mobile logins failing,,,,,,,,,,,gt,5,alert,#banking-ops,,,,120\nanomrule,Loan Portfolio Growth,Verification failures clustering,,,,,,Identity Verification,\"mismatch, expired, rejected\",,frequency,,,4,alert,#banking-ops,,,,\nanomrule,Loan Portfolio Growth,Bureau timeouts reported,,,,,,Credit Bureau Response,\"timeout, unavailable, retry\",,contains,,,,alarm,Branch Operations,,,,\nanomrule,Application Approval Rate,Documents repeatedly missing,,,,,,Document Collection,\"missing, incomplete, resubmit\",,contains,,,,alert,#banking-ops,,,,\nanomrule,Customer Retention,Same channel failing repeatedly,,,,,,Mobile Login Success,three login failure spikes in one day,,pattern,,,,alarm,Duty Risk Officer,,,,",
+"hospitality": "kind,kbr,name,unit,format,direction,target,notes,dimension,measure,denominator,aggregation,rank,op,value,response,channels,dna,weight,rollup,persistencesec\nchannel,,Front Desk,,,,,demo distribution list \u2014 replace before a client sees it,,,,,,,,,frontdesk@example.com,email,,,\nchannel,,Duty Manager,,,,,demo number,,,,,,,,,+1-555-0155,sms,,,\nchannel,,#hotel-ops,,,,,demo Slack channel,,,,,,,,,#hotel-ops,slack,,,\nchannel,,Housekeeping Webhook,,,,,demo endpoint,,,,,,,,,https://example.com/hooks/housekeeping,webhook,,,\nkbr,Total Bookings,,bookings,count,up,340,demo target,,,,,,,,,,,,,\nkbr,Occupancy Rate,,%,percentage,up,88,demo target,,,,,,,,,,,,,\nkbr,Guest Return Rate,,%,percentage,up,38,demo target,,,,,,,,,,,,,\nrisk,Total Bookings,Check-in Wait,,,,,signature 60s,,,,,,,,,,Analog,HVY,signature,\nrisk,Total Bookings,Room Readiness,,,,,,,,,,,,,,,Analog,HVY,worst,\nrisk,Occupancy Rate,Housekeeping Turnaround,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Occupancy Rate,Maintenance Response,,,,,,,,,,,,,,,Analog,MED,mean,\nrisk,Guest Return Rate,Booking Channel Health,,,,,,,,,,,,,,,Digital,MED,mean,\nrisk,Guest Return Rate,Upsell Capture,,,,,,,,,,,,,,,Analog,MED,worst,\ncondition,Total Bookings,Bookings below the nightly floor,,,,,,,,,,,lt,260,alarm,Front Desk;#hotel-ops,,,,300\ncondition,Total Bookings,Check-in queue over ten minutes,,,,,,,,,,,gt,600,alert,#hotel-ops,,,,120\ncondition,Total Bookings,Rooms not ready at cutoff,,,,,,,,,,,gt,8,action,Housekeeping Webhook,,,,180\ncondition,Occupancy Rate,Occupancy below target,,,,,,,,,,,lt,80,alarm,Front Desk;Duty Manager,,,,300\ncondition,Occupancy Rate,Maintenance calls unanswered,,,,,,,,,,,gt,3,alert,#hotel-ops,,,,180\ncondition,Guest Return Rate,Returning guests below the floor,,,,,,,,,,,lt,30,alarm,Front Desk,,,,300\ncondition,Guest Return Rate,Booking channel degraded,,,,,,,,,,,gt,2,alert,#hotel-ops,,,,120\nanomrule,Total Bookings,Check-in delays repeating,,,,,,Check-in Wait,\"queue, wait, delay\",,frequency,,,3,alert,#hotel-ops,,,,\nanomrule,Total Bookings,Room blocked reported,,,,,,Room Readiness,\"out of order, blocked, maintenance\",,contains,,,,alarm,Front Desk,,,,\nanomrule,Occupancy Rate,Complaint keywords rising,,,,,,Maintenance Response,\"complaint, escalation, refund\",,contains,,,,alarm,Duty Manager,,,,\nanomrule,Guest Return Rate,Same channel underperforming,,,,,,Booking Channel Health,three low-yield nights on one channel,,pattern,,,,alert,#hotel-ops,,,,"
 };
 
 /* Returns a short report, or null when there is nothing bundled for this
@@ -4084,8 +4084,11 @@ function applyConfig(){
     // REPLACE the honeycomb AND auto-generate the full simulation
     const jt = applyJourneyTemplate(SB_CFG.industry, sized);
 
-    // build the three Key Business Results + their touchpoints to match
-    applyKbrSimulation();
+    // build the three Key Business Results + their touchpoints to match.
+    // SIM_APPLYING marks this as the explicit action, which is what entitles
+    // the industry touchpoint library to speak — see kbrArchetypes.
+    SIM_APPLYING = true;
+    try { applyKbrSimulation(); } finally { SIM_APPLYING = false; }
 
     /* The channel registry is a WORKSPACE object, not a per-result one, so
        nothing above clears it: retail's four channels were still routing on an
@@ -8498,6 +8501,84 @@ function kbrRiskMeter(health){
   return { pct, state };
 }
 
+/* ── COMPOSITE RISK · Build Spec §5.4 ──────────────────────────────────────
+
+   The meter read `100 - kbr.rollupHealth`, and `rollupHealth` is derived from
+   `kbr.touchpoints` — the KEY BUSINESS RESULT's measurement touchpoints. The
+   Risk Meter's own touchpoints live in `kbr.riskTouchpoints` and never
+   reached the number at all.
+
+   So the panel could, and did, show '35%' above the words 'No touchpoints
+   yet'. Both were true and neither explained the other: the figure was real
+   performance risk, computed from touchpoints that live on a different tab.
+   Read together they say the product is inventing numbers.
+
+   §5.4 asks for the worst of the CONFIGURED components, with unconfigured
+   components ABSENT rather than counted as zero — absent, not healthy, being
+   the honest reading of something nobody has set up. This returns exactly
+   that list, so the meter can show its number AND say where it came from.
+
+   Detection is not escalation: this computes and nothing else. */
+function kbrRiskComponents(kbr){
+  const comps = [];
+
+  /* Performance — the result's own measurement touchpoints degrading. */
+  if(kbr.touchpoints && kbr.touchpoints.length){
+    comps.push({ key:'performance', label:'Performance',
+                 pct: kbrRiskMeter(kbr.rollupHealth).pct,
+                 detail: kbr.touchpoints.length + ' measurement touchpoint' +
+                         (kbr.touchpoints.length === 1 ? '' : 's') });
+  }
+
+  /* Leading indicators — the Risk Meter's own touchpoints. */
+  const rtps = (typeof riskTps === 'function') ? riskTps(kbr) : (kbr.riskTouchpoints || []);
+  if(rtps && rtps.length){
+    const st = { green:0, yellow:55, red:95, gray:0 };
+    const worst = rtps.reduce(function(m, t){ return Math.max(m, st[t.status] || 0); }, 0);
+    comps.push({ key:'indicators', label:'Leading indicators', pct: worst,
+                 detail: rtps.length + ' risk touchpoint' + (rtps.length === 1 ? '' : 's') });
+  }
+
+  /* Attainment — only when a target exists AND that target is ours.
+
+     A PROVISIONAL target is external and unverified: mining's 0.420 gal/ton
+     comes from a manual, not from the workbook. The denominator law already
+     forbids such a figure from bending a measurement; letting it drive the
+     Risk Meter is the same error wearing a different hat, and it is not
+     theoretical — unguarded, 0.420 put attainment at 98 and took the meter
+     with it. A provisional target is carried, shown on the pace bar, and kept
+     out of escalation until someone confirms it.
+
+     Pace produces facts; this component is a fact. It still notifies through
+     nothing — only the Risk Meter escalates, and only from its own vocabulary. */
+  if(kbr.goal && kbr.goal.target != null && isFinite(kbr.goal.target) &&
+     !kbr.goal.provisional && typeof kbrPaceValue === 'function'){
+    const v = kbrPaceValue(kbr), t = Number(kbr.goal.target);
+    if(v != null && isFinite(v) && t){
+      const ratio = (kbr.goal.direction === 'down') ? (v / t) : (t ? v / t : 1);
+      const short = (kbr.goal.direction === 'down') ? Math.max(0, ratio - 1)
+                                                   : Math.max(0, 1 - ratio);
+      comps.push({ key:'attainment', label:'Attainment',
+                   pct: Math.max(2, Math.min(98, Math.round(short * 100))),
+                   detail:'against target ' + t });
+    }
+  }
+  return comps;
+}
+
+/* Worst of the configured components, or null when nothing is configured —
+   which is the one case where the meter must show no number rather than a
+   confident one. */
+function kbrCompositeRisk(kbr){
+  const comps = kbrRiskComponents(kbr);
+  if(!comps.length) return null;
+  const worst = comps.reduce(function(a, c){ return c.pct > a.pct ? c : a; }, comps[0]);
+  let state = 'Good';
+  if(worst.pct >= 70) state = 'Mala';
+  else if(worst.pct >= 45) state = 'Regular';
+  return { pct: worst.pct, state: state, driver: worst, components: comps };
+}
+
 // ═══ ALERTS ENGINE (the Risk Meter) ══════════════════════════════
 // The Risk Meter is an observability-style alerting engine guarding a KBR.
 // You define ALERT CONDITIONS (threshold / anomaly / missing-data / error-rate);
@@ -10877,8 +10958,427 @@ const KBR_SIM = {
   ],
 };
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   INDUSTRY KBR TOUCHPOINTS — the measurement layer, per vertical
+
+   THE BUG THIS REPLACES.
+
+   `KBR_SIM` held exactly two archetype sets, keyed on `kbr.type`. Every
+   `value` result in every industry was measured by 'Revenue Stream' and
+   'Order Volume'; every `percentage` result by 'Funnel Conversion' and
+   'Repeat Behaviour'. Applying all seventeen industries produced the same two
+   pairs fifty-one times: a mining board measured 'Combustible por Tonelada'
+   with a Stripe settlement feed, and a hospital measured 'Patient Volume' the
+   same way.
+
+   The journey layer never had this problem because `generateStageSimulation`
+   takes `industryKey` as a parameter. It was the one generator in the file
+   that knew where it was. This is that same parameter, one layer up.
+
+   WHAT THESE ARE, AND ARE NOT.
+
+   Build Spec §0: three layers, three questions, each owning its own
+   touchpoints. These are the KBR's LAGGING MEASUREMENT touchpoints — how the
+   result is counted. They are deliberately NOT the Risk Meter's leading
+   indicators, which arrive from the industry's Config Doc and answer a
+   different question (§5.3). 'Room Nights Sold' measures occupancy;
+   'Housekeeping Turnaround' predicts it. Both belong to Occupancy Rate, and
+   they belong to different tabs.
+
+   KEYED BY NAME, NOT POSITION.
+
+   A set applies only when the board's result still carries the industry's own
+   name. A business function or a Journey Doc that re-themes the results falls
+   back to the generic pair rather than inheriting a vocabulary from a domain
+   the user has left — the same reasoning that made positional binding a
+   reportable guess rather than a silent one.
+
+   OPTIONALITY.
+
+   An industry absent from this table behaves exactly as it did. The fallback
+   is the original `KBR_SIM`, unchanged and still below.
+
+   Compact form, expanded by `expandTpLib` at load:
+     [ name, dna, weight, [ [type, platform, label, unit, dir, g, y, r, q] ] ]
+   ═══════════════════════════════════════════════════════════════════════════ */
+const INDUSTRY_KBR_TPS_RAW = {
+
+education: {
+ "Enrollment Volume": [
+  ['Applications Received','Digital','HVY',[
+    ['rest','Slate','Submitted applications','','gte',1800,1200,700,'GET /v1/applications?status=submitted&window=30d'],
+    ['sql','PostgreSQL','Application records','','gte',1900,1300,800,"SELECT count(*) FROM applications WHERE term = current_term()"]]],
+  ['Confirmed Enrolments','Digital','MED',[
+    ['sql','Snowflake','Enrolments confirmed','','gte',1500,1000,600,"SELECT count(*) FROM enrolments WHERE status = 'confirmed'"]]]],
+ "Acceptance Rate": [
+  ['Offers Extended','Digital','HVY',[
+    ['sql','Snowflake','Offer rate','%','gte',55,42,30,"SELECT offers::float/reviewed*100 AS rate FROM admissions_daily"],
+    ['rest','Slate','Offers issued','','gte',900,700,450,'GET /v1/offers?window=30d']]],
+  ['Offer Acceptance','Analog','MED',[
+    ['rest','Student CRM','Accepted offers','%','gte',62,48,35,'GET /crm/v3/offers?status=accepted']]]],
+ "Student Retention": [
+  ['Term Persistence','Digital','HVY',[
+    ['sql','BigQuery','Returning students','%','gte',82,74,65,"SELECT returning/enrolled*100 AS pct FROM retention_by_term"]]],
+  ['Advising Engagement','Analog','MED',[
+    ['rest','Student CRM','Sessions attended','%','gte',70,55,40,'GET /crm/v3/advising/attendance?window=term']]]]},
+
+retail: {
+ "Total Sales": [
+  ['Point-of-Sale Revenue','Digital','HVY',[
+    ['sql','Snowflake','Net sales','$','gte',420000,340000,260000,"SELECT sum(net_amount) FROM pos_transactions WHERE business_date = current_date"],
+    ['rest','Adyen','Settled card volume','$','gte',300000,240000,180000,'GET /v1/payments/settled?window=24h']]],
+  ['E-Commerce Revenue','Digital','MED',[
+    ['rest','Shopify','Online net sales','$','gte',120000,90000,60000,'GET /admin/api/orders.json?financial_status=paid']]]],
+ "Basket Conversion": [
+  ['Footfall to Transaction','Analog','HVY',[
+    ['observability','Store Analytics','Conversion','%','gte',32,24,16,'query { store { visitors, transactions } }'],
+    ['sql','ClickHouse','Tills to entries','%','gte',30,23,15,"SELECT baskets/entries*100 FROM store_daily"]]],
+  ['Average Basket Size','Digital','MED',[
+    ['sql','PostgreSQL','Units per basket','','gte',3.2,2.4,1.6,"SELECT avg(line_count) FROM baskets WHERE created_at::date = current_date"]]]],
+ "Repeat Purchase Rate": [
+  ['Loyalty Repeat Rate','Digital','HVY',[
+    ['sql','BigQuery','Repeat buyers','%','gte',55,44,32,"SELECT repeat_buyers/buyers*100 AS pct FROM loyalty_monthly"]]],
+  ['Reorder Interval','Analog','MED',[
+    ['rest','Salesforce','Days to reorder','','lte',45,65,90,'GET /services/data/v59.0/query?q=SELECT+AVG(Days_To_Reorder__c)']]]]},
+
+banking: {
+ "Loan Portfolio Growth": [
+  ['Loans Originated','Digital','HVY',[
+    ['sql','Core Banking','New loans booked','','gte',1200,900,600,"SELECT count(*) FROM loans WHERE booked_on = current_date"],
+    ['sql','Snowflake','Principal advanced','$','gte',4800000,3900000,2900000,"SELECT sum(principal) FROM loan_advances"]]],
+  ['Portfolio Balance','Digital','MED',[
+    ['sql','Snowflake','Outstanding balance','$','gte',48000000,40000000,32000000,"SELECT sum(principal_outstanding) FROM loan_book"]]]],
+ "Application Approval Rate": [
+  ['Decisioned Applications','Digital','HVY',[
+    ['sql','PostgreSQL','Approved share','%','gte',64,52,40,"SELECT approved::float/decisioned*100 FROM applications_daily"],
+    ['rest','Loan Origination','Auto-decisioned','%','gte',70,55,38,'GET /los/v2/applications?decision=auto']]],
+  ['Manual Review Share','Analog','MED',[
+    ['rest','Loan Origination','Referred to underwriter','%','lte',18,30,45,'GET /los/v2/applications?decision=referred']]]],
+ "Customer Retention": [
+  ['Account Closure Rate','Digital','HVY',[
+    ['sql','Snowflake','Closures per thousand','','lte',4,8,14,"SELECT closures*1000.0/accounts FROM retention_monthly"]]],
+  ['Relationship Depth','Analog','MED',[
+    ['rest','Salesforce','Products per client','','gte',3.1,2.3,1.5,'GET /services/data/v59.0/query?q=SELECT+AVG(Product_Count__c)']]]]},
+
+healthcare: {
+ "Patient Volume": [
+  ['Encounters Recorded','Digital','HVY',[
+    ['sql','EHR Warehouse','Encounters','','gte',900,700,480,"SELECT count(*) FROM encounters WHERE encounter_date = current_date"],
+    ['rest','Epic','Arrived appointments','','gte',760,600,420,'GET /api/FHIR/R4/Appointment?status=arrived']]],
+  ['Bed Occupancy','Analog','MED',[
+    ['historian','Ignition','Beds occupied','%','lte',85,92,97,'tag: WARD.BEDS.OCCUPIED_PCT']]]],
+ "Appointment Adherence": [
+  ['Kept Appointments','Digital','HVY',[
+    ['sql','PostgreSQL','Kept share','%','gte',88,78,66,"SELECT kept::float/scheduled*100 FROM appointments_daily"],
+    ['rest','Epic','Completed encounters','%','gte',86,76,64,'GET /api/FHIR/R4/Encounter?status=finished']]],
+  ['Reminder Acknowledgement','Digital','MED',[
+    ['rest','Twilio','Confirmed replies','%','gte',74,60,45,'GET /Messages?Status=delivered&Tag=reminder']]]],
+ "Readmission Rate": [
+  ['Thirty-Day Readmissions','Digital','HVY',[
+    ['sql','EHR Warehouse','Readmitted share','%','lte',9,12,16,"SELECT readmits::float/discharges*100 FROM readmission_30d"]]],
+  ['Discharge Follow-Up','Analog','MED',[
+    ['rest','Epic','Follow-up logged','%','gte',80,65,50,'GET /api/FHIR/R4/Encounter?class=followup']]]]},
+
+hospitality: {
+ "Total Bookings": [
+  ['Reservations Confirmed','Digital','HVY',[
+    ['rest','Booking Engine','Confirmed bookings','','gte',340,260,180,'GET /v1/reservations?status=confirmed&window=1d'],
+    ['sql','PMS Warehouse','Reservation records','','gte',330,255,175,"SELECT count(*) FROM reservations WHERE created_on = current_date"]]],
+  ['Channel Mix','Digital','MED',[
+    ['sql','Snowflake','Direct share','%','gte',42,32,22,"SELECT direct::float/bookings*100 FROM channel_mix_daily"]]]],
+ "Occupancy Rate": [
+  ['Room Nights Sold','Digital','HVY',[
+    ['sql','PMS Warehouse','Occupancy','%','gte',88,76,62,"SELECT sold::float/available*100 FROM room_nights WHERE stay_date = current_date"],
+    ['historian','Ignition','Rooms ready at cutoff','%','gte',96,88,76,'tag: HK.ROOMS.READY_PCT']]],
+  ['Length of Stay','Analog','MED',[
+    ['rest','Opera','Average nights','','gte',2.4,1.8,1.2,'GET /pms/v1/stays?metric=avg_los']]]],
+ "Guest Return Rate": [
+  ['Returning Guests','Digital','HVY',[
+    ['sql','BigQuery','Repeat stay share','%','gte',38,28,18,"SELECT repeat_guests::float/guests*100 FROM guest_history"]]],
+  ['Loyalty Enrolment','Analog','MED',[
+    ['rest','Loyalty API','Enrolled at check-in','%','gte',30,22,14,'GET /loyalty/v2/enrolments?window=30d']]]]},
+
+telecom: {
+ "Net Subscriber Adds": [
+  ['Gross Activations','Digital','HVY',[
+    ['sql','BSS Warehouse','Activations','','gte',2400,1800,1200,"SELECT count(*) FROM activations WHERE activated_on = current_date"],
+    ['rest','Provisioning API','Lines provisioned','','gte',2300,1750,1150,'GET /provisioning/v1/lines?state=active']]],
+  ['Disconnections','Digital','MED',[
+    ['sql','PostgreSQL','Disconnects','','lte',600,900,1400,"SELECT count(*) FROM disconnections WHERE effective_on = current_date"]]]],
+ "Activation Rate": [
+  ['Completed Activations','Digital','HVY',[
+    ['rest','Provisioning API','Completed share','%','gte',94,86,74,'GET /provisioning/v1/orders?state=complete'],
+    ['sql','Snowflake','First-attempt success','%','gte',90,80,68,"SELECT first_pass::float/orders*100 FROM activation_daily"]]],
+  ['Porting Success','Digital','MED',[
+    ['sql','Snowflake','Ported share','%','gte',92,82,70,"SELECT ported::float/requested*100 FROM port_requests"]]]],
+ "Churn Rate": [
+  ['Voluntary Churn','Digital','HVY',[
+    ['sql','BigQuery','Churn','%','lte',1.8,2.6,3.6,"SELECT churned::float/base*100 FROM churn_monthly"]]],
+  ['Save Desk Outcomes','Analog','MED',[
+    ['rest','Genesys','Saved on contact','%','gte',42,30,18,'GET /api/v2/analytics/conversations?queue=retention']]]]},
+
+fnb: {
+ "Daily Revenue": [
+  ['Covers Served','Analog','HVY',[
+    ['sql','POS Warehouse','Covers','','gte',420,320,220,"SELECT sum(covers) FROM checks WHERE business_date = current_date"],
+    ['rest','Toast','Closed checks','','gte',260,200,140,'GET /orders/v2/summary?window=1d']]],
+  ['Average Check','Digital','MED',[
+    ['rest','Toast','Average check value','$','gte',42,34,26,'GET /orders/v2/metrics?metric=avg_check']]]],
+ "Table Turnover": [
+  ['Seatings per Table','Analog','HVY',[
+    ['sql','PostgreSQL','Turns per table','','gte',3.2,2.4,1.6,"SELECT seatings::float/tables FROM service_period"],
+    ['observability','Floor Analytics','Tables seated','%','gte',82,70,56,'query { floor { seated_tables, total_tables } }']]],
+  ['Table Dwell Time','Analog','MED',[
+    ['observability','Floor Analytics','Minutes seated','','lte',72,92,115,'query { floor { avg_dwell_minutes } }']]]],
+ "Repeat Diner Rate": [
+  ['Returning Diners','Digital','HVY',[
+    ['sql','BigQuery','Repeat share','%','gte',38,29,20,"SELECT repeat_guests::float/guests*100 FROM diner_history"]]],
+  ['Loyalty Scans','Digital','MED',[
+    ['rest','Loyalty API','Checks scanned','%','gte',34,24,15,'GET /loyalty/v2/scans?window=7d']]]]},
+
+ecommerce: {
+ "Gross Merchandise Value": [
+  ['Order Revenue','Digital','HVY',[
+    ['sql','Snowflake','Gross merchandise','$','gte',850000,700000,540000,"SELECT sum(gross_amount) FROM orders WHERE placed_at::date = current_date"],
+    ['rest','Stripe','Settled volume','$','gte',780000,640000,500000,'GET /v1/balance/history?type=charge&window=24h']]],
+  ['Orders Placed','Digital','MED',[
+    ['sql','PostgreSQL','Order count','','gte',6400,5100,3700,"SELECT count(*) FROM orders WHERE created_at > now() - interval '1 day'"]]]],
+ "Cart Conversion": [
+  ['Session to Order','Digital','HVY',[
+    ['observability','Segment','Conversion','%','gte',3.4,2.6,1.8,'query { sessions { converted, total } }'],
+    ['sql','ClickHouse','Checkout completion','%','gte',72,60,46,"SELECT completed/started*100 FROM checkout_funnel"]]],
+  ['Product Discovery','Digital','MED',[
+    ['observability','Algolia','Search to detail','%','gte',46,34,22,'query { search { detail_views, queries } }']]]],
+ "Cart Abandonment": [
+  ['Abandoned Carts','Digital','HVY',[
+    ['sql','ClickHouse','Abandon share','%','lte',68,76,84,"SELECT abandoned/created*100 FROM carts WHERE ts > now() - INTERVAL 1 DAY"]]],
+  ['Recovery Yield','Digital','MED',[
+    ['rest','Klaviyo','Carts recovered','%','gte',12,8,4,'GET /api/metrics/recovered-carts?window=7d']]]]},
+
+tech: {
+ "Monthly Recurring Revenue": [
+  ['Subscription Revenue','Digital','HVY',[
+    ['rest','Stripe','Active MRR','$','gte',280000,235000,190000,'GET /v1/subscriptions?status=active'],
+    ['sql','Snowflake','Billed recurring','$','gte',275000,230000,185000,"SELECT sum(mrr) FROM subscription_ledger WHERE period = current_month()"]]],
+  ['Expansion Revenue','Digital','MED',[
+    ['sql','Snowflake','Upgrade MRR','$','gte',24000,16000,9000,"SELECT sum(delta_mrr) FROM subscription_changes WHERE type = 'upgrade'"]]]],
+ "Trial Conversion": [
+  ['Trial to Paid','Digital','HVY',[
+    ['sql','PostgreSQL','Converted share','%','gte',24,18,12,"SELECT converted::float/trials*100 FROM trial_cohorts"],
+    ['rest','Stripe','First invoices paid','','gte',210,160,105,'GET /v1/invoices?status=paid&billing_reason=subscription_create']]],
+  ['Activation Milestone','Digital','MED',[
+    ['observability','Amplitude','Activated in trial','%','gte',58,44,30,'query { cohort { activated, signed_up } }']]]],
+ "Net Revenue Retention": [
+  ['Cohort Revenue Retention','Digital','HVY',[
+    ['sql','BigQuery','NRR','%','gte',112,102,92,"SELECT ending_mrr/starting_mrr*100 AS nrr FROM nrr_cohorts"]]],
+  ['Seat Expansion','Digital','MED',[
+    ['rest','Salesforce','Net seats added','','gte',320,200,90,'GET /services/data/v59.0/query?q=SELECT+SUM(Seat_Delta__c)']]]]},
+
+insurance: {
+ "Premium Written": [
+  ['Policies Bound','Digital','HVY',[
+    ['sql','Policy Admin','Bound policies','','gte',640,500,360,"SELECT count(*) FROM policies WHERE bound_on = current_date"],
+    ['sql','Snowflake','Gross written premium','$','gte',640000,540000,430000,"SELECT sum(written_premium) FROM policy_transactions"]]],
+  ['Endorsement Volume','Analog','MED',[
+    ['rest','Agent Portal','Mid-term changes','','gte',180,130,80,'GET /agent/v1/endorsements?window=30d']]]],
+ "Quote-to-Bind Rate": [
+  ['Quotes Converted','Digital','HVY',[
+    ['sql','PostgreSQL','Bind share','%','gte',34,26,18,"SELECT bound::float/quoted*100 FROM quotes_daily"],
+    ['observability','Quote Engine','Quotes completed','%','gte',68,54,40,'query { quotes { completed, started } }']]],
+  ['Referral Share','Analog','MED',[
+    ['rest','Underwriting API','Referred to desk','%','lte',22,34,48,'GET /uw/v1/quotes?status=referred']]]],
+ "Policy Renewal Rate": [
+  ['Renewals Processed','Digital','HVY',[
+    ['sql','Policy Admin','Renewed share','%','gte',88,80,70,"SELECT renewed::float/expiring*100 FROM renewals_monthly"]]],
+  ['Lapse Recovery','Analog','MED',[
+    ['rest','Agent Portal','Reinstated','%','gte',24,16,9,'GET /agent/v1/policies?status=reinstated']]]]},
+
+gaming: {
+ "Daily Active Players": [
+  ['Session Starts','Digital','HVY',[
+    ['observability','Telemetry','Unique players','','gte',42000,33000,24000,'query { sessions { unique_players_24h } }'],
+    ['sql','BigQuery','Distinct accounts','','gte',41000,32000,23000,"SELECT count(distinct account_id) FROM sessions WHERE day = current_date()"]]],
+  ['Concurrent Peak','Digital','MED',[
+    ['observability','Grafana','Peak concurrency','','gte',9500,7200,5000,'query { realtime { peak_ccu } }']]]],
+ "Install Conversion": [
+  ['Store Page to Install','Digital','HVY',[
+    ['rest','Store API','Install rate','%','gte',26,19,13,'GET /v1/store/metrics?metric=install_rate'],
+    ['observability','Amplitude','First session completed','%','gte',64,50,36,'query { onboarding { completed, started } }']]],
+  ['Install Integrity','Digital','MED',[
+    ['observability','Telemetry','Installs completing','%','gte',96,90,82,'query { installs { completed, started } }']]]],
+ "D30 Retention": [
+  ['Day-Thirty Returners','Digital','HVY',[
+    ['sql','BigQuery','D30 share','%','gte',18,13,8,"SELECT d30::float/cohort*100 FROM retention_cohorts"]]],
+  ['Session Frequency','Digital','MED',[
+    ['observability','Telemetry','Sessions per player','','gte',3.4,2.4,1.5,'query { engagement { sessions_per_player_7d } }']]]]},
+
+vending: {
+ "Machine Revenue": [
+  ['Vend Transactions','Digital','HVY',[
+    ['sql','Telemetry Warehouse','Vends','','gte',5200,4100,2900,"SELECT count(*) FROM vends WHERE vended_at::date = current_date"],
+    ['rest','Nayax','Settled value','$','gte',96000,78000,58000,'GET /v1/transactions/settled?window=30d']]],
+  ['Machines Reporting','Digital','MED',[
+    ['historian','OPC-UA gateway','Estate online','%','gte',97,92,85,'tag: ESTATE.MACHINES.ONLINE_PCT']]]],
+ "Restock Efficiency": [
+  ['Route Fill Rate','Analog','HVY',[
+    ['sql','PostgreSQL','Slots filled','%','gte',88,78,66,"SELECT filled::float/slots*100 FROM restock_visits"],
+    ['rest','Route App','Machines per run','','gte',24,18,12,'GET /routes/v1/visits?window=1d']]],
+  ['Planogram Adherence','Analog','MED',[
+    ['rest','Route App','Slots to plan','%','gte',92,82,70,'GET /routes/v1/planogram-compliance']]]],
+ "Stockout Rate": [
+  ['Empty Slot Share','Digital','HVY',[
+    ['historian','OPC-UA gateway','Slots empty','%','lte',4,7,11,'tag: ESTATE.SLOTS.EMPTY_PCT']]],
+  ['Days of Cover','Digital','MED',[
+    ['sql','Snowflake','Days to depletion','','gte',6,4,2,"SELECT avg(days_of_cover) FROM slot_forecast"]]]]},
+
+ports: {
+ "Container Throughput": [
+  ['Container Moves','Digital','HVY',[
+    ['sql','TOS Warehouse','Moves','','gte',5200,4200,3100,"SELECT count(*) FROM crane_moves WHERE move_date = current_date"],
+    ['historian','OPC-UA gateway','Crane productivity','','gte',28,23,17,'tag: QC.MOVES_PER_HOUR']]],
+  ['Gate Transactions','Analog','MED',[
+    ['rest','Gate System','Truck moves','','gte',2400,1900,1300,'GET /gate/v1/transactions?window=1d']]]],
+ "Berth Utilization": [
+  ['Berth Occupancy','Analog','HVY',[
+    ['sql','PostgreSQL','Berth hours used','%','gte',78,66,54,"SELECT occupied_hours/available_hours*100 FROM berth_utilisation"],
+    ['observability','Port Ops','Hours alongside','','lte',18,26,36,'query { vessels { avg_hours_alongside } }']]],
+  ['Vessel Schedule Integrity','Analog','MED',[
+    ['rest','Vessel Schedule','Arrivals on window','%','gte',80,66,50,'GET /schedule/v1/arrivals?status=on-window']]]],
+ "Dwell Time": [
+  ['Container Dwell','Digital','HVY',[
+    ['sql','Snowflake','Days in yard','','lte',3.5,5,7,"SELECT avg(dwell_days) FROM yard_inventory"]]],
+  ['Yard Occupancy','Digital','MED',[
+    ['observability','Yard Analytics','Slots used','%','lte',78,88,95,'query { yard { occupied_slots, total_slots } }']]]]},
+
+logistics: {
+ "Shipment Volume": [
+  ['Consignments Dispatched','Digital','HVY',[
+    ['sql','TMS Warehouse','Dispatched','','gte',4800,3800,2700,"SELECT count(*) FROM consignments WHERE dispatched_on = current_date"],
+    ['historian','Ignition','Vehicles released per hour','','gte',18,13,8,'tag: DEPOT.RELEASE_RATE']]],
+  ['Vehicle Utilisation','Analog','MED',[
+    ['observability','Telematics','Load factor','%','gte',82,70,56,'query { fleet { load_factor } }']]]],
+ "On-Time Delivery": [
+  ['Delivered Within Window','Digital','HVY',[
+    ['sql','PostgreSQL','On-time share','%','gte',94,86,76,"SELECT on_time::float/delivered*100 FROM deliveries_daily"],
+    ['rest','Depot System','Departed on time','%','gte',90,78,64,'GET /depot/v1/departures?window=1d']]],
+  ['Transit Duration','Analog','MED',[
+    ['observability','Telematics','Hours in transit','','lte',9,13,18,'query { fleet { avg_transit_hours } }']]]],
+ "Damage Rate": [
+  ['Damaged Consignments','Digital','HVY',[
+    ['sql','Snowflake','Damage share','%','lte',1.2,2.2,3.4,"SELECT damaged::float/delivered*100 FROM claims_daily"]]],
+  ['Claims Value','Analog','MED',[
+    ['rest','Claims API','Claim value','$','lte',12000,22000,36000,'GET /claims/v1/summary?window=30d']]]]},
+
+energy: {
+ "Energy Delivered": [
+  ['Metered Delivery','Digital','HVY',[
+    ['historian','OSIsoft PI','Energy delivered','','gte',48000,40000,31000,'tag: GRID.MWH_DELIVERED_24H'],
+    ['observability','SCADA','Load served','','gte',2100,1700,1300,'query { grid { load_served_mw } }']]],
+  ['Generation Dispatch','Digital','MED',[
+    ['historian','OSIsoft PI','Dispatched output','','gte',2100,1700,1300,'tag: GEN.DISPATCHED_MW']]]],
+ "Grid Reliability": [
+  ['Service Availability','Digital','HVY',[
+    ['observability','SCADA','Availability','%','gte',99.2,98.4,97.2,'query { grid { availability_pct } }'],
+    ['historian','OSIsoft PI','Voltage in tolerance','%','gte',98,94,88,'tag: GRID.VOLTAGE.IN_TOLERANCE_PCT']]],
+  ['Protection Integrity','Digital','MED',[
+    ['historian','Ignition','Relays healthy','%','gte',99,96,92,'tag: PROT.RELAY.HEALTHY_PCT']]]],
+ "Outage Frequency": [
+  ['Interruptions per Customer','Digital','HVY',[
+    ['sql','Snowflake','SAIFI','','lte',1.2,2,3.2,"SELECT interruptions::float/customers AS saifi FROM outage_monthly"]]],
+  ['Restoration Time','Analog','MED',[
+    ['rest','Outage Management','Minutes to restore','','lte',90,140,210,'GET /oms/v1/outages?metric=avg_restore_minutes']]]]},
+
+mining: {
+ "Combustible por Tonelada": [
+  ['Consumo de Combustible','Analog','HVY',[
+    ['historian','Caterpillar VIMS','Galones por hora motor','gal/h','lte',86,104,128,'tag: HT.ENGINE.FUEL_RATE'],
+    ['historian','OSIsoft PI','Galones totales por ciclo','gal','lte',7.4,9.1,11.5,'tag: HT.CYCLE.FUEL_TOTAL']]],
+  ['Tonelaje Transportado','Analog','MED',[
+    ['historian','Komatsu KOMTRAX','Toneladas por ciclo','ton','gte',232,196,158,'tag: HT.PAYLOAD.TONS']]]],
+ "Toneladas Movidas": [
+  ['Ciclos Completados','Digital','HVY',[
+    ['historian','MineStar','Ciclos por turno','','gte',42,34,25,'tag: FLEET.CYCLES_PER_SHIFT'],
+    ['historian','OSIsoft PI','Tiempo de ciclo','min','lte',28,35,44,'tag: HT.CYCLE.DURATION']]],
+  ['Carga por Ciclo','Analog','MED',[
+    ['historian','Komatsu KOMTRAX','Carga util promedio','ton','gte',228,192,152,'tag: HT.PAYLOAD.MEAN']]]],
+ "Horas en Ralent\u00ed": [
+  ['Tiempo en Ralent\u00ed','Analog','HVY',[
+    ['historian','OSIsoft PI','Horas en ralenti','h','lte',4,6.5,9,'tag: HT.STATE.IDLE_HOURS'],
+    ['historian','Caterpillar VIMS','Motor sin carga','%','lte',18,26,36,'tag: HT.ENGINE.UNLOADED_PCT']]],
+  ['Disponibilidad de Flota','Digital','MED',[
+    ['historian','MineStar','Camiones en operacion','%','gte',88,78,66,'tag: FLEET.AVAILABILITY_PCT']]]]},
+
+manufacturing: {
+ "Units Produced": [
+  ['Line Output','Digital','HVY',[
+    ['observability','MES','Units produced','','gte',12500,10200,7800,'query { lines { units_produced_shift } }'],
+    ['historian','Ignition','Line runtime','%','gte',88,78,65,'tag: LINE.RUNTIME_PCT']]],
+  ['Material Feed','Analog','MED',[
+    ['historian','OPC-UA gateway','Feed rate','','gte',420,340,250,'tag: LINE.FEED_RATE']]]],
+ "First-Pass Yield": [
+  ['Units Passing Inspection','Digital','HVY',[
+    ['sql','Quality DB','First-pass share','%','gte',96,91,85,"SELECT passed_first::float/inspected*100 FROM inspections"],
+    ['rest','MES API','Units reworked','','lte',120,220,360,'GET /mes/v1/rework?window=shift']]],
+  ['Calibration Drift','Digital','MED',[
+    ['historian','Ignition','Stations in tolerance','%','gte',98,94,88,'tag: QC.TORQUE.IN_TOLERANCE_PCT']]]],
+ "Defect Rate": [
+  ['Defects per Thousand','Digital','HVY',[
+    ['sql','Quality DB','Defect share','%','lte',1.5,2.6,4,"SELECT defects*100.0/units FROM production_shift"]]],
+  ['Scrap Weight','Analog','MED',[
+    ['historian','Ignition','Scrap mass','','lte',180,320,520,'tag: LINE.SCRAP_KG']]]]},
+
+};
+
+/* Compact rows → the shape generateKbrSimulation already consumes. Done once,
+   at load, so the generator itself is unchanged apart from where it looks. */
+function expandTpLib(raw){
+  const out = {};
+  Object.keys(raw).forEach(function(ind){
+    out[ind] = {};
+    Object.keys(raw[ind]).forEach(function(kbrName){
+      out[ind][kbrName] = raw[ind][kbrName].map(function(t){
+        return { tp:t[0], dna:t[1], weight:t[2], srcs:t[3].map(function(s){
+          return { type:s[0], platform:s[1], label:s[2], unit:s[3], dir:s[4],
+                   g:s[5], y:s[6], r:s[7], q:s[8] };
+        })};
+      });
+    });
+  });
+  return out;
+}
+const INDUSTRY_KBR_TPS = expandTpLib(INDUSTRY_KBR_TPS_RAW);
+
+/* Which measurement touchpoints belong to this result, right now.
+
+   Name-keyed and industry-scoped, so it fires only when the board still
+   carries the industry's own result. Anything else — a hand-edited KBR, a
+   business function, a Journey Doc — falls through to the generic pair, which
+   is the behaviour that shipped. Optionality holds: no industry in the table
+   is byte-identical to before, every industry outside it is untouched. */
+function kbrArchetypes(kbr){
+  /* SAME GATE AS THE BUNDLED DOCUMENTS, AND FOR THE SAME REASON.
+
+     These are industry OPINIONS. Like DEMO_CONFIG they belong to the explicit
+     Apply Simulation action and never to page load, because the Optionality
+     law says an untouched board is byte-identical to the Simulation_19
+     baseline. `identity45` enforces it by calling applyKbrSimulation()
+     directly, without applyConfig() — which is precisely the path a page load
+     takes, and precisely why DEMO_CONFIG lives where it does.
+
+     Hooking the library into generateKbrSimulation alone put retail's
+     'Point-of-Sale Revenue' onto the default board, whose first result is
+     coincidentally also called 'Total Sales'. The gate caught it. */
+  if(!SIM_APPLYING) return KBR_SIM[kbr.type] || KBR_SIM.value;
+  const byInd = INDUSTRY_KBR_TPS[SB_CFG.industry];
+  const own = byInd && byInd[kbr.name];
+  if(own && own.length) return own;
+  return KBR_SIM[kbr.type] || KBR_SIM.value;
+}
+/* True only for the duration of an explicit Apply Simulation. */
+let SIM_APPLYING = false;
+
 function generateKbrSimulation(kbr, forceTier){
-  const archetypes = KBR_SIM[kbr.type] || KBR_SIM.value;
+  const archetypes = kbrArchetypes(kbr);
   const svc = (kbr.name||'kbr').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
   // bias the demo health so the three cards show a healthy MIX (one of them tense)
   const bias = 0.4 + Math.random()*0.55;
@@ -11498,7 +11998,11 @@ function seedKbrAnswers(kbr){
         lastTest:{ ok:true, sample:'{ "value": '+(Math.random()*100).toFixed(1)+' }', ranAt:'demo' }
       };
     });
-    return { tid:'ans_tp'+tpCounter, name:d.name, dna:'Digital', weight:'MED', rollup:'weighted', status:'gray', sources };
+    /* `seeded` marks this as scaffolding, not a decision. A Config Doc that
+       declares its own answers for this result clears anything still carrying
+       the flag — see ConfigApply. Filtering on `!declared` instead would have
+       taken hand-added answers with it, which are nobody's scaffolding. */
+    return { tid:'ans_tp'+tpCounter, name:d.name, dna:'Digital', weight:'MED', rollup:'weighted', status:'gray', seeded:true, sources };
   });
   kbr.answers.forEach(tp=>{ tp.status = computeTouchpointStatus(tp); });
 }
@@ -13219,6 +13723,17 @@ function statusDot(st){
   return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c+';margin-right:7px;flex-shrink:0"></span>';
 }
 
+/* One line naming the components actually behind the meter, for the case where
+   this tab is empty and the header still shows a figure. Returns '' when there
+   is nothing to attribute, so a genuinely unconfigured result stays silent. */
+function riskEmptyAttribution(kbr){
+  var c = (typeof kbrCompositeRisk === 'function') ? kbrCompositeRisk(kbr) : null;
+  if(!c || !c.components.length) return '';
+  var names = c.components.map(function(x){ return x.label.toLowerCase(); }).join(' and ');
+  return '<p class="sub">The ' + c.pct + '% reading above is ' + names +
+         ' risk, from ' + c.driver.detail + ' \u2014 not from this tab.</p>';
+}
+
 function renderRiskTouchpoints(kbr){
   var box = document.getElementById('rmTpContent'); if(!box) return;
   var tps = riskTps(kbr);
@@ -13229,8 +13744,16 @@ function renderRiskTouchpoints(kbr){
          row and the line beneath the header. */
       '<div class="tp-empty">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>' +
-        '<p>No touchpoints yet</p>' +
-        '<p class="sub">Use the + Touchpoint button above to start measuring this result</p>' +
+        '<p>No risk touchpoints yet</p>' +
+        '<p class="sub">Use the + Touchpoint button above to add leading indicators for this result</p>' +
+        /* WHERE THE NUMBER COMES FROM.
+
+           An empty list under a live percentage read as a fault, and it was
+           reported as one. The figure was never wrong — it is performance
+           risk, computed from the result's measurement touchpoints, which sit
+           on the Key Business Result panel rather than this one. Saying so
+           costs one line and removes the whole ambiguity. §5.4. */
+        riskEmptyAttribution(kbr) +
       '</div><div id="rmTpExpand" class="tp-expand"></div>';
     wireRiskTps(kbr);
     return;
