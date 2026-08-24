@@ -4146,7 +4146,7 @@ function updateJourneyPreview(){
   const nSub = Object.keys(sized.subs||{}).length;
   box.innerHTML = `<div class="jp-name">${sized.name}</div>
     <div class="jp-flow">${flow}</div>
-    <div class="jp-meta">${SB_CFG.size} \u00b7 ${sized.primes.length} prime \u00b7 ${nSub} sub \u00b7 auto-simulated</div>`;
+    <div class="jp-meta">${sized.size} \u00b7 ${sized.primes.length} prime \u00b7 ${nSub} sub \u00b7 auto-simulated</div>`;
   box.classList.add('show');
   renderStagePreview(sized);
 }
@@ -4325,7 +4325,12 @@ function applyConfig(){
     closeSidebar();
     if(typeof refreshHeaderCounts === 'function') refreshHeaderCounts();
     if(jt){
-      let msg = 'Simulation built: ' + jt.name + ' (' + SB_CFG.size + ')';
+      /* The size in the toast is the sized journey's own — small/medium/large
+         when makeSized cut a template, "document" when a Journey Doc declared
+         its stages itself. SB_CFG.size is the selector, and a document-built
+         journey never consults the selector; quoting it here reported
+         "(medium)" over a board with seven declared stages. */
+      let msg = 'Simulation built: ' + jt.name + ' (' + jt.size + ')';
       if(demo) msg += ' · ' + demo.channels + ' channels, ' + demo.risk +
                       ' touchpoints, ' + demo.conditions + ' conditions';
       /* An attached document reports what it bound AND what it did not. A name

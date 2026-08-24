@@ -153,6 +153,16 @@ head('1 \u00b7 the writer, read back by the reader');
      'a journey longer than the board reports the overflow rather than trimming in silence',
      narrow.unplaced[0]);
 
+  /* Honest size reporting — option C, approved in session 4. The toast and the
+     preview meta print the sized journey's OWN size field, so what that field
+     holds is the whole contract: a document-built journey must say so, and must
+     never carry a selector value it did not consult. If someone later makes
+     toSized return 'medium', these two lines are what refuses. */
+  is(sized.size === 'document',
+     'a document-built journey names its size "document"', sized.size);
+  is(!['small', 'medium', 'large'].includes(sized.size),
+     'and never quotes a selector value the document bypassed');
+
   const kb = M.JourneyDoc.resultsAsKbrs(g.doc);
   is(kb.length === 2 && kb[0].direction === 'down' && kb[0].unit === 'gal/ton',
      'declared results become KBRs with their declared unit and direction');
