@@ -60,7 +60,10 @@ function apply(doc, kbrs, profile, opts){
     var kbr = matchKbr(kbrs, dk.name);
     if(!kbr && byPos && byPos[dk.name]){
       kbr = byPos[dk.name];
-      report.boundByPosition.push(dk.name + ' \u2192 ' + kbr.name);
+      /* An unnamed slot has nothing to print on the right of the arrow, and
+         'Total Sales \u2192 ' reads like a bug. Say which slot it was. */
+      report.boundByPosition.push(dk.name + ' \u2192 ' +
+        (kbr.name || 'result ' + (kbrs.indexOf(kbr) + 1) + ', undeclared'));
     }
     if(!kbr){
       /* Do not invent a result. A document naming something the journey does
@@ -70,6 +73,22 @@ function apply(doc, kbrs, profile, opts){
       return;
     }
     report.kbrs++;
+
+    /* AN UNDECLARED RESULT TAKES THE DOCUMENT'S NAME.
+
+       The board used to arrive with three results already named by the
+       industry registry, so a document's `kbr` rows always matched by name and
+       there was never a slot to name. On a blank slate a journey that declares
+       no results leaves three unnamed slots, and the document bound to them by
+       POSITION — correctly — and then hung six risk indicators and seven
+       conditions off results still displayed as 'KBR'.
+
+       A document that says a result is called Total Sales is declaring it. The
+       name is taken only where there is none: a result the journey or the user
+       already named is theirs, and a document does not rename it out from
+       under them. */
+    if(!kbr.name && dk.name) kbr.name = dk.name;
+    if(dk.direction) kbr.direction = dk.direction;
 
     if(dk.unit)      kbr.unit = dk.unit;
     if(dk.format)    kbr.format = dk.format;

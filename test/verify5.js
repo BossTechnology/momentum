@@ -201,6 +201,11 @@ const PAY   = 'Truck Payload-Communication Gateway #2';
     SB_CFG.themeId = t.id;
     applyJourneyTemplate('mining', currentSizedJourney());
     applyKbrSimulation();
+    /* BLANK SLATE: an apply names the results and stops. The touchpoints,
+       answers and risk indicators this suite reads are DECLARED, and they
+       arrive when the document is attached — the same call the attach flow
+       makes. Before, the apply itself invented them. */
+    applyExampleConfig('mining');
     MOMENTUM.Bind.attach(prof);
     MOMENTUM.Bind.seek(Date.parse('2026-08-05T18:00:00Z'));
     MOMENTUM.Bind.paintAll();
@@ -320,6 +325,11 @@ const PAY   = 'Truck Payload-Communication Gateway #2';
     SB_CFG.industry = 'mining'; SB_CFG.themeId = 'energy-haul-mining';
     applyJourneyTemplate('mining', currentSizedJourney());
     applyKbrSimulation();
+    /* BLANK SLATE: an apply names the results and stops. The touchpoints,
+       answers and risk indicators this suite reads are DECLARED, and they
+       arrive when the document is attached — the same call the attach flow
+       makes. Before, the apply itself invented them. */
+    applyExampleConfig('mining');
     MOMENTUM.Bind.attach(prof);
     MOMENTUM.Bind.seek(Date.parse('2026-08-05T22:30:00Z'));
     renderKBRs(); MOMENTUM.Bind.paintAll();

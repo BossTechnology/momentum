@@ -13,7 +13,7 @@ answer,Toneladas Movidas,Unidad de Mayor Tonelaje,ton,count,,,,unit,__tons,,mean
 answer,Toneladas Movidas,Turno de Mayor Carga,ton,count,,,,Shift ID,Truck Payload-Communication Gateway #2,,mean,max,,,,,,,
 answer,Toneladas Movidas,Segmento de Mayor Carga,ton,count,,,,Pit Position,Truck Payload-Communication Gateway #2,,mean,max,,,,,,,
 answer,Toneladas Movidas,Operador de Mayor Rendimiento,gal,count,,,,roster,__value,,mean,min,,,,,,,
-kbr,Horas en Ralentí,,h,count,down,,,,,,,,,,,,,,
+kbr,Horas en Ralentí,,h,time,down,,,,,,,,,,,,,,
 answer,Horas en Ralentí,Unidad con Mayor Ralentí,mph,count,,,,unit,Ground Speed-Trans Ctrl,,mean,min,,,,,,,
 answer,Horas en Ralentí,Zona de Mayor Detención,gal/h,count,,,,Pit Position,Fuel Consumption Rate-Engine,,mean,min,,,,,,,
 answer,Horas en Ralentí,Turno con Mayor Ralentí,mph,count,,,,Shift ID,Ground Speed-Trans Ctrl,,mean,min,,,,,,,

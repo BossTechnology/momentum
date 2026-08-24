@@ -1,0 +1,20 @@
+{
+  "_comment": "industry key -> the Config Doc in config/ that ships bundled for it. build/build.js reads these files and generates the DEMO_CONFIG object into the <!--mom:demo-configs--> slot in src/shell.html. The CSV on disk is the only copy: there is no literal to keep in step, because the one the browser loads does not exist until the build runs. Adding an industry means adding a CSV and a line here.",
+  "banking": "banking-demo-config.csv",
+  "ecommerce": "ecommerce-demo-config.csv",
+  "education": "education-demo-config.csv",
+  "energy": "energy-demo-config.csv",
+  "fnb": "fnb-demo-config.csv",
+  "gaming": "gaming-demo-config.csv",
+  "healthcare": "healthcare-demo-config.csv",
+  "hospitality": "hospitality-demo-config.csv",
+  "insurance": "insurance-demo-config.csv",
+  "logistics": "logistics-demo-config.csv",
+  "manufacturing": "manufacturing-demo-config.csv",
+  "mining": "mining-config.csv",
+  "ports": "ports-demo-config.csv",
+  "retail": "retail-demo-config.csv",
+  "tech": "tech-demo-config.csv",
+  "telecom": "telecom-demo-config.csv",
+  "vending": "vending-demo-config.csv"
+}

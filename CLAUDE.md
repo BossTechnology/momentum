@@ -49,6 +49,7 @@ build/build.js     # shell + modules → public/index.html
 build/check.js     # CI drift gate: a rebuild must equal the reference
 build/fixtures.js  # places test fixtures; runs from the pregate hook
 build/modules.json # module → script-id map
+build/configs.json # industry → Config Doc map; the build generates DEMO_CONFIG from these
 config/            # seven industry Config Docs + the derived mining profile
 supabase/          # session8-schema.sql, THEN phase3-data-profiles.sql
 test/              # the ten suites

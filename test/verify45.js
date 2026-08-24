@@ -26,7 +26,13 @@ const ok = (n, c, d) => { c ? (pass++, console.log('  ok   ' + n + (d ? '  · ' 
     const haul = list.find(t=>/haul|acarreo|ciclo|fleet|mining|miner/i.test(t.name)) || list[0];
     SB_CFG.themeId = haul.id;
     applyJourneyTemplate('mining', currentSizedJourney());
-    applyKbrSimulation(); applyLanguage();
+    applyKbrSimulation();
+    /* BLANK SLATE: the apply names the results and stops. What this suite
+       reads — strips, cycle counts, the Risk Meter — hangs off declarations
+       that arrive with the document, through the same call the attach flow
+       makes. */
+    applyExampleConfig('mining');
+    applyLanguage();
     return { journey: haul.name, primes: journeyStages.filter(s=>s.kind==='prime'&&s.name).map(s=>s.name) };
   });
   ok('a mining journey is on screen', built.primes.length >= 4, built.journey + ' · ' + built.primes.join(' / '));

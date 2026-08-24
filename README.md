@@ -31,7 +31,7 @@ because the file the browser loads is produced from the modules every time.
     src/
       shell.html                the page, minus the modules
       boot.js                   sets MOMENTUM_API_BASE — see below
-    build/                      build.js, check.js, extract.js, modules.json
+    build/                      build.js, check.js, extract.js, modules.json, configs.json
     config/                     mining + demo Config Docs, derived profile (schema 3)
     supabase/                   phase3-data-profiles.sql
     test/                       the eight suites

@@ -8,7 +8,6 @@ const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path'), vm = require('vm');
 
 const FILE    = 'file://' + path.resolve(__dirname, '..', 'momentum-Simulation_68.html');
-const BEFORE  = 'file://' + path.resolve(__dirname, '..', 'momentum-Simulation_19.html');
 const profile = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'p20.json'), 'utf8'));
 
 let pass = 0, fail = 0;
@@ -259,6 +258,21 @@ page.on('console', m => { if(m.type() === 'error' && !/403|net::ERR|Failed to lo
 await page.goto(FILE);
 await page.waitForTimeout(2200);
 
+/* BLANK SLATE: the board loads with three unnamed slots and no answers, so
+   this suite declares its subject the way a user would — apply the mining
+   journey, then attach the mining Config Doc, which is where its fifteen
+   answers actually come from. Before, five invented answers per result were
+   waiting on the page at load and the suite read those. */
+await page.evaluate(() => {
+  SB_CFG.industry = 'mining'; SB_CFG.size = 'medium';
+  SB_CFG.themeId = templatesFor('mining')[0].id;
+  applyJourneyTemplate('mining', currentSizedJourney());
+  applyKbrSimulation();
+  applyExampleConfig('mining');
+  renderKBRs();
+});
+await page.waitForTimeout(400);
+
 head('11 · the surface');
 const surf = await page.evaluate(() => ({
   core:      !!(window.MOMENTUM && MOMENTUM.Answer),
@@ -336,18 +350,46 @@ is(!unbound.computed, 'with no profile bound the answer is NOT computed', unboun
 is(unbound.same, 'and it is hash-stable across calls');
 is(unbound.hist, 'and it keeps its twelve-point drift');
 
-head('16 · byte-identity against Simulation_19 with nothing bound');
-const before19 = await (async () => {
+head('16 \u00b7 the Optionality law, restated for a blank slate');
+/* This used to diff the loaded board against Simulation_19's and require them
+   byte-identical. That comparison assumed both files arrive furnished — three
+   named results with five seeded answers each — and it cannot survive a build
+   that arrives with nothing, because the baseline it compares against is the
+   furniture.
+
+   The law is unchanged and the test now states it directly: a board nobody has
+   told anything is empty, and stays empty. Nothing bound means nothing
+   changes. */
+const blank = await (async () => {
   const p2 = await browser.newPage();
-  await p2.goto(BEFORE); await p2.waitForTimeout(1600);
-  const snap = await p2.evaluate(() => JSON.stringify(KBRS.map(k => ({
-    n:k.name, t:k.type, u:k.unit, a:(k.answers || []).map(x => x.name) }))));
-  await p2.close(); return snap;
+  await p2.goto(FILE); await p2.waitForTimeout(1600);
+  const read = () => p2.evaluate(() => ({
+    slots: KBRS.length,
+    named: KBRS.filter(k => k.name).length,
+    answers: KBRS.reduce((a, k) => a + (k.answers || []).length, 0),
+    tps: KBRS.reduce((a, k) => a + (k.touchpoints || []).length, 0),
+    risk: KBRS.reduce((a, k) => a + (k.riskTouchpoints || []).length, 0),
+    conds: KBRS.reduce((a, k) => a + (k.riskConditions || []).length, 0),
+    stageTps: journeyStages.reduce((a, s) => a + (s.touchpoints || []).length, 0),
+    active: journeyStages.filter(s => s.state && s.state !== 'inactive').length,
+  }));
+  const first = await read();
+  await p2.waitForTimeout(2500);          // let every timer on the page run
+  const second = await read();
+  await p2.close();
+  return { first, second };
 })();
-const after24 = await page.evaluate(() => JSON.stringify(KBRS.map(k => ({
-  n:k.name, t:k.type, u:k.unit, a:(k.answers || []).map(x => x.name) }))));
-is(before19 === after24, 'the unbound board is identical to Simulation_19',
-   before19.length + ' chars matched');
+is(blank.first.slots === 3 && blank.first.named === 0,
+   'the board loads with three slots and not one declared result',
+   blank.first.named + ' named of ' + blank.first.slots);
+is(blank.first.answers === 0 && blank.first.tps === 0 && blank.first.risk === 0 &&
+   blank.first.conds === 0,
+   'nothing is declared about any of them \u2014 no answers, touchpoints, indicators or conditions',
+   JSON.stringify(blank.first));
+is(blank.first.stageTps === 0 && blank.first.active === 0,
+   'and the journey is empty, with no stage active');
+is(JSON.stringify(blank.first) === JSON.stringify(blank.second),
+   'and it is still empty after the timers have run \u2014 nothing creeps in');
 
 head('17 · the page');
 is(errors.length === 0, 'no page errors across the whole run',

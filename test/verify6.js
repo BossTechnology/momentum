@@ -195,6 +195,14 @@ const ok = (n, c, d) => { c ? pass++ : fail++;
   const mig = await page.evaluate(() => {
     const KB = (typeof KBRS !== 'undefined') ? KBRS : [];
     const kbr = KB[0];
+    /* BLANK SLATE: the board no longer arrives carrying generated alerts, so
+       this suite makes its own legacy record instead of borrowing the
+       scaffolding's. That is what it was always testing — that an OLD
+       kbr.alerts array survives migration into riskConditions without loss —
+       and it now says so instead of depending on load order. Migration runs
+       once, on first read, so the cached array is dropped first. */
+    generateKbrAlerts(kbr);
+    delete kbr.riskConditions;
     const legacy = (kbr.alerts || []).slice();
     const conds = window.riskConditionsOf(kbr);
     const migrated = conds.filter(c => c.origin === 'migrated');
@@ -303,6 +311,15 @@ const ok = (n, c, d) => { c ? pass++ : fail++;
   console.log('\n10 \u00b7 tolerance is the final surface filter');
   const tol = await page.evaluate(() => {
     const R = window.MOMENTUM.Risk;
+    /* The dial lives on a rendered result. On a blank-slate board nothing is
+       rendered until something is declared, so declare it the way a user would:
+       apply a journey, then attach the document. */
+    SB_CFG.industry = 'mining'; SB_CFG.size = 'medium';
+    SB_CFG.themeId = templatesFor('mining')[0].id;
+    applyJourneyTemplate('mining', currentSizedJourney());
+    applyKbrSimulation();
+    applyExampleConfig('mining');
+    renderKBRs();
     const items = [{ severity: 'warning' }, { severity: 'critical' },
                    { severity: 'critical', suppressed: true }];
     return { high: R.surface(items, 70).length, low: R.surface(items, 10).length,
