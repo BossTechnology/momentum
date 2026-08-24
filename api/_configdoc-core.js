@@ -437,6 +437,12 @@ MOMENTUM.ConfigDoc = {
   version: 1, SCHEMA: SCHEMA,
   blank: blank, parse: parse, fromRows: fromRows, fromJson: fromJson,
   fromYaml: fromYaml, fromDelimited: fromDelimited, normalise: normalise,
+  /* Exported so the Journey Doc and the Data Doc read delimited text through
+     THIS splitter rather than each carrying a copy. The `#` comment rule in
+     particular has to hold everywhere: a template ships with its guidance
+     written underneath, and a second implementation that forgot the rule would
+     read that guidance back as declarations. */
+  splitRows: splitRows,
   bindName: bindName, columnsOf: columnsOf
 };
 

@@ -193,7 +193,13 @@ function toObjects(rows){
   });
 }
 
-function parseBinary(arrayBuffer, filename){
+/** Rows out of a binary, WITHOUT deciding what they mean. parseBinary below
+ *  hands its rows straight to the Config Doc parser, which was the only reader
+ *  there was; a .docx Journey Doc going down that path is read as a
+ *  configuration and rejected for declaring no results. Splitting the read
+ *  from the interpretation lets one archive reader serve all three documents,
+ *  which is the same one-mechanism argument the formats already make. */
+function readRows(arrayBuffer, filename){
   var ext = String(filename || '').toLowerCase().split('.').pop();
   var bytes = new Uint8Array(arrayBuffer);
   var reader = ext === 'xlsx' || ext === 'xlsm' ? readXlsx
@@ -203,14 +209,22 @@ function parseBinary(arrayBuffer, filename){
     if(!res.ok) return res;
     var objs = toObjects(res.rows);
     if(!objs.length) return { ok:false, reason:'the table had no rows below its header' };
+    return { ok:true, rows: objs };
+  });
+}
+
+function parseBinary(arrayBuffer, filename){
+  return readRows(arrayBuffer, filename).then(function(res){
+    if(!res.ok) return res;
     var CD = MOMENTUM.ConfigDoc;
     if(!CD) return { ok:false, reason:'the config parser is unavailable' };
-    return CD.fromRows(objs);
+    return CD.fromRows(res.rows);
   });
 }
 
 MOMENTUM.OfficeDoc = {
-  version: 1, parseBinary: parseBinary, readXlsx: readXlsx, readDocx: readDocx,
+  version: 1, parseBinary: parseBinary, readRows: readRows,
+  readXlsx: readXlsx, readDocx: readDocx,
   toObjects: toObjects, entries: entries
 };
 

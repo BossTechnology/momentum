@@ -1707,6 +1707,23 @@ body.accum-mode .kbr-col[data-tier="critical"] .kbr-value{animation:none}
 
 .cfg-tmpl-btn{font:inherit;font-size:10.5px;border:none;background:none;cursor:pointer;color:var(--gray,#6A6A6A);padding:2px 0;margin-top:6px;border-bottom:1px solid var(--gray-border,#E8E8E8)}
 .cfg-tmpl-btn:hover{color:var(--black,#141414);border-bottom-color:var(--black,#141414)}
+.cfg-tmpl-btn[disabled]{opacity:.4;cursor:not-allowed;border-bottom-color:transparent}
+.cfg-tmpl-btn[disabled]:hover{color:var(--gray,#6A6A6A)}
+
+/* THE MODE FORK. An unavailable mode is drawn as unavailable — struck through,
+   not merely dimmed — because a greyed control reads as "not yet" and this one
+   means "not possible with what is attached". The reason sits underneath and
+   names the action that would change it. */
+.mode-fork{margin-top:10px}
+.mode-fork-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-light);margin-bottom:5px}
+.mode-fork-row{display:flex;gap:5px;flex-wrap:wrap}
+.mode-chip{font:inherit;font-size:11px;font-weight:600;padding:5px 11px;border-radius:7px;cursor:pointer;
+  border:1px solid var(--gray-border,#E8E8E8);background:var(--white,#fff);color:var(--gray-mid,#6A6A6A)}
+.mode-chip:hover:not([disabled]){border-color:var(--black,#141414);color:var(--black,#141414)}
+.mode-chip.on{background:var(--black,#141414);border-color:var(--black,#141414);color:#fff}
+.mode-chip[disabled]{cursor:not-allowed;opacity:.45;text-decoration:line-through;
+  text-decoration-thickness:1px;background:var(--gray-bg,#F7F7F7)}
+.mode-fork-why{font-size:10px;color:var(--gray-light);line-height:1.45;margin-top:5px}
 
 /* The subtitle was held to one line but the TITLE above it was left to wrap,
    so "Combustible por Tonelada · Answer Engine" took two rows and pushed the
@@ -1994,7 +2011,7 @@ body.accum-mode .kbr-col[data-tier="critical"] .kbr-value{animation:none}
       <div class="sb-step"><span class="sb-step-n">2</span>
         <label class="sb-label">Journey Doc <em class="sb-opt">optional</em></label></div>
       <div class="doc-attach" id="docAttachRow">
-        <input type="file" id="contextDocFile" accept=".txt,.md,.csv,.json,.html,.pdf,.docx" onchange="handleContextDoc(this)">
+        <input type="file" id="contextDocFile" accept=".txt,.md,.csv,.tsv,.json,.html,.pdf,.docx,.xlsx" onchange="handleContextDoc(this)">
         <button type="button" class="doc-attach-btn" onclick="document.getElementById('contextDocFile').click()">
           <svg viewBox="-16 -16 32 32" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M5,-9 a5,5 0 0 0 -6.5,6.5 l-7.5,7.5 a2,2 0 0 0 3,3 l7.5,-7.5 a5,5 0 0 0 6.5,-6.5 l-3,3 l-3,-3 z"/></svg>
           Attach document
@@ -2003,6 +2020,13 @@ body.accum-mode .kbr-col[data-tier="critical"] .kbr-value{animation:none}
           <span id="docAttachName"></span>
           <button type="button" onclick="clearContextDoc()" title="Remove">&times;</button>
         </div>
+        <!-- A .docx table IS the journey. A .txt of prose is context for it.
+             One slot, because to the person holding the file they are both
+             "the document about the journey" — which of the two it turns out
+             to be is read off the file, not asked about. -->
+        <button type="button" class="cfg-tmpl-btn" id="jrnTmplBtn" onclick="downloadJourneyTemplate()"
+                title="A Word table of the journey, to edit and bring back">Download Journey Doc</button>
+        <div class="data-attach-status" id="docAttachStatus"></div>
       </div>
       <div class="sb-step"><span class="sb-step-n">3</span>
         <label class="sb-label">Data Doc <em class="sb-opt">optional</em></label></div>
@@ -2026,6 +2050,19 @@ body.accum-mode .kbr-col[data-tier="critical"] .kbr-value{animation:none}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12,3 v12"/><path d="M7,11 l5,5 l5,-5"/><path d="M4,20 h16"/></svg>
         Download data template
       </button>
+      <!-- THE MODE PICKS THE TEMPLATE, not the other way round. Replay,
+           seeded and free need genuinely different documents; one shape for
+           all three arrives with rows that cannot apply and without the rows
+           it needs. Replay with nothing attached is rendered UNAVAILABLE with
+           its reason, because a mode that cannot exist and a mode that needs
+           setting up are different things and should not look alike. -->
+      <div class="mode-fork" id="modeFork">
+        <div class="mode-fork-head">Data mode</div>
+        <div class="mode-fork-row" id="modeForkRow"></div>
+        <div class="mode-fork-why" id="modeForkWhy"></div>
+        <button type="button" class="cfg-tmpl-btn" id="dataDocBtn" onclick="downloadDataDoc()"
+                title="The Data Doc this mode calls for">Download Data Doc</button>
+      </div>
       <div class="coverage-panel" id="coveragePanel"></div>
 
       <div class="sb-step"><span class="sb-step-n">4</span>
@@ -2835,7 +2872,13 @@ const SB_CFG = { lang:'es', vol:3, speed:3, logoMode:'upload', selectedIcon:null
                  industry:'', themeId:'', size:'medium', logoSrc:null, clientName:'',
                  businessFn:'',           // optional business-function lens (HR, sales, ops…)
                  contextDoc:null,         // {name, text} parsed from an attached document
+                 journeyDoc:null,         // {name, doc} parsed Journey Doc, built on Apply
                  configDoc:null,          // {name, doc} parsed Config Doc, applied on Apply
+                 /* Which document the Data Doc step offers. `free` is the
+                    honest default: with nothing attached it is the only mode
+                    that can be authored, and nothing is ever switched on the
+                    person's behalf when data arrives. */
+                 dataMode:'free',
                  dataProfileId:null,      // Phase 3 — id of the stored data profile
                  dataProfile:null,        // in-session profile object (not exported)
                  dataProfileMeta:null,    // {name,sizeBytes,rows,sheets,path,profiledAt}
@@ -3309,6 +3352,8 @@ function openSidebar(){
   renderIconGrid();
   renderKbrConfig();
   syncExampleRow();
+  if(window.MOMENTUM && MOMENTUM.Data && MOMENTUM.Data.syncTemplateLink)
+    MOMENTUM.Data.syncTemplateLink();
 }
 function closeSidebar(){
   document.getElementById('sbOverlay').classList.remove('open');
@@ -3390,6 +3435,20 @@ function onBusinessFnChange(){
 function populateThemeSelect(){
   const themeSel = document.getElementById('journeyThemeSelect');
   const sizeSel  = document.getElementById('journeySizeSelect');
+  /* A HELD JOURNEY DOCUMENT IS IN CHARGE. Leaving the template dropdown live
+     underneath one would offer a choice that changes nothing — the worst kind
+     of control, because the person makes it and then wonders why the board
+     ignored them. It says what is running instead, and goes back to normal the
+     moment the document is removed. */
+  const jd = SB_CFG.journeyDoc;
+  if(jd && jd.doc){
+    themeSel.innerHTML = '<option value="">' +
+      escapeHtml(jd.name) + ' \u2014 attached journey</option>';
+    themeSel.disabled = true;
+    sizeSel.disabled = true;   // a document declares its own size
+    updateJourneyPreview();
+    return;
+  }
   const list = templatesFor(SB_CFG.industry);
   if(!SB_CFG.industry || !list.length){
     themeSel.innerHTML = '<option value="">-- Select industry first --</option>';
@@ -3483,9 +3542,17 @@ function refreshOpenPanels(){
   }
 }
 
-// ─── ATTACHED CONTEXT DOCUMENT ────────────────────────────────────
-// Parse a dropped document to text and keep it on SB_CFG.contextDoc so it can
-// influence generation (BOBee context + journey/answer theming on Apply).
+// ─── ATTACHED JOURNEY DOCUMENT ────────────────────────────────────
+// ONE SLOT, TWO OUTCOMES. A .docx table, a .xlsx sheet or a .csv with a `kind`
+// column IS the journey: stages, substages, touchpoints, results. Anything
+// else — prose, a PDF, a deck exported to text — is CONTEXT for the journey,
+// which is what this slot did before and still does.
+//
+// Which of the two a file turns out to be is read off the file rather than
+// asked about, because to the person holding it both are "the document about
+// the journey". A structured document that FAILS to parse is not silently
+// demoted to context: it announced itself with a kind column, so it is
+// reported and refused, and the reason names the row.
 async function handleContextDoc(input){
   const file = input.files && input.files[0];
   if(!file) return;
@@ -3495,6 +3562,36 @@ async function handleContextDoc(input){
   nameEl.textContent = file.name;
   chip.style.display = 'inline-flex';
   status.textContent = 'Reading \u2026';
+
+  const structured = await _readJourneyDoc(file);
+  if(structured){
+    if(structured.ok){
+      SB_CFG.journeyDoc = { name:file.name, doc:structured.doc };
+      SB_CFG.contextDoc = null;
+      const J = MOMENTUM.JourneyDoc;
+      const sized = J.toSized(structured.doc, { maxPrimes:_primeSlotCount() });
+      let msg = 'Journey attached \u00b7 ' + J.describe(structured.doc) +
+                ' \u00b7 built on Apply Simulation';
+      if(sized && sized.unplaced.length)
+        msg += '  \u2014 not placed: ' + sized.unplaced.join('; ');
+      if(structured.doc.columnish.length)
+        msg += '  \u2014 reads like a data column, not a business observation: ' +
+               structured.doc.columnish.join(', ');
+      status.textContent = msg;
+      if(typeof populateThemeSelect === 'function') populateThemeSelect();
+      if(typeof updateJourneyPreview === 'function') updateJourneyPreview();
+      if(typeof renderKbrConfig === 'function') renderKbrConfig();
+      return;
+    }
+    SB_CFG.journeyDoc = null;
+    status.textContent = 'Not applied \u2014 ' + structured.reason +
+      (structured.hint ? ' ' + structured.hint : '');
+    if(typeof updateJourneyPreview === 'function') updateJourneyPreview();
+    return;
+  }
+
+  // not a structured journey — the original context path, unchanged
+  SB_CFG.journeyDoc = null;
   try{
     const text = await extractDocText(file);
     const clean = (text||'').replace(/\s+/g,' ').trim();
@@ -3504,13 +3601,81 @@ async function handleContextDoc(input){
     } else {
       SB_CFG.contextDoc = { name:file.name, text: clean.slice(0, 12000) };
       const words = clean.split(' ').length;
-      status.textContent = `Attached \u00b7 ${words.toLocaleString()} words captured \u00b7 will inform generation`;
+      status.textContent = `Attached as context \u00b7 ${words.toLocaleString()} words captured \u00b7 will inform generation`;
     }
   }catch(e){
     SB_CFG.contextDoc = { name:file.name, text:'' };
     status.textContent = 'Attached \u2014 could not parse contents (' + (e.message||'error') + ').';
   }
+  if(typeof updateJourneyPreview === 'function') updateJourneyPreview();
 }
+
+/* Returns a JourneyDoc parse result, or null when the file is not a structured
+   document at all — which is the signal to read it as context instead. */
+async function _readJourneyDoc(file){
+  const M = window.MOMENTUM;
+  if(!M || !M.JourneyDoc) return null;
+  const ext = String(file.name || '').toLowerCase().split('.').pop();
+  try{
+    if(ext === 'docx' || ext === 'xlsx' || ext === 'xlsm'){
+      if(!M.OfficeDoc || !M.OfficeDoc.readRows) return null;
+      const res = await M.OfficeDoc.readRows(await file.arrayBuffer(), file.name);
+      /* A .docx with no table is prose. That is a legitimate context document
+         and must not be reported as a broken journey. */
+      if(!res || !res.ok) return /no table found/.test((res && res.reason) || '') ? null : null;
+      const hasKind = res.rows.some(r => Object.prototype.hasOwnProperty.call(r, 'kind'));
+      if(!hasKind) return null;
+      return M.JourneyDoc.fromRows(res.rows);
+    }
+    if(ext === 'csv' || ext === 'tsv'){
+      const text = await file.text();
+      const first = String(text).split(/\r?\n/).find(l => l.trim() && l.trim()[0] !== '#') || '';
+      if(!/(^|[,\t])\s*kind\s*($|[,\t])/i.test(first)) return null;
+      return M.JourneyDoc.parse(text, file.name);
+    }
+  }catch(e){ return null; }
+  return null;
+}
+
+/* How many prime hexagons the board actually has. A document declaring more
+   stages than there are slots is not trimmed silently — toSized reports the
+   overflow and the status line prints it. */
+function _primeSlotCount(){
+  try { return journeyStages.filter(s => s.kind === 'prime').length || 8; }
+  catch(e){ return 8; }
+}
+
+/* The journey currently on offer, as an editable Word table. Whatever the
+   template preview shows is what comes out, so the round trip is
+   template -> document -> edit -> attach rather than a blank page and a schema
+   to retype. With nothing chosen it is the bare contract, which is still the
+   thing somebody starting from their own business needs. */
+function downloadJourneyTemplate(){
+  const M = window.MOMENTUM;
+  const status = document.getElementById('docAttachStatus') || _makeDocStatus();
+  if(!M || !M.JourneyDoc || !M.DocWrite){
+    status.textContent = 'The document writer is unavailable.';
+    return;
+  }
+  let spec = {};
+  try{
+    const sized = (typeof currentSizedJourney === 'function') ? currentSizedJourney() : null;
+    const kbrs = (typeof activeTemplateKbrs === 'function') ? activeTemplateKbrs() : null;
+    if(sized) spec = { primes: sized.primes, subs: sized.subs };
+    if(kbrs && kbrs.length) spec.results = kbrs.map(k => ({
+      name:k.name, unit:k.unit || '', direction:k.direction || 'up' }));
+  }catch(e){}
+
+  const rows = M.JourneyDoc.templateRows(spec);
+  const ind = (SB_CFG && SB_CFG.industry) || 'generic';
+  const bytes = M.DocWrite.docxTable(rows, {
+    title: 'MOMENTUM Journey Doc' + (SB_CFG.industry ? ' \u00b7 ' + SB_CFG.industry : ''),
+    notes: M.JourneyDoc.GUIDE
+  });
+  M.DocWrite.download(bytes, 'momentum-journey-doc-' + ind + '.docx');
+  status.textContent = 'Journey Doc downloaded \u2014 edit the table and attach it back.';
+}
+
 function _makeDocStatus(){
   const row = document.getElementById('docAttachRow');
   const s = document.createElement('div');
@@ -3520,9 +3685,16 @@ function _makeDocStatus(){
 }
 function clearContextDoc(){
   SB_CFG.contextDoc = null;
+  SB_CFG.journeyDoc = null;
   document.getElementById('contextDocFile').value = '';
   document.getElementById('docAttachChip').style.display = 'none';
   const s = document.getElementById('docAttachStatus'); if(s) s.textContent='';
+  /* Removing the journey puts the template selector back in charge, so the
+     preview and the result rows have to be redrawn — otherwise the board keeps
+     showing a journey no document declares any more. */
+  if(typeof populateThemeSelect === 'function') populateThemeSelect();
+  if(typeof updateJourneyPreview === 'function') updateJourneyPreview();
+  if(typeof renderKbrConfig === 'function') renderKbrConfig();
 }
 // format-aware text extraction, fully client-side (no CDN dependency)
 async function extractDocText(file){
@@ -3926,6 +4098,28 @@ function createSuggestedTemplate(idx){
 
 // resolve the currently-selected sized journey
 function currentSizedJourney(){
+  /* A DOCUMENT OUTRANKS A TEMPLATE. The template is what you use when you have
+     no document; once one is attached it is the client's own word about their
+     business and nothing bundled gets to overrule it.
+
+     It deliberately does not go through makeSized. The size selector trims a
+     template to four, six or eight stages — a document declaring seven stages
+     declares seven, and rounding that to "Medium" would silently drop one. */
+  const jd = SB_CFG.journeyDoc;
+  if(jd && jd.doc && window.MOMENTUM && MOMENTUM.JourneyDoc){
+    const sized = MOMENTUM.JourneyDoc.toSized(jd.doc, { maxPrimes:_primeSlotCount() });
+    if(sized){
+      sized.name = jd.name || sized.name;
+      /* Icons come from the shared pool so the preview is not blank; the
+         document does not carry them, because an icon column would be a new
+         column and the schema extends by row kind only. */
+      let n = 0;
+      sized.primes.forEach(p => { p.icon = ICON_POOL[n++ % ICON_POOL.length]; });
+      Object.keys(sized.subs).forEach(k => {
+        sized.subs[k].icon = ICON_POOL[n++ % ICON_POOL.length]; });
+      return sized;
+    }
+  }
   const list = templatesFor(SB_CFG.industry);
   const theme = list.find(t=>t.id===SB_CFG.themeId);
   if(!theme) return null;
@@ -4063,9 +4257,14 @@ function applyConfig(){
   SB_CFG.businessFn = document.getElementById('businessFnSelect')?.value || '';
 
   if(!SB_CFG.industry){ toast('Pick an industry first'); return; }
-  if(!SB_CFG.themeId){ toast('Pick a journey template first'); return; }
+  /* A journey ARRIVES from a document or from a template. Demanding a template
+     when a document is held would make the one path the blank slate exists for
+     the one path Apply refuses. */
+  const fromDoc = !!(SB_CFG.journeyDoc && SB_CFG.journeyDoc.doc);
+  if(!fromDoc && !SB_CFG.themeId){ toast('Pick a journey template first'); return; }
   const sized = currentSizedJourney();
-  if(!sized){ toast('Pick a journey template first'); return; }
+  if(!sized){ toast(fromDoc ? 'That journey document declares no stages'
+                            : 'Pick a journey template first'); return; }
 
   // show the AI loader briefly (mirrors BOb's apply UX)
   const loader = document.getElementById('sbAiLoader');
@@ -8325,6 +8524,15 @@ function templatesFor(industry){
 }
 // KBR set bound to the currently-selected template, if any
 function activeTemplateKbrs(){
+  /* A journey that names its own results re-themes the board to match — and an
+     ATTACHED journey names them ahead of any bundled template, for the same
+     reason it supplies the stages: it is the document, and the template is
+     what stands in when there is no document. */
+  const jd = SB_CFG.journeyDoc;
+  if(jd && jd.doc && window.MOMENTUM && MOMENTUM.JourneyDoc){
+    const fromDoc = MOMENTUM.JourneyDoc.resultsAsKbrs(jd.doc);
+    if(fromDoc && fromDoc.length) return fromDoc;
+  }
   return (SB_CFG.themeId && TEMPLATE_KBRS[SB_CFG.themeId]) || null;
 }
 
@@ -12036,25 +12244,127 @@ function downloadDataTemplate(){
   if(typeof toast === 'function') toast('Template downloaded');
 }
 
+/* ── the mode fork ───────────────────────────────────────────────────────────
+   Renders whatever MOMENTUM.DataDoc.modes() returns, so the availability rule
+   lives in one place and this function never has to know what makes replay
+   different. */
+function syncModeFork(){
+  var host = el('modeForkRow'), why = el('modeForkWhy'), btn = el('dataDocBtn'),
+      fork = el('modeFork');
+  if(!host || !window.MOMENTUM || !MOMENTUM.DataDoc) return;
+  var D = MOMENTUM.DataDoc;
+  var list = D.modes(state.profile);
+
+  /* SWITCHING IS ALLOWED BUT NEVER SILENT. If the mode that was chosen has
+     stopped being possible — data cleared out from under a replay selection —
+     it falls back and says so, rather than leaving a selected chip that would
+     produce a document nobody could use. */
+  var chosen = list.filter(function(m){ return m.mode === SB_CFG.dataMode; })[0];
+  var fellBack = '';
+  if(!chosen || !chosen.available){
+    fellBack = chosen
+      ? 'Mode fell back to free \u2014 ' + chosen.why.charAt(0).toLowerCase() + chosen.why.slice(1)
+      : '';
+    SB_CFG.dataMode = 'free';
+  }
+
+  host.innerHTML = list.map(function(m){
+    return '<button type="button" class="mode-chip' +
+      (m.mode === SB_CFG.dataMode ? ' on' : '') + '"' +
+      (m.available ? '' : ' disabled') +
+      ' data-mode="' + m.mode + '" title="' + esc(m.available ? m.blurb : m.why) + '">' +
+      esc(m.label) + '</button>';
+  }).join('');
+  /* Bound here rather than with inline onclick so the chips carry no global
+     name, and rebound on every render because innerHTML replaced the nodes. */
+  Array.prototype.forEach.call(host.querySelectorAll('.mode-chip'), function(b){
+    b.addEventListener('click', function(){ setDataMode(b.getAttribute('data-mode')); });
+  });
+
+  var active = list.filter(function(m){ return m.mode === SB_CFG.dataMode; })[0];
+  var unavailable = list.filter(function(m){ return !m.available; });
+  var lines = [];
+  if(fellBack) lines.push(fellBack);
+  if(active) lines.push(active.blurb);
+  unavailable.forEach(function(m){ lines.push(m.label + ' \u2014 ' + m.why); });
+  if(why) why.textContent = lines.join('  ');
+  if(btn) btn.textContent = 'Download Data Doc \u00b7 ' +
+    ((active && active.label) || 'Free').toLowerCase();
+  if(fork) fork.style.display = (SB_CFG && SB_CFG.industry) ? '' : 'none';
+}
+
+function setDataMode(mode){
+  if(!window.MOMENTUM || !MOMENTUM.DataDoc) return;
+  var a = MOMENTUM.DataDoc.availability(mode, state.profile);
+  if(!a.ok) return;                       /* the chip is disabled; belt and braces */
+  SB_CFG.dataMode = mode;
+  syncModeFork();
+}
+
+/* The Data Doc the chosen mode calls for — .xlsx, which is the authored format
+   for this document, with the guidance on a second sheet-free block of rows
+   the reader skips. */
+function downloadDataDoc(){
+  var M = window.MOMENTUM;
+  var stat = el('dataAttachStatus');
+  if(!M || !M.DataDoc || !M.DocWrite){
+    if(stat) stat.textContent = 'The document writer is unavailable.';
+    return;
+  }
+  var mode = SB_CFG.dataMode || 'free';
+  if(!M.DataDoc.availability(mode, state.profile).ok) mode = 'free';
+
+  var rows = M.DataDoc.templateRows(mode, state.profile,
+    { name: (SB_CFG.dataProfileMeta && SB_CFG.dataProfileMeta.name) || '' });
+
+  /* Guidance goes on a SECOND SHEET. `#` opens a comment in a .csv, so the
+     same text written under the table there is invisible to the parser — but
+     a spreadsheet has no comment convention, and guidance in sheet 1 comes
+     back as rows whose kind is "# Rows may be added...". MOMENTUM.OfficeDoc
+     reads sheet1 and only sheet1, so a second sheet is legible to a person and
+     invisible to the reader, exactly like prose outside a .docx table. */
+  var bytes = M.DocWrite.xlsxBook([
+    { name:'Data Doc', rows: rows },
+    { name:'Guidance', rows: M.DataDoc.guide(mode, state.profile).map(function(g){
+        return [g]; }) }
+  ]);
+  var ind = (SB_CFG && SB_CFG.industry) || 'generic';
+  M.DocWrite.download(bytes, 'momentum-data-doc-' + mode + '-' + ind + '.xlsx');
+  if(stat) stat.textContent = 'Data Doc downloaded \u00b7 ' + mode + ' mode';
+}
+
 /* ── public surface ──────────────────────────────────────────────────────── */
 MOMENTUM.Data = {
   version: 1,
   handleDataFile: handleDataFile,
   clearDataFile: clearDataFile,
   downloadDataTemplate: downloadDataTemplate,
+  downloadDataDoc: downloadDataDoc,
+  syncModeFork: syncModeFork,
+  setDataMode: setDataMode,
   renderCoverage: renderCoverage,
   loadProfile: loadProfile,
   get profile(){ return state.profile; },
-  set profile(p){ state.profile = p; if(MOMENTUM.Bind){ p ? MOMENTUM.Bind.attach(p) : MOMENTUM.Bind.detach(); } }
+  set profile(p){
+    state.profile = p;
+    if(MOMENTUM.Bind){ p ? MOMENTUM.Bind.attach(p) : MOMENTUM.Bind.detach(); }
+    /* Attaching or clearing data changes which modes exist, so the fork is
+       re-rendered from the new profile rather than left showing the old
+       answer. It does not change the CHOSEN mode — that is the person's. */
+    try { syncModeFork(); } catch(e){}
+  }
 };
 window.handleDataFile = handleDataFile;
 window.clearDataFile = clearDataFile;
 window.downloadDataTemplate = downloadDataTemplate;
+window.downloadDataDoc = downloadDataDoc;
+window.setDataMode = setDataMode;
 
 /* the template link only makes sense once an industry is chosen */
 MOMENTUM.Data.syncTemplateLink = function(){
   var link = el('dataTemplateLink');
   if(link) link.style.display = (SB_CFG && SB_CFG.industry) ? 'inline-flex' : 'none';
+  try { syncModeFork(); } catch(e){}
 };
 
 })();
@@ -14780,6 +15090,9 @@ window.setPanelSub = setPanelSub;
 <!--mom:inject mom-configapply-core-->
 <!--mom:inject mom-configtemplate-core-->
 <!--mom:inject mom-officedoc-core-->
+<!--mom:inject mom-docwrite-core-->
+<!--mom:inject mom-journeydoc-core-->
+<!--mom:inject mom-datadoc-core-->
 <!--mom:inject mom-header-global-->
 </body>
 </html>

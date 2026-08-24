@@ -1,7 +1,7 @@
 {
   "_comment": "Expected output of build/build.js. check.js compares against this when no reference path is given. Update it in the same commit as any intentional change to src/shell.html, a module in api/, or a Config Doc in config/ — the new values are printed by `node build/check.js` when it fails.",
-  "sha1": "6281a7b27d13d5479ee1f501101f42f419767d23",
-  "bytes": 1284550,
-  "builtFrom": "src/shell.html + api/_*.js + config/*.csv — Release 4 phase 2, plus the format→type carry in ConfigApply",
-  "note": "Fourth repin of this release: f243482d → cd74b2cd → df5848f0 → 5f8c6c32f7eaf6f6fc636b27779bc6458f3d82c3 → this. ConfigApply now carries a declared percentage into kbr.type, which the value generator branches on; without it every declared percentage rendered through the count magnitude heuristics."
+  "sha1": "a72c8641fe48284dd3cfa638c20c0a1187f9005b",
+  "bytes": 1338703,
+  "builtFrom": "src/shell.html + api/_*.js + config/*.csv — Release 4 phase 2 complete: the Journey Doc path and the data mode fork, over the format→type carry in ConfigApply",
+  "note": "Repin over the developer's phase-2 baseline 6281a7b2. Chain: f243482d (2A) → cd74b2cd → df5848f0 (2B) → 5f8c6c32 (2C) → 6281a7b2 (format→type carry, developer) → this. Adds _docwrite-core, _journeydoc-core and _datadoc-core; 18 modules inlined, up from 15. Gate 514 → 581. Differs from the standalone phase-2-complete pin 4dda4270 · 1337957 by exactly the 746 bytes of the ConfigApply carry, which this delivery preserves and does not touch."
 }
