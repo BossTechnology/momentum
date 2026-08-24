@@ -91,7 +91,20 @@ function apply(doc, kbrs, profile, opts){
     if(dk.direction) kbr.direction = dk.direction;
 
     if(dk.unit)      kbr.unit = dk.unit;
-    if(dk.format)    kbr.format = dk.format;
+    if(dk.format){
+      kbr.format = dk.format;
+      /* `format` is the document's word for this; `type` is the board's, and the
+         value generator branches on type. Carrying one without the other left a
+         declared percentage sitting at the newKBR default of 'value', so it was
+         generated with the magnitude heuristics meant for counts — Appointment
+         Adherence read 3424%, Basket Conversion 2927%, Customer Retention 1065%.
+
+         It stayed hidden while INDUSTRY_KBRS supplied the type and a document
+         only layered touchpoints on top. The blank slate made the document the
+         sole source of the result, and the gap became every percentage on the
+         board. */
+      kbr.type = (dk.format === 'percentage') ? 'percentage' : 'value';
+    }
     if(dk.target != null && isFinite(dk.target)){
       kbr.goal = {
         format: dk.format || kbr.format || 'count',

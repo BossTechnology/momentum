@@ -1,7 +1,7 @@
 {
   "_comment": "Expected output of build/build.js. check.js compares against this when no reference path is given. Update it in the same commit as any intentional change to src/shell.html, a module in api/, or a Config Doc in config/ — the new values are printed by `node build/check.js` when it fails.",
-  "sha1": "5f8c6c32f7eaf6f6fc636b27779bc6458f3d82c3",
-  "bytes": 1283804,
-  "builtFrom": "src/shell.html + api/_*.js + config/*.csv — Release 4 phase 2, blank slate + the example-document attach path",
-  "note": "Third repin of this release: f243482d (2A, generated Config Docs) → cd74b2cd → df5848f0 (2B, blank slate) → this. Adds the Use example / Download example path, the no-reading standing, and the rule that an example document does not follow the reader out of its industry."
+  "sha1": "6281a7b27d13d5479ee1f501101f42f419767d23",
+  "bytes": 1284550,
+  "builtFrom": "src/shell.html + api/_*.js + config/*.csv — Release 4 phase 2, plus the format→type carry in ConfigApply",
+  "note": "Fourth repin of this release: f243482d → cd74b2cd → df5848f0 → 5f8c6c32f7eaf6f6fc636b27779bc6458f3d82c3 → this. ConfigApply now carries a declared percentage into kbr.type, which the value generator branches on; without it every declared percentage rendered through the count magnitude heuristics."
 }
