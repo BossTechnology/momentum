@@ -23,3 +23,8 @@ anomrule,Units Produced,Stoppages clustering on a line,,,,,,Machine Downtime,"st
 anomrule,Units Produced,Feed starvation reported,,,,,,Material Feed Rate,"starved, empty, no feed",,contains,,,,alarm,Plant Operations,,,,
 anomrule,First-Pass Yield,Same station rejecting repeatedly,,,,,,Inspection Reject Rate,three rejects from one station in an hour,,pattern,,,,alert,Shift Supervisor,,,,
 anomrule,Defect Rate,Rework piling up on one station,,,,,,Rework Queue,"rework, scrap, repair",,contains,,,,alert,Shift Supervisor,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,"past line warm-up and first-article, into steady running",,,,,,,1/3,,,,,,

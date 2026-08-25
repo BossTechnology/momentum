@@ -1,7 +1,4 @@
 {
-  "_comment": "Expected output of build/build.js. check.js compares against this when no reference path is given. Update it in the same commit as any intentional change to src/shell.html, a module in api/, or a Config Doc in config/ — the new values are printed by `node build/check.js` when it fails.",
-  "sha1": "60c297ba4519fe7294c7856a33fdc5e5402b5cda",
-  "bytes": 1339069,
-  "builtFrom": "src/shell.html + api/_*.js + config/*.csv — Release 4 phase 2 complete plus honest size reporting, over the format→type carry in ConfigApply",
-  "note": "Repin over a72c8641. Chain: f243482d (2A) → cd74b2cd → df5848f0 (2B) → 5f8c6c32 (2C) → 6281a7b2 (format→type carry, developer) → a72c8641 (phase 2 complete) → this. Honest size reporting, option C, approved by Federico in session 4: the Apply toast reads jt.size and the journey preview meta reads sized.size, so a document-built journey reports (document) rather than quoting a size selector it never consulted. Two lines in src/shell.html plus two locking assertions in verify-docflow; no module changes, 18 inlined. Gate 581 → 583."
+  "sha1": "3de67a7fb54b5361ba59919abc6119b19350d268",
+  "bytes": 1372141
 }

@@ -23,3 +23,8 @@ anomrule,Monthly Recurring Revenue,Card failures clustering,,,,,,Checkout Failur
 anomrule,Monthly Recurring Revenue,Onboarding abandoned midway,,,,,,Onboarding Completion,"skipped, abandoned, incomplete",,contains,,,,alarm,Revenue Ops,,,,
 anomrule,Trial Conversion,Same account stalling at activation,,,,,,Activation Milestone Rate,three stalls on one account inside a trial,,pattern,,,,alert,On-Call Engineer,,,,
 anomrule,Net Revenue Retention,Downgrades mentioned at renewal,,,,,,Seat Expansion Rate,"downgrade, reduce, fewer seats",,contains,,,,alert,Revenue Ops,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,past deploy and into steady traffic,,,,,,,1/3,,,,,,

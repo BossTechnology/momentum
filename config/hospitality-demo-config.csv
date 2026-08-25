@@ -23,3 +23,8 @@ anomrule,Total Bookings,Check-in delays repeating,,,,,,Check-in Wait,"queue, wai
 anomrule,Total Bookings,Room blocked reported,,,,,,Room Readiness,"out of order, blocked, maintenance",,contains,,,,alarm,Front Desk,,,,
 anomrule,Occupancy Rate,Complaint keywords rising,,,,,,Maintenance Response,"complaint, escalation, refund",,contains,,,,alarm,Duty Manager,,,,
 anomrule,Guest Return Rate,Same channel underperforming,,,,,,Booking Channel Health,three low-yield nights on one channel,,pattern,,,,alert,#hotel-ops,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,after check-out and before check-in builds,,,,,,,2/5,,,,,,

@@ -34,3 +34,8 @@ condition,Horas en Ralentí,Ralentí excesivo por turno,,,,,,,,,,,gt,4,alert,On-
 anomrule,Combustible por Tonelada,Saturación de filtro repetida,,,,,,Restricción de Filtro,"saturación, filtro, restricción",,frequency,,,3,alert,#turno-noche,,,
 anomrule,Combustible por Tonelada,Vía en mal estado reportada,,,,,,Condición de Vía,"bache, derrape, vía húmeda",,contains,,,,alarm,Operations Team,,,
 anomrule,Combustible por Tonelada,Desviación por operador,,,,,,Variación por Operador,tres desviaciones del mismo operador en un turno,,pattern,,,,alert,On-Call Manager,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,opens 15:00 on a 07:00-07:00 span; three injected cases established and a fourth arriving at 15:10,,,,,,,1/3,,,,,

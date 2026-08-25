@@ -153,6 +153,7 @@ body{font-family:var(--font);background:var(--white);color:var(--black);font-siz
 .slider-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--gray-light);margin-bottom:5px}
 .sb-slider{width:100%;accent-color:var(--black);cursor:pointer;height:4px}
 .slider-val{font-size:12px;font-weight:700;color:var(--black);margin-top:6px}
+.sb-hint{font-size:10px;line-height:1.45;color:var(--gray-light);margin-top:7px}
 /* APPLY + LOADER */
 .sb-apply-wrap{position:relative;margin:14px 20px 16px}
 .sb-apply{width:100%;padding:9px;background:var(--black);color:#fff!important;border:none;
@@ -2186,6 +2187,17 @@ body.accum-mode .kbr-col[data-tier="critical"] .kbr-value{animation:none}
       </div>
     </div>
 
+    <!-- WARM-UP WINDOW -->
+    <div class="sb-section">
+      <div class="sb-title">Warm-Up Window</div>
+      <div class="slider-wrap">
+        <div class="slider-labels"><span>Cold start</span><span>Mid-scenario</span><span>Late</span></div>
+        <input type="range" class="sb-slider" id="warmupSlider" min="0" max="90" step="5" value="0" oninput="updateWarmup(this.value)">
+        <div class="slider-val" id="warmupLabel">Industry default</div>
+      </div>
+      <div class="sb-hint" id="warmupSource">Where a demo opens, as a fraction of the declared span.</div>
+    </div>
+
     <!-- SAVE & LOAD CONFIGURATION -->
     <div class="sb-section">
       <div class="sb-title">Save &amp; Load Configuration</div>
@@ -2882,6 +2894,10 @@ const SB_CFG = { lang:'es', vol:3, speed:3, logoMode:'upload', selectedIcon:null
                  dataProfileId:null,      // Phase 3 — id of the stored data profile
                  dataProfile:null,        // in-session profile object (not exported)
                  dataProfileMeta:null,    // {name,sizeBytes,rows,sheets,path,profiledAt}
+                 /* Where a cold demo opens, chosen in Settings. Session state:
+                    a percentage string or '' for "whatever declared one". Not
+                    written into configDoc — configuration holds no UI state. */
+                 warmupOpening:'',
                  kbrs:null };   // kbrs: [{name,type}] x3 — initialised on first sidebar open
 
 // ─── i18n (quality-first curated translations) ───────────────────
@@ -3352,6 +3368,7 @@ function openSidebar(){
   renderIconGrid();
   renderKbrConfig();
   syncExampleRow();
+  paintWarmupLabel();
   if(window.MOMENTUM && MOMENTUM.Data && MOMENTUM.Data.syncTemplateLink)
     MOMENTUM.Data.syncTemplateLink();
 }
@@ -4211,6 +4228,55 @@ function clearLogo(){
 function updateVol(v){ SB_CFG.vol = parseInt(v); document.getElementById('volLabel').textContent = VOL_LABELS[v-1]; }
 function updateSpeed(v){ SB_CFG.speed = parseInt(v); document.getElementById('speedLabel').textContent = SPD_LABELS[v-1];
   if(typeof restartKbrSpark==='function') restartKbrSpark(); }
+
+/* ── warm-up window ───────────────────────────────────────────────────────
+   The slider is a percentage of the declared span, so one control means the
+   same thing to a 24-hour mining shift and a 90-day claims cycle. Zero is not
+   "0%" but "leave it to whatever declared one" — the industry default, or a
+   Data Doc, or the origin if neither spoke. Nothing bound means nothing
+   changes, here as everywhere.
+
+   SB_CFG.warmupOpening is session state. It is deliberately NOT written into
+   SB_CFG.configDoc: a chosen warm-up is UI state, and configuration objects
+   hold no UI state. Exporting a config exports the industry's declaration,
+   never the position this session happened to be dragged to. */
+function updateWarmup(v){
+  const pct = parseInt(v, 10) || 0;
+  SB_CFG.warmupOpening = pct > 0 ? (pct + '%') : '';
+  if(typeof MOMENTUM !== 'undefined' && MOMENTUM.Bind && MOMENTUM.Bind.active()){
+    MOMENTUM.Bind.buildClock();
+    try { MOMENTUM.Bind.paintAll(); } catch(e){}
+  }
+  paintWarmupLabel();
+}
+/* Never redrawn from the slider's own handler beyond its own labels — the
+   board is repainted through Bind, which owns it. */
+function paintWarmupLabel(){
+  const lab = document.getElementById('warmupLabel');
+  const src = document.getElementById('warmupSource');
+  if(!lab) return;
+  const bind = (typeof MOMENTUM !== 'undefined' && MOMENTUM.Bind) ? MOMENTUM.Bind : null;
+  const clk = bind && bind.clock ? bind.clock() : null;
+  const wu  = bind && bind.warmup ? bind.warmup() : null;
+
+  if(!wu){
+    lab.textContent = SB_CFG.warmupOpening ? SB_CFG.warmupOpening : 'Industry default';
+    if(src) src.textContent = 'Where a demo opens, as a fraction of the declared span. ' +
+                              'Attach data to see the moment it lands on.';
+    return;
+  }
+  lab.textContent = clk ? clk.label(wu.fraction) : Math.round(wu.fraction*100) + '%';
+  if(!src) return;
+  if(wu.refusedPlan){ src.textContent = wu.refusedPlan.why; return; }
+  const refused = (wu.refused || [])[0];
+  let msg = wu.source === 'none'
+    ? 'Nothing declares an opening position, so the demo starts at the beginning of the span.'
+    : 'Opening position from ' + wu.label + '.';
+  if(refused) msg += ' ' + refused.label.replace(/^the /, 'The ') +
+                     ' declared ' + JSON.stringify(String(refused.input)) +
+                     ', which was refused: ' + refused.why;
+  src.textContent = msg;
+}
 
 // APPLY — builds the simulation: replaces all stages with the chosen journey
 
@@ -5684,17 +5750,29 @@ MOMENTUM.Thresholds = {
     if(num <= y)  return { status:'yellow', score: Math.round(lerp(77,38,(num-g)/Math.max(y-g,1e-9))) };
     return { status:'red', score: Math.max(0, Math.round(lerp(37,0,(num-y)/Math.max(y,1e-9)))) };
   },
-  // persistence + hysteresis: a proposed status only lands after it has held
-  // for persistSec (both directions). Tick-based; src._pend carries the wait.
-  applyPersistence(src, proposed, tickMs){
+  /* persistence + hysteresis: a proposed status only lands after it has held
+     for persistSec (both directions). src._pend carries the wait.
+
+     THE THIRD ARGUMENT IS SIMULATED MILLISECONDS, NOT WALL MILLISECONDS. It
+     used to be the paint interval, and counting paints was right only while
+     sim time ran at 1:1 with the wall. Measured at the normal cadence, a
+     declared 120 s landed after 134 paints; at a 600× rate those same 134
+     paints span 72,360 seconds of simulated time — twenty simulated hours for
+     a threshold that asked for two minutes. Nothing would escalate, and a
+     board where nothing escalates reads as calm rather than as broken.
+
+     Callers pass what the clock advanced. With no clock bound the two are the
+     same quantity and the arithmetic is unchanged. */
+  applyPersistence(src, proposed, simMs){
     const t = src.thresholds || {};
     const need = parseFloat(t.persistSec) || 0;
     if(need <= 0 || !src.status || src.status === 'gray'){ delete src._pend; return proposed; }
     if(proposed === src.status){ delete src._pend; return proposed; }
-    const ticksNeeded = Math.max(1, Math.ceil(need*1000 / Math.max(tickMs||1000, 50)));
-    if(!src._pend || src._pend.to !== proposed) src._pend = { to: proposed, n: 0 };
+    const step = Math.max(0, parseFloat(simMs) || 0);
+    if(!src._pend || src._pend.to !== proposed) src._pend = { to: proposed, ms: 0, n: 0 };
+    src._pend.ms += step;
     src._pend.n++;
-    if(src._pend.n >= ticksNeeded){ delete src._pend; return proposed; }
+    if(src._pend.ms >= need*1000){ delete src._pend; return proposed; }
     return src.status;   // hold current until persistence satisfied
   }
 };
@@ -9092,6 +9170,16 @@ function _speedInterval(){
   const s = (SB_CFG && SB_CFG.speed) ? SB_CFG.speed : 3;
   return ({1:1600, 2:1150, 3:900, 4:560, 5:340})[s] || 900;
 }
+/* How much SIMULATED time one paint buys. Persistence is measured in it, and
+   asking here rather than reaching for _speedInterval() is what keeps the two
+   quantities from being confused again once the rate is not one. With no clock
+   bound they are the same number. */
+function _simMsPerTick(){
+  const c = (typeof MOMENTUM !== 'undefined' && MOMENTUM.Bind && MOMENTUM.Bind.clock)
+              ? MOMENTUM.Bind.clock() : null;
+  const real = _speedInterval();
+  return c ? c.simMsPerTick(real) : real;
+}
 function kbrSparkTick(){
   // frozen in accumulation mode (totals, not live activity)
   if(document.body.classList.contains('accum-mode')) return;
@@ -9251,7 +9339,7 @@ function liveDriftSignals(amp){
         // generator's value at the simulation's current instant, so the same
         // seed and the same clock always produce the same status.
         if(src.type === 'profile' && window.MOMENTUM && MOMENTUM.Bind && MOMENTUM.Bind.active()){
-          const next = MOMENTUM.Bind.driftSource(src, _speedInterval());
+          const next = MOMENTUM.Bind.driftSource(src, _simMsPerTick());
           if(next && next !== src.status){ src.status = next; tpTouched = true; changed = true; }
           else if(next) tpTouched = true;
           return;
@@ -9262,12 +9350,12 @@ function liveDriftSignals(amp){
           const pull = (50 - stress*46) - src.score;              // stressed target ≈ low score
           src.score = Math.max(2, Math.min(99, src.score + pull*0.04 + (Math.random()-0.5)*7*(amp||1)));
           const prop = MOMENTUM.Thresholds.bucketScore(src.score);
-          const next = MOMENTUM.Thresholds.applyPersistence(src, prop, _speedInterval());
+          const next = MOMENTUM.Thresholds.applyPersistence(src, prop, _simMsPerTick());
           if(next !== src.status){ src.status = next; tpTouched = true; changed = true; }
           else if(Math.random() < 0.34){ tpTouched = true; }       // let honey glide
         } else if(Math.random() < churn){
           let next = _driftSourceStatus(src.status, stress);
-          next = MOMENTUM.Thresholds.applyPersistence(src, next, _speedInterval());
+          next = MOMENTUM.Thresholds.applyPersistence(src, next, _simMsPerTick());
           if(next !== src.status){ src.status = next; tpTouched = true; changed = true; }
         }
       });
@@ -12803,7 +12891,9 @@ var state = {
   profile: null, gen: null, binding: null, timer: null, stageMap: null,
   anchorWall: null,          // wall clock at the moment the profile was attached
   seek: null,                // an explicit instant, while scrubbing
-  window: null               // the active header range, as real epoch ms
+  window: null,              // the active header range, as real epoch ms
+  clock: null,               // MOMENTUM.Clock over the profiled span
+  warmup: null               // {fraction, source, label, ...} — how it opened
 };
 
 function el(id){ return document.getElementById(id); }
@@ -12853,6 +12943,7 @@ function attach(profile){
   state.anchorWall = Date.now();
   state.seek = null;
   state.window = null;
+  buildClock();
   if(typeof SB_CFG !== 'undefined') SB_CFG.binding = state.binding;
   syncSourceTypeMetrics();
   renderBindingPanel();
@@ -12865,6 +12956,7 @@ function detach(){
   state.stageMap = null;
   state.profile = null; state.gen = null; state.anchorWall = null;
   state.seek = null; state.window = null;
+  state.clock = null; state.warmup = null;
   if(typeof SB_CFG !== 'undefined') SB_CFG.binding = null;
   if(typeof SOURCE_TYPES !== 'undefined' && SOURCE_TYPES.profile)
     SOURCE_TYPES.profile.platforms = ['(attach a data file first)'];
@@ -12895,17 +12987,77 @@ function syncSourceTypeMetrics(){
    Wall-clock time is mapped onto the profiled span and wrapped, so a demo left
    running never falls off the end of the data. Scrubbing sets an explicit
    instant instead; nothing accumulates either way, so the two are the same
-   kind of thing. */
+   kind of thing.
+
+   The offset that makes a demo open mid-scenario lives in MOMENTUM.Clock,
+   which also owns what may be read: past the playhead is not merely discouraged
+   here, it is not returned. */
+function buildClock(){
+  state.clock = null; state.warmup = null;
+  if(!state.gen || !state.gen.ok() || !MOMENTUM.Clock) return null;
+  var sp = state.gen.span();
+  var cov = (state.profile && state.profile.coverage) || {};
+  var grain = (cov.resolution && cov.resolution.seconds) || MOMENTUM.Clock.DEFAULT_GRAIN;
+  state.clock = MOMENTUM.Clock.create({
+    originMs: sp.startMs, endMs: sp.endMs, grainSec: grain, rate: 1, calendar: true,
+    windows: declaredWindows()
+  });
+  state.warmup = state.clock.resolve(warmupSources());
+  var plan = state.clock.plan(state.warmup.fraction);
+  if(plan.withinBudget){
+    /* Run it, do not assert it. Persistence is path-dependent: whether a
+       threshold held for its declared seconds cannot be known without walking
+       those seconds. The walk is headless — the paint is the expensive part
+       and there is nothing to paint yet. */
+    state.clock.warmUp(null, { fraction: state.warmup.fraction });
+  } else {
+    state.clock.seek(state.clock.origin());
+    state.warmup.refusedPlan = plan;
+    note(plan.why);
+  }
+  return state.clock;
+}
+/* Named windows a Data Doc has declared. Phase 3B attaches the reader that
+   fills this; until then a config default and the Settings control are the two
+   tiers with a source, and the middle tier resolves to nothing rather than to
+   a guess. */
+function declaredWindows(){
+  var d = (typeof SB_CFG !== 'undefined' && SB_CFG.dataDoc && SB_CFG.dataDoc.doc) || null;
+  return (d && d.windows) || [];
+}
+function warmupSources(){
+  var cfg = (typeof SB_CFG === 'undefined') ? null : SB_CFG;
+  var declared = (cfg && cfg.dataDoc && cfg.dataDoc.doc && cfg.dataDoc.doc.opening) || '';
+  var fromConfig = (cfg && cfg.configDoc && cfg.configDoc.doc &&
+                    cfg.configDoc.doc.clock && cfg.configDoc.doc.clock.opening) || '';
+  return { session: (cfg && cfg.warmupOpening) || '',
+           declared: declared,
+           config: fromConfig };
+}
 function now(){
   if(!active()) return null;
   if(state.seek != null) return state.seek;
+  if(!state.clock) return null;
   var sp = state.gen.span();
   var spanMs = Math.max(1000, sp.endMs - sp.startMs);
-  var elapsed = Date.now() - state.anchorWall;
-  return sp.startMs + ((elapsed % spanMs) + spanMs) % spanMs;
+  var elapsed = (Date.now() - state.anchorWall) * state.clock.rate();
+  var from = state.clock.warmedTo() == null ? sp.startMs : state.clock.warmedTo();
+  var t = from + elapsed;
+  /* Wrapping keeps a demo left running from falling off the end of the data.
+     It restarts at the opening position, not at the origin: a demo that has
+     been open all afternoon should not quietly rewind to cold zero. */
+  if(t > sp.endMs) t = from + ((t - from) % Math.max(1, sp.endMs - from));
+  state.clock.seek(t);
+  return state.clock.playhead();
 }
-function seek(ms){ state.seek = ms == null ? null : +ms; return state.seek; }
+function seek(ms){
+  state.seek = ms == null ? null : +ms;
+  if(state.clock && state.seek != null) state.clock.seek(state.seek);
+  return state.seek;
+}
 function resume(){ state.seek = null; }
+function clock(){ return state.clock; }
+function warmup(){ return state.warmup; }
 
 /* ── sources ──────────────────────────────────────────────────────────────
    A bound source names a measure. Its value is generated at the simulation
@@ -13326,16 +13478,49 @@ function paintKbrStrips(){
 }
 
 /** A scripted fault, visible while it is live. */
+/* Every measure the board is actually bound to, across both container families
+   — the journey's stages and the results. The incident banner asks this before
+   it paints, because an incident on a measure nobody bound has nothing to say
+   to this board.
+
+   THIS IS OPTIONALITY, NOT AN INDUSTRY GUARD. It was tempting to fix the
+   observed leak — a haul truck named on a retail board — by comparing the
+   profile's industry with the one on screen. A profile carries no industry,
+   so that would have meant inventing a provenance tag and then guessing how
+   to populate it; a wrongly tagged profile would suppress or admit content
+   silently, which is worse than the leak. It also gets the blank slate wrong:
+   a mining profile on a mining board with nothing bound would still paint,
+   and a board with nothing bound must show nothing changing.
+
+   Asking what is bound answers all of it, including the retail case, because
+   nothing on a retail board is bound to Fuel Consumption Rate-Engine. */
+function boundMetrics(){
+  var set = {};
+  var walk = function(container){
+    ((container && container.touchpoints) || []).forEach(function(tp){
+      ((tp && tp.sources) || []).forEach(function(src){
+        var m = sourceMetric(src);
+        if(m) set[m] = true;
+      });
+    });
+  };
+  if(typeof journeyStages !== 'undefined')
+    journeyStages.forEach(function(st){ if(st && st.name) walk(st); });
+  if(typeof KBRS !== 'undefined')
+    KBRS.forEach(function(k){ if(k && k.name) walk(k); });
+  return set;
+}
 function paintIncidentBanner(){
   var old = el('bindIncident');
   if(old) old.remove();
   if(!active()) return;
   var t = now(), live = [];
   var units = state.gen.units();
+  var bound = boundMetrics();
   for(var i = 0; i < units.length; i++){
     var inc = state.gen.incidentsAt(t, units[i]);
     for(var j = 0; j < inc.length; j++)
-      if(inc[j].placement === 'scheduled') live.push(inc[j]);
+      if(inc[j].placement === 'scheduled' && bound[inc[j].measure]) live.push(inc[j]);
   }
   if(!live.length) return;
   live.sort(function(a, b){ return b.factor - a.factor; });
@@ -13370,10 +13555,12 @@ MOMENTUM.Bind = {
   startPainting: startPainting, stopPainting: stopPainting,
   attach: attach, detach: detach, active: active,
   now: now, seek: seek, resume: resume,
+  clock: clock, warmup: warmup, buildClock: buildClock,
   binding: function(){ return state.binding; },
   generator: function(){ return state.gen; },
   profile: function(){ return state.profile; },
   sourceValue: sourceValue, sourceMetric: sourceMetric, driftSource: driftSource,
+  boundMetrics: boundMetrics,
   windowFor: windowFor, applyRange: applyRange,
   kpi: kpi, attainment: attainment,
   laneValue: laneValue, rhythm: rhythm,
@@ -15035,8 +15222,21 @@ function applyAttachedConfigDoc(){
   var M = window.MOMENTUM;
   if(!M || !M.ConfigApply) return null;
   var bound = (M.Bind && M.Bind.active() && M.Bind.profile) ? M.Bind.profile() : null;
-  try { return M.ConfigApply.apply(held.doc, KBRS, bound); }
+  var out;
+  try { out = M.ConfigApply.apply(held.doc, KBRS, bound); }
   catch(e){ console.warn('[MOMENTUM.ConfigDoc] apply failed:', e); return null; }
+  /* The clock is built when a profile attaches, which is usually BEFORE any
+     document has declared where the demo should open. Re-resolving here is
+     what lets a config document's opening position take effect at all —
+     without it the industry tier is read only when the order happens to run
+     the other way round, which is the kind of dependency on sequence that
+     works in a test and not in a demo. */
+  if(M.Bind && M.Bind.active() && M.Bind.buildClock){
+    M.Bind.buildClock();
+    try { M.Bind.paintAll(); } catch(e){}
+    if(typeof paintWarmupLabel === 'function') paintWarmupLabel();
+  }
+  return out;
 }
 
 function clearConfigDoc(){
@@ -15098,6 +15298,7 @@ window.setPanelSub = setPanelSub;
 <!--mom:inject mom-docwrite-core-->
 <!--mom:inject mom-journeydoc-core-->
 <!--mom:inject mom-datadoc-core-->
+<!--mom:inject mom-clock-core-->
 <!--mom:inject mom-header-global-->
 </body>
 </html>

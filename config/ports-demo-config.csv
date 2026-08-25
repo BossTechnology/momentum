@@ -23,3 +23,8 @@ anomrule,Container Throughput,Crane stoppages clustering,,,,,,Crane Cycle Time,"
 anomrule,Container Throughput,Yard blocks reported full,,,,,,Yard Congestion,"full, blocked, no slot",,contains,,,,alarm,Terminal Control,,,,
 anomrule,Berth Utilization,Same vessel delayed repeatedly,,,,,,Vessel Berthing Delay,three delays on one vessel in a call,,pattern,,,,alert,Duty Superintendent,,,,
 anomrule,Dwell Time,Documentation holds recurring,,,,,,Customs Hold Rate,"hold, inspection, missing paperwork",,contains,,,,alert,Terminal Control,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,"mid berth window, so a vessel is already alongside",,,,,,,1/3,,,,,,

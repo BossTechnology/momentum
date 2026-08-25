@@ -23,3 +23,8 @@ anomrule,Total Sales,Terminal declining repeatedly,,,,,,Card Terminal Latency,"d
 anomrule,Total Sales,Shelf gap reported,,,,,,Stock Availability,"out of stock, gap, empty facing",,contains,,,,alarm,Store Operations,,,,
 anomrule,Basket Conversion,Walkout after long wait,,,,,,Fitting Room Wait,three walkouts inside fifteen minutes on one floor,,pattern,,,,alert,Duty Manager,,,,
 anomrule,Repeat Purchase Rate,Enrolment abandoned at consent step,,,,,,Loyalty Enrolment Rate,"consent, declined, abandoned",,contains,,,,alert,Store Operations,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,"past the opening lull, ahead of the afternoon peak",,,,,,,2/5,,,,,,

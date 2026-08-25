@@ -128,13 +128,29 @@ const ok = (n, c, d) => { c ? (pass++, console.log('  ok   ' + n + (d ? '  · ' 
   const inc = await page.evaluate(() => {
     const g = MOMENTUM.Bind.generator();
     const c = g.plan.cases.find(x=>x.unit==='HT-001'&&x.placement==='scheduled');
+    /* R4 phase 3A: the banner obeys Optionality. An incident on a measure
+       nothing is bound to no longer paints, whatever profile is attached --
+       because "a profile is attached" was the predicate that let a mining
+       workbook announce a haul truck under a retail board. Attaching is not
+       binding, so this section binds the measure the case affects before
+       asking to see it. The fact under test is unchanged. */
+    let tp = null;
+    for(const s of journeyStages) if((s.touchpoints||[]).length){ tp = s.touchpoints[0]; break; }
+    tp.sources = tp.sources || [];
+    tp.sources.push({ type:'profile', platform:c.measure, status:'green',
+                      score:70, thresholds:{} });
     MOMENTUM.Bind.seek(c.startMs-600000); MOMENTUM.Bind.paintAll();
     const b0 = document.getElementById('bindIncident');
     const before = b0 ? /HT-001/.test(b0.innerText) : false;
     MOMENTUM.Bind.seek(c.startMs+5400000); MOMENTUM.Bind.paintAll();
     const el = document.getElementById('bindIncident');
-    return { before, after:!!el, text: el?el.innerText.replace(/\n/g,' '):'', onset:new Date(c.startMs).toISOString() };
+    const out = { before, after:!!el, text: el?el.innerText.replace(/\n/g,' '):'',
+                  onset:new Date(c.startMs).toISOString(), measure:c.measure,
+                  bound:MOMENTUM.Bind.boundMetrics()[c.measure] === true };
+    tp.sources.pop();
+    return out;
   });
+  ok('the measure the case affects is bound before it is expected to show', inc.bound, inc.measure);
   ok('HT-001 is not named ten minutes before its onset', !inc.before, 'onset '+inc.onset);
   ok('HT-001 is named once its fault is live', inc.after && /HT-001/.test(inc.text), inc.text);
   await page.screenshot({ path: 'shot45-4-incident.png' });

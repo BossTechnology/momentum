@@ -23,3 +23,8 @@ anomrule,Net Subscriber Adds,Provisioning failures clustering,,,,,,SIM Provision
 anomrule,Net Subscriber Adds,Credit checks declining repeatedly,,,,,,Credit Check Latency,"declined, refer, error",,contains,,,,alert,Network Operations,,,,
 anomrule,Activation Rate,Porting rejected upstream,,,,,,Porting Request Delay,"rejected, mismatch, invalid",,contains,,,,alarm,Network Operations,,,,
 anomrule,Churn Rate,Cancellations after a long hold,,,,,,Support Call Wait,three cancellations inside one hour after a long hold,,pattern,,,,alert,Field Engineer,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,past the morning traffic ramp,,,,,,,1/3,,,,,,

@@ -23,3 +23,8 @@ anomrule,Daily Active Players,Disconnects clustering in a region,,,,,,Server Tic
 anomrule,Daily Active Players,Crashes reported after a build,,,,,,Crash-Free Sessions,"crash, freeze, hang",,contains,,,,alarm,On-Call Producer,,,,
 anomrule,Install Conversion,Same device failing to complete first session,,,,,,First Session Completion,three failed first sessions on one device,,pattern,,,,alert,#live-ops,,,,
 anomrule,D30 Retention,Churn language in exit surveys,,,,,,Day-7 Return Rate,"boring, grind, uninstall",,contains,,,,alert,Live Ops,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,"mid session, when concurrency is meaningful",,,,,,,1/2,,,,,,

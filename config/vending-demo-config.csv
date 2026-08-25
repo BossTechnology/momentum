@@ -23,3 +23,8 @@ anomrule,Machine Revenue,Card readers failing on a route,,,,,,Cashless Payment F
 anomrule,Machine Revenue,Coin jams reported repeatedly,,,,,,Coin Mechanism Faults,"jam, stuck, no change",,contains,,,,alarm,Field Technician,,,,
 anomrule,Restock Efficiency,Same machine skipped on the route,,,,,,Planogram Compliance,three skips on one machine in a month,,pattern,,,,alert,Route Supervisor,,,,
 anomrule,Stockout Rate,Best sellers emptying first,,,,,,Slot Depletion Rate,"empty, sold out, depleted",,contains,,,,alert,Route Supervisor,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,past the morning restock and before the afternoon draw,,,,,,,2/5,,,,,,

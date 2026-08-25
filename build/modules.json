@@ -13,6 +13,7 @@
   "_docwrite-core.js": "mom-docwrite-core",
   "_journeydoc-core.js": "mom-journeydoc-core",
   "_datadoc-core.js": "mom-datadoc-core",
+  "_clock-core.js": "mom-clock-core",
   "_phase16-anomalies-ui.js": "mom-anomalies-ui",
   "_phase17-header.js": "mom-header-global",
   "_phase7-answer-ui.js": "mom-phase7-ui",

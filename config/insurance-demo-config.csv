@@ -23,3 +23,8 @@ anomrule,Premium Written,Quote timeouts clustering,,,,,,Quote Engine Latency,"ti
 anomrule,Premium Written,Documents returned incomplete,,,,,,Document Completeness,"missing, unsigned, illegible",,contains,,,,alarm,Underwriting Desk,,,,
 anomrule,Quote-to-Bind Rate,Same quote abandoned repeatedly,,,,,,Bind Step Abandonment,three abandonments on one quote in a day,,pattern,,,,alert,Duty Underwriter,,,,
 anomrule,Policy Renewal Rate,Cancellation intent in renewal replies,,,,,,Renewal Notice Delivery,"cancel, shop around, switch",,contains,,,,alert,Underwriting Desk,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,"mid cycle, with claims opening and closing both visible",,,,,,,1/2,,,,,,

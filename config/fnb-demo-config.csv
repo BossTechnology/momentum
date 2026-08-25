@@ -23,3 +23,8 @@ anomrule,Daily Revenue,Terminal declining repeatedly,,,,,,POS Terminal Latency,"
 anomrule,Daily Revenue,Items called off the menu,,,,,,Menu Item Availability,"86, out, unavailable",,contains,,,,alarm,Kitchen Lead,,,,
 anomrule,Table Turnover,Walkouts after a long wait,,,,,,Waitlist Length,three walkouts inside thirty minutes,,pattern,,,,alert,Floor Manager,,,,
 anomrule,Repeat Diner Rate,Sign-up abandoned at consent,,,,,,Loyalty Sign-up Rate,"consent, declined, abandoned",,contains,,,,alert,Floor Manager,,,,
+# clock - where a cold demo opens, as a fraction of the declared span.
+# "1/3" is a third of the way in; "40%" and "2/5" are the same thing.
+# A Data Doc naming an opening window outranks this; the Settings
+# control outranks both, for the session only.
+clock,,opening position,,,,,into service and before the dinner rush,,,,,,,2/5,,,,,,

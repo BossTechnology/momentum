@@ -60,7 +60,7 @@ var SCHEMA = 1;
    }                                                                        */
 
 function blank(){
-  return { schema: SCHEMA, channels: [], kbrs: [] };
+  return { schema: SCHEMA, channels: [], kbrs: [], clock: null };
 }
 
 /* ═══ 2 · importers ════════════════════════════════════════════════════════ */
@@ -207,6 +207,18 @@ function fromRows(rows){
                                    .split(/[;,]/).map(trim).filter(Boolean) });
       return;
     }
+    if(kind === 'clock'){
+      /* Where a cold demo opens, declared per industry rather than compiled in.
+         An opening position is a fraction of the declared span — "1/3", "33%"
+         — because the same words have to mean something to a 24-hour mining
+         shift and to a 90-day claims cycle. MOMENTUM.Clock reads it; nothing
+         is interpreted here, so an unusable value is refused where it can be
+         reported against the row rather than swallowed at parse time. */
+      doc.clock = { opening: trim(r.value || r.opening || r.target || ''),
+                    rate: r.rank || r.rate || '',
+                    notes: r.notes || '' };
+      return;
+    }
     var k = kbrFor(r.kbr || r.result);
     if(!k) return;
     if(kind === 'kbr'){
@@ -329,6 +341,11 @@ function normalise(raw){
         })
     });
   });
+
+  if(raw.clock && (raw.clock.opening || raw.clock.rate))
+    doc.clock = { opening: String(raw.clock.opening || '').trim(),
+                  rate: String(raw.clock.rate || '').trim(),
+                  notes: raw.clock.notes || '' };
 
   if(!doc.kbrs.length && !doc.channels.length)
     return { ok:false, reason:'nothing was declared in the document', warnings:warnings };
