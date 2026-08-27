@@ -234,6 +234,60 @@ function create(decl) {
       return playhead;
     },
     atEnd: function () { return endMs != null && playhead >= endMs; },
+
+    /* ── declared ranges, READ but never enforced ──
+       Phase 3C, and the product owner's decision: RUN ON. A declared range
+       says where the demo opens and what the board reports. It does not stop
+       the playhead, and nothing below moves it — every function here answers
+       a question and returns.
+
+       Containment is HALF-OPEN, [starts, ends). Adjacent windows are the
+       common case — a shift roster is nothing else — and closed ranges would
+       put 18:00 inside both the shift that ends there and the one that begins
+       there, which is not a thing a person would say out loud.
+
+       The exception is the last instant of the data. A window ending there has
+       no successor to hand it to, so orphaning it would mean the final second
+       of a night shift belonged to no shift. That one instant is included. */
+    windowsAt: function (ms) {
+      var t = ms == null ? playhead : +ms;
+      if (!isFinite(t)) return [];
+      return windows.filter(function (w) {
+        if (w.startsMs == null || t < w.startsMs) return false;
+        if (w.endsMs == null) return true;              /* an open window     */
+        if (endMs != null && w.endsMs >= endMs) return t <= w.endsMs;
+        return t < w.endsMs;
+      });
+    },
+    /* When ranges overlap, the NARROWEST one wins: "ramp maintenance" inside
+       "night shift" is the more specific true statement, and specificity is
+       what someone reading a caption wants. An open window is the widest thing
+       there is, so it never displaces a bounded one. */
+    windowAt: function (ms) {
+      var inside = api.windowsAt(ms);
+      if (!inside.length) return null;
+      var width = function (w) {
+        return w.endsMs == null ? Infinity : (w.endsMs - w.startsMs);
+      };
+      return inside.slice().sort(function (a, b) {
+        var d = width(a) - width(b);
+        return d !== 0 ? d : (b.startsMs - a.startsMs);
+      })[0];
+    },
+    /* Entered and left across a stretch of sim time. Reported, not acted on —
+       the one-notifier law means only the Risk Meter escalates, and a window
+       boundary is not an escalation. */
+    windowsCrossed: function (fromMs, toMs) {
+      var a = +fromMs, b = +toMs;
+      if (!isFinite(a) || !isFinite(b) || b < a) return { entered: [], left: [] };
+      var was = api.windowsAt(a), now = api.windowsAt(b);
+      var names = function (l) { return l.map(function (w) { return w.name; }); };
+      var wasN = names(was), nowN = names(now);
+      return {
+        entered: now.filter(function (w) { return wasN.indexOf(w.name) === -1; }),
+        left:    was.filter(function (w) { return nowN.indexOf(w.name) === -1; })
+      };
+    },
     /* How far through the span the playhead sits, 0..1. */
     progress: function () {
       if (originMs == null || !spanMs) return 0;

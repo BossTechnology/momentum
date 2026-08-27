@@ -1,0 +1,9 @@
+# MOMENTUM Data Doc — an authored shift roster over the mining day.
+# Guidance lives where the reader cannot see it: these '#' rows are not data.
+kind,name,type,unit,mode,grain,span,field,context,correct_low,correct_high,out_low,out_high,persistence,starts,ends,notes
+dataset,,,,replay,per second,24 hours,,,,,,,,,,Play the attached rows back through the clock.
+field,Shift ID,text,,,,,,,,,,,,,,
+field,Fuel Consumption Rate-Engine,number,gal/h,,,,,,,,,,,,,
+window,day shift,,,,,,,,,,,,,07:00,18:00,the pit runs from the morning handover
+window,night shift,,,,,,,,,,,,,19:00,03:00,handover gap at 18:00 is deliberate
+window,ramp maintenance,,,,,,,,,,,,,22:00,23:00,nested inside the night shift on purpose

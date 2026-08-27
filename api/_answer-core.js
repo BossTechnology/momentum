@@ -178,6 +178,13 @@ function kindOfMeasure(m){
 /** Read every member of `dim` and attach `measure` to each. Returns
  *  [{ member, value, n, feeds[] }]. Returns [] when nothing can be read —
  *  never throws, never invents. */
+/* The registered elapsed reader, or null. A module-level registration rather
+   than a parameter: `cells` and `resolve` have one caller between them and
+   threading a reader through every signature would put the burden of
+   remembering it on every future call site. Set once when a profile binds,
+   cleared when it detaches. */
+var READER = null;
+
 function cells(profile, dim, measure, opts){
   opts = opts || {};
   var basis = opts.basis === 'clean' ? 'clean' : 'observed';
@@ -199,6 +206,30 @@ function cells(profile, dim, measure, opts){
   }
 
   if(dim.source === 'unit'){
+    /* PHASE 3C · the reading stops at the playhead.
+       `profile.rollups` are whole-file scalars. Before 3C this branch handed
+       them out whatever the clock said, so an answer asked at 09:00 was
+       computed from the whole day — measured at 86,400 samples where 7,200 had
+       elapsed. A registered reader accumulates the same measure at full grain
+       as sim time passes; when one is present it is authoritative.
+
+       When it is absent — no profile bound, no clock, a headless parse — this
+       falls through to exactly the code it always ran. That is Optionality,
+       and it is why an unbound board still renders character for character. */
+    var read = opts.__noReader ? null : READER;
+    if(read){
+      var got = [], missing = 0;
+      (profile.rollups.perUnit || []).forEach(function(u){
+        var e = read(u.unit, measure, basis);
+        if(e == null){ missing++; return; }
+        got.push({ member:u.unit, value:e.value, n:e.n, feeds:['telemetry'],
+                   elapsed:true, upToMs:e.upToMs });
+      });
+      /* All or nothing. A ranking half of whose members stop at the playhead
+         and half of whose run to midnight is not a ranking — it is a race
+         between two clocks, and the member with the longer day wins it. */
+      if(got.length && !missing) return got;
+    }
     (profile.rollups.perUnit || []).forEach(function(u){
       var v = unitMeasure(u, measure);
       if(v == null) return;
@@ -306,6 +337,19 @@ function resolve(profile, spec){
     /* A ratio. Both sides are read per member and divided per member. */
     var nRows = cells(profile, dim, spec.measure.numerator, spec),
         dRows = cells(profile, dim, spec.measure.denominator, spec);
+    /* BOTH SIDES OR NEITHER. Some measures are integrations and cycle counts
+       that the accumulator declines to produce, so one side of a ratio can be
+       bounded at the playhead while the other runs to the end of the file.
+       Nine hours of fuel over a whole day of tonnage is not a ratio — it is
+       the denominator law bent by a clock, which is exactly the way it would
+       get bent without anyone deciding to bend it. */
+    var nE = nRows.some(function(r){ return r.elapsed; }),
+        dE = dRows.some(function(r){ return r.elapsed; });
+    if(nE !== dE){
+      var plain = assign({}, spec, { __noReader:true });
+      nRows = cells(profile, dim, spec.measure.numerator, plain);
+      dRows = cells(profile, dim, spec.measure.denominator, plain);
+    }
     var byMember = {};
     dRows.forEach(function(r){ byMember[r.member] = r; });
     rows = [];
@@ -694,6 +738,10 @@ MOMENTUM.Answer = {
   suggestFormat: suggestFormat, formatOf: formatOf,
   dimensions: dimensions, measures: measures, cells: cells, familyOf: familyOf,
   resolve: resolve, display: display,
+
+  /* fn(unit, measure, basis) -> {value, n, upToMs} | null, or null to clear. */
+  useReader: function(fn){ READER = (typeof fn === 'function') ? fn : null; return READER; },
+  reader: function(){ return READER; },
 
   candidates: candidates, shortlist: shortlist,
 

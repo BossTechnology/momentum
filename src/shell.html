@@ -686,6 +686,23 @@ main{padding:22px 22px 32px;display:flex;flex-direction:column;gap:18px}
   max-width:min(760px,92vw)}
 .bind-incident .bi-dot{width:8px;height:8px;border-radius:50%;background:#FF6B5A;flex:none}
 .bind-incident .bi-when{opacity:.66}
+
+/* The window chip. Same furniture as the incident banner, deliberately: they
+   are both "what is true at this instant" and reading as one family is right.
+   It sits ABOVE the banner rather than beside it, because both can be true at
+   once and a fixed element at the same offset would hide the other.
+   Quieter than the banner by design — a window is context, not an alarm, and
+   under the one-notifier law only the Risk Meter escalates anything. */
+.bind-window{position:fixed;left:50%;transform:translateX(-50%);bottom:70px;z-index:69;
+  background:#F4F2EE;color:#2B2B2B;border:1px solid rgba(0,0,0,.10);border-radius:10px;
+  padding:7px 13px;font-size:11.5px;box-shadow:0 3px 14px rgba(0,0,0,.10);
+  display:flex;gap:9px;align-items:center;max-width:min(760px,92vw)}
+.bind-window .bw-dot{width:7px;height:7px;border-radius:50%;flex:none;background:#8A8A8A}
+.bind-window.bw-in .bw-dot{background:#2F9E6B}
+.bind-window.bw-gap .bw-dot{background:#C9A227}
+.bind-window.bw-past .bw-dot{background:#8A8A8A}
+.bind-window.bw-unplaced .bw-dot{background:#C25B4E}
+.bind-window .bw-when{opacity:.6;margin-left:2px}
 .hex-shell{transition:fill .3s,stroke .3s,opacity .3s}
 
 /* Keep all hexagon borders a CONSTANT on-screen thickness regardless of how
@@ -1716,6 +1733,12 @@ body.accum-mode .kbr-col[data-tier="critical"] .kbr-value{animation:none}
    means "not possible with what is attached". The reason sits underneath and
    names the action that would change it. */
 .mode-fork{margin-top:10px}
+/* The Data Doc's own attach, matching steps 2 and 4: a bordered control for
+   the thing you DO, plain underlined links for the two things you fetch. Three
+   identical links on one line read as one sentence, not three actions. */
+.datadoc-row{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.datadoc-dl{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.datadoc-or{font-size:10.5px;color:var(--gray-light,#9A9A9A)}
 .mode-fork-head{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-light);margin-bottom:5px}
 .mode-fork-row{display:flex;gap:5px;flex-wrap:wrap}
 .mode-chip{font:inherit;font-size:11px;font-weight:600;padding:5px 11px;border-radius:7px;cursor:pointer;
@@ -2061,8 +2084,33 @@ body.accum-mode .kbr-col[data-tier="critical"] .kbr-value{animation:none}
         <div class="mode-fork-head">Data mode</div>
         <div class="mode-fork-row" id="modeForkRow"></div>
         <div class="mode-fork-why" id="modeForkWhy"></div>
-        <button type="button" class="cfg-tmpl-btn" id="dataDocBtn" onclick="downloadDataDoc()"
-                title="The Data Doc this mode calls for">Download Data Doc</button>
+        <!-- THE DOCUMENT COMES BACK WHERE IT WENT OUT. Steps 2 and 4 pair an
+             attach with a download; step 3 had two downloads and an attach for
+             a different file entirely (the raw rows, above). The Data Doc's
+             own attach belongs beside the download that produced it, inside
+             the fork, because the mode is what decides the document's shape. -->
+        <div class="datadoc-row">
+          <input type="file" id="dataDocDeclFile" style="display:none"
+                 accept=".xlsx,.xlsm,.csv,.tsv" onchange="handleDataDocDecl(this)">
+          <button type="button" class="doc-attach-btn" id="dataDocAttachBtn"
+                  onclick="document.getElementById('dataDocDeclFile').click()"
+                  title="Bring an edited Data Doc back in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M12 3v10M8 9l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round"/></svg>
+            Attach Data Doc
+          </button>
+          <div class="data-attach-chip" id="dataDocChip" style="display:none">
+            <span id="dataDocChipName"></span>
+            <button type="button" onclick="clearDataDocDecl()" title="Remove">&times;</button>
+          </div>
+        </div>
+        <div class="datadoc-dl">
+          <button type="button" class="cfg-tmpl-btn" id="dataDocBtn" onclick="downloadDataDoc(false)"
+                  title="A filled-in Data Doc this mode calls for">Download Data Doc</button>
+          <span class="datadoc-or">or</span>
+          <button type="button" class="cfg-tmpl-btn" id="dataDocBlankBtn" onclick="downloadDataDoc(true)"
+                  title="The same rows with the cells you fill in left empty">Blank</button>
+        </div>
+        <div class="data-attach-status" id="dataDocStatus"></div>
       </div>
       <div class="coverage-panel" id="coveragePanel"></div>
 
@@ -12381,8 +12429,10 @@ function syncModeFork(){
   if(active) lines.push(active.blurb);
   unavailable.forEach(function(m){ lines.push(m.label + ' \u2014 ' + m.why); });
   if(why) why.textContent = lines.join('  ');
-  if(btn) btn.textContent = 'Download Data Doc \u00b7 ' +
-    ((active && active.label) || 'Free').toLowerCase();
+  var modeName = ((active && active.label) || 'Free').toLowerCase();
+  if(btn) btn.textContent = 'Download Data Doc \u00b7 ' + modeName;
+  var blankBtn = el('dataDocBlankBtn');
+  if(blankBtn) blankBtn.textContent = 'Blank \u00b7 ' + modeName;
   if(fork) fork.style.display = (SB_CFG && SB_CFG.industry) ? '' : 'none';
 }
 
@@ -12397,9 +12447,9 @@ function setDataMode(mode){
 /* The Data Doc the chosen mode calls for — .xlsx, which is the authored format
    for this document, with the guidance on a second sheet-free block of rows
    the reader skips. */
-function downloadDataDoc(){
+function downloadDataDoc(blank){
   var M = window.MOMENTUM;
-  var stat = el('dataAttachStatus');
+  var stat = el('dataDocStatus') || el('dataAttachStatus');
   if(!M || !M.DataDoc || !M.DocWrite){
     if(stat) stat.textContent = 'The document writer is unavailable.';
     return;
@@ -12408,7 +12458,8 @@ function downloadDataDoc(){
   if(!M.DataDoc.availability(mode, state.profile).ok) mode = 'free';
 
   var rows = M.DataDoc.templateRows(mode, state.profile,
-    { name: (SB_CFG.dataProfileMeta && SB_CFG.dataProfileMeta.name) || '' });
+    { name: (SB_CFG.dataProfileMeta && SB_CFG.dataProfileMeta.name) || '',
+      blank: !!blank });
 
   /* Guidance goes on a SECOND SHEET. `#` opens a comment in a .csv, so the
      same text written under the table there is invisible to the parser — but
@@ -12418,12 +12469,112 @@ function downloadDataDoc(){
      invisible to the reader, exactly like prose outside a .docx table. */
   var bytes = M.DocWrite.xlsxBook([
     { name:'Data Doc', rows: rows },
-    { name:'Guidance', rows: M.DataDoc.guide(mode, state.profile).map(function(g){
+    { name:'Guidance', rows: M.DataDoc.guide(mode, state.profile, !!blank).map(function(g){
         return [g]; }) }
   ]);
   var ind = (SB_CFG && SB_CFG.industry) || 'generic';
-  M.DocWrite.download(bytes, 'momentum-data-doc-' + mode + '-' + ind + '.xlsx');
-  if(stat) stat.textContent = 'Data Doc downloaded \u00b7 ' + mode + ' mode';
+  M.DocWrite.download(bytes, 'momentum-data-doc-' + mode + '-' +
+    (blank ? 'blank-' : '') + ind + '.xlsx');
+  if(stat) stat.textContent = (blank ? 'Blank' : 'Example') +
+    ' Data Doc downloaded \u00b7 ' + mode + ' mode';
+}
+
+/* ── an edited Data Doc, coming back ────────────────────────────
+   The reader is told the profiled origin and end, so a window written "15:00"
+   has a day to hang on. Without data attached those are null, clock times
+   cannot resolve, and a window reports that it declares no start rather than
+   inventing an offset — refuse, don't demote, one level down.
+
+   The clock is rebuilt on the spot when a binding is already live, because a
+   Data Doc that names where the demo opens should move it now, not on the next
+   Apply. */
+function handleDataDocDecl(input){
+  var f = input && input.files && input.files[0];
+  if(!f) return;
+  var chip = el('dataDocChip'), nm = el('dataDocChipName'), stat = el('dataDocStatus');
+  if(nm) nm.textContent = f.name;
+  if(chip) chip.style.display = '';
+  if(stat) stat.textContent = 'Reading \u2026';
+
+  var M = window.MOMENTUM;
+  if(!M || !M.DataDoc){
+    if(stat) stat.textContent = 'The Data Doc reader is unavailable.';
+    return;
+  }
+  var ext = String(f.name || '').toLowerCase().split('.').pop();
+  var cov = (state.profile && state.profile.coverage) || {};
+  var sp = cov.span || {};
+  /* TWO RECORDS OF "THE ATTACHED PROFILE", and this reader was consulting only
+     one. `state.profile` here is the PROFILER's — set when a workbook is
+     profiled through the interface. MOMENTUM.Bind keeps its own, set by
+     attach(), which is reachable without profiling anything: a profile
+     restored from persistence, or a rebind.
+
+     In that case the clock was live, with an origin, while this said "no data
+     is attached yet, so there is no day to place it on" — and offered "attach
+     the data and this resolves" as the remedy. The data WAS attached. Every
+     clock-time window in the document was refused, and the reason was false
+     and the remedy impossible.
+
+     Found by screenshot, not by test: the window chip read "past every
+     declared window" at every instant of the day, because no window had ever
+     resolved. Asserting on ok === false would have shown nothing — the
+     document applied, and its rows were correctly named and counted.
+
+     The bound clock is asked second, never first: the profiler's own span is
+     the more specific fact when both exist. */
+  var bindClk = (M.Bind && M.Bind.active && M.Bind.active() && M.Bind.clock)
+                ? M.Bind.clock() : null;
+  var opts = { originMs: sp.startISO ? Date.parse(sp.startISO)
+                       : (bindClk ? bindClk.origin() : null),
+               endMs:    sp.endISO   ? Date.parse(sp.endISO)
+                       : (bindClk ? bindClk.end() : null),
+               profile: state.profile || (M.Bind && M.Bind.profile ? M.Bind.profile() : null) };
+
+  var rebuild = function(){
+    if(M.Bind && M.Bind.active && M.Bind.active() && M.Bind.buildClock) M.Bind.buildClock();
+  };
+
+  var done = function(res){
+    if(!res || !res.ok){
+      SB_CFG.dataDoc = null;
+      var why = (res && res.reason) || 'the document could not be read';
+      if(stat) stat.textContent = 'Not applied \u2014 ' + why +
+        ((res && res.hint) ? ' ' + res.hint : '');
+      rebuild();
+      return;
+    }
+    SB_CFG.dataDoc = { name: f.name, doc: res.doc };
+    var line = 'Attached \u00b7 ' + res.summary;
+    (res.doc.notes || []).forEach(function(n){ line += '  \u2014 ' + n; });
+    (res.doc.ignored || []).forEach(function(g){
+      line += '  \u2014 row ' + g.row + ': ' + g.why; });
+    if(stat) stat.textContent = line;
+    rebuild();
+  };
+
+  if(ext === 'xlsx' || ext === 'xlsm'){
+    if(!M.OfficeDoc){
+      if(stat) stat.textContent = 'Not applied \u2014 this build cannot read .' + ext;
+      return;
+    }
+    f.arrayBuffer().then(function(buf){ return M.OfficeDoc.readRows(buf, f.name); })
+      .then(function(r){ done(r && r.ok ? M.DataDoc.fromRows(r.rows, opts) : r); })
+      .catch(function(e){ done({ ok:false, reason:(e && e.message) || 'unreadable archive' }); });
+  } else {
+    f.text().then(function(t){ done(M.DataDoc.parse(t, f.name, opts)); })
+      .catch(function(e){ done({ ok:false, reason:(e && e.message) || 'unreadable file' }); });
+  }
+}
+
+function clearDataDocDecl(){
+  SB_CFG.dataDoc = null;
+  var chip = el('dataDocChip'), stat = el('dataDocStatus'), inp = el('dataDocDeclFile');
+  if(chip) chip.style.display = 'none';
+  if(stat) stat.textContent = '';
+  if(inp) inp.value = '';
+  var M = window.MOMENTUM;
+  if(M && M.Bind && M.Bind.active && M.Bind.active() && M.Bind.buildClock) M.Bind.buildClock();
 }
 
 /* ── public surface ──────────────────────────────────────────────────────── */
@@ -12433,6 +12584,8 @@ MOMENTUM.Data = {
   clearDataFile: clearDataFile,
   downloadDataTemplate: downloadDataTemplate,
   downloadDataDoc: downloadDataDoc,
+  handleDataDocDecl: handleDataDocDecl,
+  clearDataDocDecl: clearDataDocDecl,
   syncModeFork: syncModeFork,
   setDataMode: setDataMode,
   renderCoverage: renderCoverage,
@@ -12451,6 +12604,10 @@ window.handleDataFile = handleDataFile;
 window.clearDataFile = clearDataFile;
 window.downloadDataTemplate = downloadDataTemplate;
 window.downloadDataDoc = downloadDataDoc;
+/* Inline onclick resolves against window, and a top-level function
+   declaration inside this module is not a property of it. */
+window.handleDataDocDecl = handleDataDocDecl;
+window.clearDataDocDecl = clearDataDocDecl;
 window.setDataMode = setDataMode;
 
 /* the template link only makes sense once an industry is chosen */
@@ -12893,8 +13050,148 @@ var state = {
   seek: null,                // an explicit instant, while scrubbing
   window: null,              // the active header range, as real epoch ms
   clock: null,               // MOMENTUM.Clock over the profiled span
-  warmup: null               // {fraction, source, label, ...} — how it opened
+  warmup: null,              // {fraction, source, label, ...} — how it opened
+  acc: null                  // the elapsed-reading accumulator — see below
 };
+
+/* ═══ the elapsed reading ═══════════════════════════════════════════════════
+   Phase 3C. The Answer Engine read `profile.rollups`, which are whole-file
+   aggregates: "which truck burned most fuel today" asked at 09:00 answered
+   from all twenty-four hours, including the fifteen that had not happened.
+   Measured, not inferred — 86,400 samples returned at 02:00 where 7,200 had
+   elapsed, identical at every playhead.
+
+   The fix is not a filter. There is nothing in the profile to filter: the
+   rollups are scalars over the whole span. So the reading is ACCUMULATED as
+   sim time passes, at full grain, and the Answer Engine reads the accumulator
+   instead of the rollups whenever one exists.
+
+   FULL FIDELITY IS THE POINT AND THE CONSTRAINT. Generator.aggregate() strides
+   by default — autoStep() caps at ~4000 samples, which was 9 seconds at 09:00
+   and would have made every official answer a sample. The accumulator walks
+   every grain step and never strides. It affords that because it only ever
+   walks what a tick BUYS: rate x realMs of sim time, not the elapsed day. The
+   day is walked once, in arrears, and never again.
+
+   sum, n, min and max are all exactly maintainable over a growing prefix, so
+   nothing here approximates. Medians are not — and nothing needs one, because
+   the Answer Engine's `deviation` takes its median ACROSS members, each of
+   which is already a scalar by then. */
+function accCreate(gen, clock){
+  if(!gen || !clock || clock.origin() == null) return null;
+  return {
+    grainSec: (gen.plan && gen.plan.grainSec) || 1,
+    originMs: clock.origin(),
+    units: gen.units(), metrics: gen.metrics(),
+    series: {},               // metric -> {upTo, cells:{unit:{n,sum,min,max}}}
+    walked: 0                 // grain steps folded in, across all series
+  };
+}
+
+/* LAZY, PER MEASURE. The first version accumulated every measure the generator
+   declares — fourteen of them in mining — which meant the first reading walked
+   eleven million samples for thirteen measures nobody had asked about. A series
+   is now created and back-filled only when something reads it, so the cost is
+   paid per measure in use rather than per measure in existence.
+
+   Each series carries its own `upTo`, because they do not start together. */
+function accSeries(acc, metric){
+  var s = acc.series[metric];
+  if(!s){ s = acc.series[metric] = { upTo:null, cells:{} }; }
+  return s;
+}
+function accCell(series, unit){
+  return series.cells[unit] ||
+        (series.cells[unit] = { n:0, sum:0, min:Infinity, max:-Infinity });
+}
+
+/* Fold every grain step up to toMs into one series. The first call walks from
+   the ORIGIN — a reading that began wherever the playhead happened to be when
+   it was first asked would report a window nobody chose, and would report a
+   different one depending on when the question was first put. Nothing is
+   skipped and nothing is strided: this steps by the generator's own grain. */
+function accExtend(acc, gen, metric, toMs){
+  if(!acc || toMs == null) return 0;
+  var s = accSeries(acc, metric);
+  var stepMs = acc.grainSec * 1000;
+  var t = s.upTo == null ? acc.originMs : s.upTo + stepMs;
+  var steps = 0;
+  for(; t <= toMs; t += stepMs){
+    for(var ui = 0; ui < acc.units.length; ui++){
+      var v = gen.value(metric, t, acc.units[ui]);
+      if(v === null || v === undefined) continue;
+      var c = accCell(s, acc.units[ui]);
+      c.n++; c.sum += v;
+      if(v < c.min) c.min = v;
+      if(v > c.max) c.max = v;
+    }
+    steps++;
+  }
+  /* upTo is the last instant actually FOLDED IN, not the last one requested.
+     Recording the request instead drops one grain step at every resume
+     boundary whenever the playhead does not land on a grain multiple — which
+     it generally does not. Silent, small, and cumulative: exactly the shape of
+     defect the full-fidelity law exists to prevent. */
+  if(steps) s.upTo = t - stepMs;
+  acc.walked += steps;
+  return steps;
+}
+
+/* A playhead dragged BACKWARDS invalidates a prefix — there is no way to
+   un-fold a sample. The accumulator is rebuilt rather than corrected, because
+   a prefix that quietly kept counting a future it had been pulled back out of
+   would be the same defect this whole mechanism exists to remove. */
+function accSync(){
+  if(!state.gen || !state.clock) return null;
+  var p = state.clock.playhead();
+  if(p == null) return null;
+  if(!state.acc) state.acc = accCreate(state.gen, state.clock);
+  if(!state.acc) return null;
+  var acc = state.acc, rewound = false;
+  Object.keys(acc.series).forEach(function(m){
+    if(acc.series[m].upTo != null && p < acc.series[m].upTo) rewound = true;
+  });
+  if(rewound) state.acc = acc = accCreate(state.gen, state.clock);
+  acc.at = p;
+  return acc;
+}
+
+/* What the Answer Engine reads. Returns null when there is nothing to read,
+   which is the Optionality path: no profile bound, no accumulator, and the
+   engine falls back to the rollups it has always used. */
+function elapsed(metric, unit){
+  var acc = accSync();
+  if(!acc) return null;
+  accExtend(acc, state.gen, metric, acc.at);
+  var s = acc.series[metric];
+  var c = s && s.cells[unit];
+  if(!c || !c.n) return null;
+  return { n:c.n, sum:c.sum, mean:c.sum / c.n,
+           min:c.min === Infinity ? null : c.min,
+           max:c.max === -Infinity ? null : c.max,
+           upToMs:s.upTo, grainSec:acc.grainSec };
+}
+function elapsedUnits(){
+  var acc = accSync();
+  return acc ? acc.units.slice() : [];
+}
+
+/* The function handed to the Answer Engine. It answers for plain measures and
+   declines for the derived ones.
+
+   __gallons, __tons and __cycles are integrations and cycle counts, not
+   samples: tonnage is counted ONCE per completed cycle at the dump, never as a
+   per-row sum. The accumulator counts samples, so it cannot produce them
+   honestly, and the bounded form of that arithmetic already exists in kpi(),
+   which reads the clock. Declining here is not a gap — it is the denominator
+   law refusing to be approximated by something that happens to be nearby. */
+function answerReader(unit, measure, basis){
+  if(!active() || basis === 'clean') return null;
+  if(measure === '__gallons' || measure === '__tons' || measure === '__cycles') return null;
+  var e = elapsed(measure, unit);
+  if(!e) return null;
+  return { value: e.mean, n: e.n, upToMs: e.upToMs };
+}
 
 function el(id){ return document.getElementById(id); }
 /* currentTimeRange is a module-scoped `let`, so it is reachable by name but not
@@ -12944,6 +13241,11 @@ function attach(profile){
   state.seek = null;
   state.window = null;
   buildClock();
+  state.acc = null;
+  /* Registered here rather than at module load: the reader is only meaningful
+     once there is a clock and a generator behind it. */
+  if(window.MOMENTUM && MOMENTUM.Answer && MOMENTUM.Answer.useReader)
+    MOMENTUM.Answer.useReader(answerReader);
   if(typeof SB_CFG !== 'undefined') SB_CFG.binding = state.binding;
   syncSourceTypeMetrics();
   renderBindingPanel();
@@ -12957,6 +13259,11 @@ function detach(){
   state.profile = null; state.gen = null; state.anchorWall = null;
   state.seek = null; state.window = null;
   state.clock = null; state.warmup = null;
+  state.acc = null;
+  /* The reading goes when the data goes. A reader left registered against a
+     detached profile is the Optionality law broken quietly. */
+  if(window.MOMENTUM && MOMENTUM.Answer && MOMENTUM.Answer.useReader)
+    MOMENTUM.Answer.useReader(null);
   if(typeof SB_CFG !== 'undefined') SB_CFG.binding = null;
   if(typeof SOURCE_TYPES !== 'undefined' && SOURCE_TYPES.profile)
     SOURCE_TYPES.profile.platforms = ['(attach a data file first)'];
@@ -13534,8 +13841,82 @@ function paintIncidentBanner(){
   document.body.appendChild(d);
 }
 
+/* ── the declared window, captioned ───────────────────────────────────────
+   Phase 3C, and the whole of what "run on" means in practice.
+
+   A declared range does not stop the playhead. That decision only holds up if
+   the range is VISIBLE, because a range that changes nothing and says nothing
+   is indistinguishable from a range that was never read — which is precisely
+   what 3B shipped and 3C exists to correct.
+
+   So there are three states and all three are said out loud:
+     · inside a declared window     — named
+     · past every declared window   — said, because this is the moment someone
+                                      would otherwise assume it had stopped
+     · between windows              — said, so a gap in a roster looks like a
+                                      gap rather than like a fault
+
+   Repainted from paintAll like the incident banner, and removed the same way,
+   so it never survives the data it describes. */
+function paintWindowChip(){
+  var old = el('bindWindow');
+  if(old) old.remove();
+  if(!active() || !state.clock) return;
+  var ws = state.clock.windows ? state.clock.windows() : null;
+  /* NOTHING DECLARED, NOTHING SHOWN. A board whose data carries no windows is
+     not missing a caption — it has nothing to caption. Optionality. */
+  if(!ws || !ws.length) return;
+
+  var t = now();
+  /* A FOURTH STATE, and the one that caught the seam above. Windows can be
+     declared and never resolve to an instant — a refused row keeps its name
+     and its raw cells but has no startsMs. Reporting those as "past every
+     declared window" is a lie of exactly the shape this phase is meant to
+     stop: it describes a playhead that has run through a day that was never
+     placed. Said plainly instead, and said first. */
+  var placed = ws.filter(function(w){ return w.startsMs != null; });
+  if(!placed.length){
+    var d0 = document.createElement('div');
+    d0.id = 'bindWindow'; d0.className = 'bind-window bw-unplaced';
+    d0.innerHTML = '<span class="bw-dot"></span><span>' + ws.length +
+      ' window' + (ws.length === 1 ? '' : 's') +
+      ' declared \u2014 none placed on the day</span>' +
+      '<span class="bw-when">' + new Date(t).toISOString().slice(11, 16) + ' UTC</span>';
+    document.body.appendChild(d0);
+    return;
+  }
+
+  var here = state.clock.windowAt(t);
+  var label, tone;
+  if(here){
+    label = '<b>' + esc(here.name) + '</b>';
+    if(here.endsMs != null)
+      label += ' \u00b7 until ' + new Date(here.endsMs).toISOString().slice(11, 16) + ' UTC';
+    tone = 'in';
+  } else {
+    /* Past every declared range, or between two. The distinction matters:
+       one means the demo has run out of the day someone described, the other
+       means the roster has a hole in it. */
+    var ahead = placed.filter(function(w){ return w.startsMs > t; });
+    if(ahead.length){
+      ahead.sort(function(a, b){ return a.startsMs - b.startsMs; });
+      label = 'between windows \u00b7 <b>' + esc(ahead[0].name) + '</b> at ' +
+              new Date(ahead[0].startsMs).toISOString().slice(11, 16) + ' UTC';
+      tone = 'gap';
+    } else {
+      label = 'past every declared window \u2014 still running';
+      tone = 'past';
+    }
+  }
+  var d = document.createElement('div');
+  d.id = 'bindWindow'; d.className = 'bind-window bw-' + tone;
+  d.innerHTML = '<span class="bw-dot"></span><span>' + label + '</span>' +
+    '<span class="bw-when">' + new Date(t).toISOString().slice(11, 16) + ' UTC</span>';
+  document.body.appendChild(d);
+}
+
 function paintAll(){
-  try { paintStages(); paintKbrStrips(); paintIncidentBanner(); }
+  try { paintStages(); paintKbrStrips(); paintIncidentBanner(); paintWindowChip(); }
   catch(e){ console.warn('[MOMENTUM.Bind paint]', e); }
 }
 function startPainting(){
@@ -13559,6 +13940,8 @@ MOMENTUM.Bind = {
   binding: function(){ return state.binding; },
   generator: function(){ return state.gen; },
   profile: function(){ return state.profile; },
+  elapsed: elapsed, elapsedUnits: elapsedUnits,
+  accumulator: function(){ return state.acc; },
   sourceValue: sourceValue, sourceMetric: sourceMetric, driftSource: driftSource,
   boundMetrics: boundMetrics,
   windowFor: windowFor, applyRange: applyRange,
