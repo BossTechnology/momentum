@@ -742,6 +742,20 @@ main{padding:22px 22px 32px;display:flex;flex-direction:column;gap:18px}
 .hex-cell.active .hex-icon{opacity:1;color:var(--black)}
 .hex-cell.active:hover .hex-arc{stroke:#FFD95F}
 
+/* Unmapped (Phase 3D): the journey declares this stage and the attached data
+   has no state for it, so there is no share of the fleet to draw. A SOLID ring
+   at nothing already means "active, and nobody is standing here" — mining has
+   three of those and three of these at the same instant — so this cannot
+   borrow it. The ring breaks instead: dashed, and paler than the active grey.
+   Nothing is animated, because nothing about it is changing.
+   Not .disconnected and not .starved: both of those mean touchpoints died,
+   which is a claim about the stage's own wiring. This is a claim about the
+   data, and reusing their vocabulary is the confusion 3D exists to remove. */
+.hex-cell.unmapped .hex-shell{stroke:#DADADA;stroke-dasharray:7 6}
+.hex-cell.unmapped .hex-arc{stroke:none}
+.hex-cell.unmapped .hex-icon{opacity:.45}
+.hex-cell.unmapped:hover .hex-shell{stroke:#C4C4C4}
+
 /* honey walls — the 6 inner segments that fill with performance.
    Brighter golden-honey fill; round joins so they sit nicely inside the
    now-rounded shell. */
@@ -13562,11 +13576,25 @@ function renderBindingPanel(){
   var ranked = p.stateColumnRanked && p.stateColumnRanked !== p.stateColumn
     ? '<div>Ranked first by variance: <b>' + esc(p.stateColumnRanked) +
       '</b> \u2014 not bound; the cycle closes in the state column above.</div>' : '';
+  /* The stage shortfall, said out loud. It reads the SAME record the board
+     reads, so the sentence and the hexagons cannot drift apart — that shared
+     record is the whole reason 3D/1 stores names rather than a count.
+     Phrased the way toSized already phrases an unplaced substage: name the
+     thing, then say what stopped it. Absent when every stage mapped; an
+     all-clear line on a board with nothing wrong is noise. */
+  var sm = stageMap();
+  var shortfall = (sm && sm.surplus && sm.surplus.length)
+    ? '<div style="margin-top:5px">Stages with no state in this data: <b>' +
+      sm.surplus.length + '</b> of ' + sm.stages + ' \u2014 ' +
+      sm.surplus.map(esc).join(', ') + '. The data carries ' + sm.states +
+      ' states, so these hold no share of the fleet and are drawn dormant.</div>'
+    : '';
   d.innerHTML =
     '<div style="font-weight:600;margin-bottom:5px">Generator binding</div>' +
     '<div>Journey partition: <b>' + esc(p.stateColumn) + '</b> \u2014 bound, on ' +
       esc(state.binding.stateColumnReason) + ' evidence</div>' +
     ranked +
+    shortfall +
     '<div>Cycle: ' + p.states.length + ' states \u00b7 ' +
       Math.round(p.cycleSec / 60) + ' min \u00b7 ' + p.units.length + ' units</div>' +
     '<div>Counted once per completed cycle: <b>' + esc(p.cycleMeasure || '\u2014') + '</b>' +
@@ -13598,7 +13626,24 @@ function esc(s){
 
 /* Stages are mapped to states positionally, in cycle order, and the mapping is
    recorded rather than inferred on every paint. A journey with more stages than
-   the data has states leaves the surplus unmapped and says so. */
+   the data has states leaves the surplus unmapped and says so.
+
+   Phase 3D: it now actually says so. The record used to carry only the COUNTS
+   — {mapped, stages, states} — and nothing read them, so a journey declaring
+   ten stages over seven states left three hexagons carrying whatever ring they
+   had before the bind. On the mining reference those three were 59%, 87% and
+   74%: the three largest arcs on the board, belonging to the three stages the
+   data cannot describe, while the seven real ones summed to exactly 100. The
+   comment above was true of the record and false of the product.
+
+   So the surplus is now named, not counted. `surplusIds` drives the dormant
+   rendering, `surplus` drives the sentence in the binding panel. Both read the
+   same record, so the board and the panel cannot disagree.
+
+   Only PRIME stages are candidates. A substage sits in a valley between two
+   primes; it is a detail inside a transition, not a state of the cycle, and it
+   was never a candidate for occupancy. Marking one "unmapped" would assert
+   that the data lacks a state for it, which is not what is true of it. */
 function mapStages(){
   if(!active() || typeof journeyStages === 'undefined') return null;
   var states = state.gen.stateNames();
@@ -13606,8 +13651,11 @@ function mapStages(){
                             .sort(function(a, b){ return a.col - b.col; });
   var map = {}, i;
   for(i = 0; i < primes.length && i < states.length; i++) map[primes[i].id] = states[i];
+  var surplus = primes.slice(states.length);
   state.stageMap = { map: map, mapped: Math.min(primes.length, states.length),
-                     stages: primes.length, states: states.length };
+                     stages: primes.length, states: states.length,
+                     surplus: surplus.map(function(s){ return s.name; }),
+                     surplusIds: surplus.map(function(s){ return s.id; }) };
   return state.stageMap;
 }
 function stageMap(){ return state.stageMap || mapStages(); }
@@ -13620,11 +13668,29 @@ function paintStages(){
   if(!svg) return;
   var olds = svg.querySelectorAll('.hex-occ, .hex-occbg');
   for(var k = 0; k < olds.length; k++) olds[k].remove();
+  /* Cleared BEFORE the unbound return, not after it. Optionality cuts both
+     ways: detaching the profile has to put the board back exactly as it was,
+     and a mark left behind by the previous bind would be a statement about
+     data that is no longer attached. */
+  var stale = svg.querySelectorAll('.hex-cell.unmapped');
+  for(var m = 0; m < stale.length; m++) stale[m].classList.remove('unmapped');
   if(!active()) return;
   var sm = stageMap();
   if(!sm) return;
   var share = stateShare();
   if(!share) return;
+  /* A declared stage the data has no state for gets the dormant ring: its arc
+     goes to nothing and the shell says why. It must NOT simply be blanked —
+     a blank ring is what a genuinely empty stage looks like, and on the mining
+     reference three stages really are at 0% while three others have no state
+     at all. Those are different facts and the board has to tell them apart. */
+  var surplusIds = sm.surplusIds || [];
+  for(var s = 0; s < surplusIds.length; s++){
+    var scell = svg.querySelector('.hex-cell[data-id="' + surplusIds[s] + '"]');
+    if(!scell) continue;
+    scell.classList.add('unmapped');
+    if(typeof paintHexArc === 'function') paintHexArc(scell, { state:'active' }, 0);
+  }
   var cells = svg.querySelectorAll('.hex-cell[data-id]');
   for(var i = 0; i < cells.length; i++){
     var id = cells[i].getAttribute('data-id');

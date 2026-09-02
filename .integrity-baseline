@@ -28,7 +28,7 @@ c9a7d57f35e3b56a3f2df84dc7baf8d5  api/profile.js
 4964e59bd0d6eeab3f9f9d3945c6d164  build/extract.js
 1fcedbf779eb818ad2ca57b771989ee6  build/fixtures.js
 ab340b100bd30bb53c942d190d622631  build/modules.json
-0e76db2161c231072d8d92fc2087b5a5  build/reference.json
+fb6d3cb588c275f87bfa436ebb9223f3  build/reference.json
 3c96a1a67258874b5aada8388fb6e357  config/banking-demo-config.csv
 dea4ed830f15e96b41a2bc746a652bd9  config/data-profile-mineria-schema3.json
 68a101291bcd6f0fd3e7de5e546869a5  config/ecommerce-demo-config.csv
@@ -58,9 +58,9 @@ b497c665b6492b2529c65a8317e0c2ef  harness/probe2.js
 a82e4b128f9168f7def4832f0055fc29  harness/profile-local.js
 f336961cebfb07f35e7ac352f165376c  integrity.sh
 7dff78c53432008552033b3a022f09c5  package-lock.json
-f08f88e8f5078974ea4445acb73bfe3c  package.json
+9b9dc443bdd9d1eee06df2e30350f2d6  package.json
 422134a9c0abdc6bfd2fa305489449f3  src/boot.js
-58f827d506e1e45c03c28d15e8e00088  src/shell.html
+0fd14be8e340e90beb5e1254aeee3e4b  src/shell.html
 3121df9b505c0e156bce411c250529f5  supabase/RUNBOOK.md
 e3dce0675d70ccf3317a6bcaa4daae6e  supabase/phase3-data-profiles.sql
 8b55e45122b11fa3e0fc85f768bc4d0f  supabase/session8-schema.sql
@@ -79,6 +79,7 @@ e43f9504f15550a3ce5a96ece19bedbc  test/verify-clock.js
 7faa48c23bc25484eb437d56efa9544a  test/verify-elapsed.js
 cdc832f278d2d84eadde8be338c65b8a  test/verify-leakage.js
 23d6cd078e0fb355e5a5a4643aea88d2  test/verify-mirror.js
+eb783efa35be19d7fbc6f38e2e8cb461  test/verify-stages.js
 f8a4f86ad3ecb2b20fddb223c8b51cf3  test/verify-windows.js
 1e4a6458ad51aaf50c780604da6d923c  test/verify20.js
 106c03f8e4e4f0ef219d43e90a784601  test/verify45.js
