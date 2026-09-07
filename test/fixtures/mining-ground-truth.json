@@ -1,0 +1,179 @@
+{
+  "schema": "momentum/mining-ground-truth@1",
+  "generatedBy": "harness/mining-truth.js",
+  "note": "Derived from the workbook, never transcribed. Regenerate with: node harness/mining-truth.js <workbook.xlsx>",
+  "source": {
+    "name": "Simulacion_flota_10_camiones_24h_por_segundo.xlsx",
+    "md5": "399c213d879c0508cc7d47ef491dbe96",
+    "bytes": 84451951,
+    "sheets": 16,
+    "telemetrySheets": 10,
+    "rows": 864000
+  },
+  "window": {
+    "startISO": "2026-08-05T07:00:00Z",
+    "endISO": "2026-08-06T06:59:59Z",
+    "spanSec": 86399,
+    "grainSec": 1,
+    "note": "The span is 86,399,000 ms and ends at 06:59:59Z — not a round 24 h."
+  },
+  "method": {
+    "gallons": "Fuel Consumption Rate-Engine (gal/h) integrated at full fidelity: sum(rate) over every 1 s row, divided by 3600. No stride sampling.",
+    "dumps": "Transitions INTO the 'Dumping' state, counted once per entry.",
+    "tons": "Peak payload across each loaded phase, banked on entry to Dumping. Payload reads 0 at that instant, so sampling at the transition yields 0.0 t.",
+    "fullFidelity": true,
+    "strideSampled": false
+  },
+  "definition": {
+    "phaseAlignment": "aligned-shift-start",
+    "detail": "All ten units are Stopped Empty at 07:00:00Z and seven still carry an undumped load at 06:59:59Z. The window therefore pays a full head cost and receives no compensating head gain.",
+    "dumpsMean": "Dumps completed by a fleet that BEGAN the window parked and empty.",
+    "notComparableTo": "Dumps in an arbitrary steady-state window, which for this cycle length is ~307 untruncated and ~303 at uniform random phase. Comparing 299 to a steady-state count without accounting for phase manufactures a defect that does not exist."
+  },
+  "fleet": {
+    "gallons": 19644.6916,
+    "tons": 123867.3,
+    "dumps": 299,
+    "galPerTon": 0.1585946542,
+    "galPerTonRounded": 0.1586,
+    "tonsPerCycle": 414.2719063545
+  },
+  "units": [
+    {
+      "unit": "HT-001",
+      "rows": 86400,
+      "gallons": 2063.9095,
+      "tons": 12718.9,
+      "dumps": 31,
+      "galPerTon": 0.1622710664,
+      "firstDumpAtSec": 3299,
+      "lastDumpAtSec": 84078,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Traveling Loaded"
+    },
+    {
+      "unit": "HT-002",
+      "rows": 86400,
+      "gallons": 2006.5519,
+      "tons": 12781.5,
+      "dumps": 31,
+      "galPerTon": 0.1569887625,
+      "firstDumpAtSec": 3406,
+      "lastDumpAtSec": 84315,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Traveling Loaded"
+    },
+    {
+      "unit": "HT-003",
+      "rows": 86400,
+      "gallons": 1885.0604,
+      "tons": 11841.6,
+      "dumps": 29,
+      "galPerTon": 0.1591896686,
+      "firstDumpAtSec": 3822,
+      "lastDumpAtSec": 84846,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Traveling Loaded"
+    },
+    {
+      "unit": "HT-004",
+      "rows": 86400,
+      "gallons": 1896.7504,
+      "tons": 12434,
+      "dumps": 30,
+      "galPerTon": 0.1525454758,
+      "firstDumpAtSec": 3855,
+      "lastDumpAtSec": 84211,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Traveling Loaded"
+    },
+    {
+      "unit": "HT-005",
+      "rows": 86400,
+      "gallons": 1914.2788,
+      "tons": 12272.9,
+      "dumps": 30,
+      "galPerTon": 0.1559760798,
+      "firstDumpAtSec": 3358,
+      "lastDumpAtSec": 85036,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Loading"
+    },
+    {
+      "unit": "HT-006",
+      "rows": 86400,
+      "gallons": 2021.4242,
+      "tons": 11511.6,
+      "dumps": 28,
+      "galPerTon": 0.175598889,
+      "firstDumpAtSec": 3835,
+      "lastDumpAtSec": 85734,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Traveling Empty"
+    },
+    {
+      "unit": "HT-007",
+      "rows": 86400,
+      "gallons": 2000.016,
+      "tons": 13271.5,
+      "dumps": 30,
+      "galPerTon": 0.1507000751,
+      "firstDumpAtSec": 3415,
+      "lastDumpAtSec": 84198,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Traveling Loaded",
+      "contaminated": true,
+      "contaminationReason": "Sobrecarga recurrente — injected overload inflates tonnage; its favourable gal/ton comes from a fault, not efficiency"
+    },
+    {
+      "unit": "HT-008",
+      "rows": 86400,
+      "gallons": 1923.5204,
+      "tons": 12410.7,
+      "dumps": 30,
+      "galPerTon": 0.1549888761,
+      "firstDumpAtSec": 3758,
+      "lastDumpAtSec": 85701,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Stopped Empty"
+    },
+    {
+      "unit": "HT-009",
+      "rows": 86400,
+      "gallons": 1907.4002,
+      "tons": 12300.3,
+      "dumps": 30,
+      "galPerTon": 0.1550694078,
+      "firstDumpAtSec": 3648,
+      "lastDumpAtSec": 84270,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Traveling Loaded"
+    },
+    {
+      "unit": "HT-010",
+      "rows": 86400,
+      "gallons": 2025.7797,
+      "tons": 12324.3,
+      "dumps": 30,
+      "galPerTon": 0.1643728017,
+      "firstDumpAtSec": 3453,
+      "lastDumpAtSec": 85637,
+      "stateAtStart": "Stopped Empty",
+      "stateAtEnd": "Stopped Empty"
+    }
+  ],
+  "fleetExcludingContaminated": {
+    "units": 9,
+    "gallons": 17644.6755,
+    "tons": 110595.8,
+    "dumps": 269,
+    "note": "Provided for reference only. The denominator law fixes the official figure as TOTAL fleet gallons over TOTAL tons hauled and dumped. The official gal/ton is fleet.galPerTon and is never recomputed to exclude a unit, however contaminated."
+  },
+  "targets": {
+    "note": "ASPIRATIONS, not measurements. Held here only so that no measurement path can be mistaken for them. Attainment is computed FROM a target against a measurement, never a target derived FROM data.",
+    "improve5pct": 0.1507,
+    "improve10pct": 0.1427,
+    "hazard": "improve5pct (0.1507) COLLIDES with a real measurement: HT-007 measures exactly 0.1507 in the workbook summary. It reaches it by carrying an injected overload, so its favourable ratio comes from a fault. A value collision is legitimate and must not be tested away; what must never happen is a unit reading as target-achieving on the strength of an inflated denominator.",
+    "unattainedByAnyUnit": 0.1427
+  }
+}

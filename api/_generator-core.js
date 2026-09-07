@@ -739,9 +739,21 @@ Generator.prototype.kpi = function(fromMs, toMs, o){
   var qty = 0;
   for(var i = 0; i < cyc.length; i++) qty += cyc[i].quantity || 0;
   var numer = agg && agg.integrated ? agg.integrated.value : (agg ? agg.sum : null);
+  /* Disclose the step the numerator was actually integrated at. aggregate()
+     falls back to autoStep() when no stepSec is given, so an official-looking
+     KPI can be an estimate at a coarse stride and read identically to a
+     full-fidelity one. The caller could not previously tell: aggregate()
+     reports stepSec and kpi() dropped it. A surface that cannot support its
+     own claim is the defect, not the striding — so the record travels with
+     the number. fullFidelity is the honest test: the step equals the grain. */
+  var grainSec = p.grainSec || 1;
+  var usedStep = agg ? agg.stepSec : null;
   return {
     numerator: numer, numeratorUnit: agg && agg.integrated ? agg.integrated.unit : null,
     numeratorMetric: numMetric,
+    stepSec: usedStep, grainSec: grainSec,
+    stepRequested: o.stepSec != null ? o.stepSec : null,
+    fullFidelity: usedStep != null && usedStep === grainSec,
     denominator: qty, denominatorMetric: p.cycleMeasure,
     denominatorUnit: p.measures[p.cycleMeasure] ? p.measures[p.cycleMeasure].unit : null,
     cycles: cyc.length, perCycle: cyc.length ? qty / cyc.length : null,
