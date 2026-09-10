@@ -223,5 +223,10 @@ ok('the generator does not put its units in lockstep',
 ok('the workbook DOES start in lockstep — which is the whole difference',
    started === 10);
 
-console.log('\n  ' + pass + ' passed · ' + fail + ' failed\n');
+/* Flush to the margin, matching all seventeen other suites. An indented
+   total defeats any margin-anchored count and reports 832 in 17 — which is
+   exactly the signature of a suite that never ran. The developer nearly filed
+   this as a package failure in session 9. Advice to count suites is worthless
+   if the output format defeats the count. */
+console.log('\n' + pass + ' passed · ' + fail + ' failed\n');
 process.exit(fail ? 1 : 0);

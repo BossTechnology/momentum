@@ -261,6 +261,49 @@ function duration(v){
   return b ? (DUR[b[1]] || null) : null;
 }
 
+/* THE single authority for turning an absolute time string into an instant.
+   Both this module and _clock-core.js resolve absolute times, and two
+   independent derivations of the same rule is how they drift apart — so there
+   is exactly one, here, and Clock consumes it.
+
+   ECMAScript resolves a date-time WITHOUT an offset in the machine's LOCAL
+   zone, while a date-only form is UTC. Two adjacent forms in one column, two
+   different meanings, and the product discloses neither. Meanwhile the clock
+   reads and captions the span with getUTCHours. So a locally-parsed instant
+   names one moment and prints another — and only away from UTC, which is the
+   worst kind of defect because it passes where it is written and fails at a
+   client site. Measured before this was written: "2026-08-05 15:00:00" on a
+   07:00Z span resolved to 0.3333 in UTC, 0.5417 in Bogota, and was REFUSED
+   outright in Tokyo with "that instant falls outside the declared span" — a
+   refusal whose stated reason was false, because the instant was inside the
+   span and the guessed offset had pushed it out.
+
+   Unqualified input is therefore read as UTC, and the reading is DISCLOSED
+   rather than assumed: assumedUTC travels with the result so a surface can
+   caption which reading it took instead of asserting a bare time it cannot
+   support. An explicit offset is honoured exactly and never overridden. */
+function toInstantMs(v){
+  var s = norm(v);
+  if(!s) return null;
+  var iso = s.replace(' ', 'T');
+  var hasOffset = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(iso);
+  var t = Date.parse(iso);
+  if(isNaN(t)) return null;
+  /* A date-only form is already UTC per spec. Re-expressing it would shift it
+     by the local offset and land on the wrong day, so it is left alone — but
+     it is still flagged, because the reader never said UTC either. */
+  if(hasOffset || /^\d{4}-\d{2}-\d{2}$/.test(iso))
+    return { ms: t, assumedUTC: !hasOffset };
+  /* Unqualified date-time: take the wall-clock fields the engine read in local
+     time and re-express them as UTC. This holds for non-ISO spellings too,
+     which is why it corrects the parsed value rather than re-parsing a
+     Z-suffixed string. */
+  var d = new Date(t);
+  return { ms: Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(),
+                        d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()),
+           assumedUTC: true };
+}
+
 /** A clock time, or an absolute instant. A bare "15:00" is meaningless without
  *  a day to hang it on, so it is resolved against the origin — and rolled
  *  forward when it lands before it, because a span that starts at 07:00 and
@@ -284,8 +327,8 @@ function instant(v, originMs){
     if(t < originMs) t += 86400000;
     return t;
   }
-  var abs = Date.parse(s.replace(' ', 'T'));
-  return isNaN(abs) ? null : abs;
+  var abs = toInstantMs(s);
+  return abs ? abs.ms : null;
 }
 
 /* How far a declared span may sit from the profiled one before it stops being
@@ -620,6 +663,7 @@ MOMENTUM.DataDoc = {
   templateRows: templateRows, guide: guide,
   fromRows: fromRows, parse: parse, fromDelimited: fromDelimited,
   duration: duration, instant: instant, describe: describe,
+  toInstantMs: toInstantMs,
   SPAN_TOLERANCE: SPAN_TOLERANCE
 };
 

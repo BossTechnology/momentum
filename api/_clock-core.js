@@ -126,15 +126,26 @@ function parseOpening(v, ctx) {
 
   /* An absolute instant. Only meaningful once a calendar has been declared;
      without one there is no origin to measure it from, and the honest answer
-     is to say so rather than to guess an offset. */
-  var t = Date.parse(s.replace(' ', 'T'));
-  if (!isNaN(t)) {
+     is to say so rather than to guess an offset.
+
+     This comment used to end there, while the line below called Date.parse on
+     an unqualified string — which guesses precisely one offset, the machine's.
+     The comment claimed a discipline the code did not practise. Resolution now
+     goes through DataDoc.toInstantMs, the single authority, which reads an
+     unqualified time as UTC to match the caption and reports assumedUTC so the
+     reading is disclosed rather than silently chosen. */
+  var TD = MOMENTUM.DataDoc;
+  if (!TD || !TD.toInstantMs)
+    return { ok: false, why: 'the time parser is unavailable' };
+  var parsed = TD.toInstantMs(s);
+  if (parsed) {
     if (ctx.originMs == null)
       return { ok: false, why: 'an absolute time needs a declared calendar; ' +
                               'use a percentage of the span instead' };
-    var fa = toFraction(t, ctx);
+    var fa = toFraction(parsed.ms, ctx);
     if (fa == null) return { ok: false, why: 'that instant falls outside the declared span: ' + raw };
-    return { ok: true, fraction: fa, how: 'instant', input: raw, atMs: t };
+    return { ok: true, fraction: fa, how: 'instant', input: raw, atMs: parsed.ms,
+             assumedUTC: parsed.assumedUTC };
   }
 
   if (windows.length)
