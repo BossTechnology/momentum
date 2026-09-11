@@ -294,14 +294,33 @@ function toInstantMs(v){
      it is still flagged, because the reader never said UTC either. */
   if(hasOffset || /^\d{4}-\d{2}-\d{2}$/.test(iso))
     return { ms: t, assumedUTC: !hasOffset };
-  /* Unqualified date-time: take the wall-clock fields the engine read in local
-     time and re-express them as UTC. This holds for non-ISO spellings too,
-     which is why it corrects the parsed value rather than re-parsing a
-     Z-suffixed string. */
+  /* An ISO date-time with no offset is parsed AS UTC directly.
+     The first version of this fix parsed locally and re-expressed the
+     wall-clock fields as UTC. That is correct everywhere except inside a
+     SPRING-FORWARD GAP: a wall time the local zone skips is moved forward an
+     hour by the engine before it can be read back, so the correction reads the
+     shifted hour. Found by the developer, then measured here:
+       "2026-03-29 02:30:00"  on a Madrid machine    -> 03:30Z, elsewhere 02:30Z
+       "2026-03-08 02:30:00"  on a New York machine  -> 03:30Z, elsewhere 02:30Z
+     One hour a year, and invisible to the suite that was supposed to catch it
+     because Madrid was in its zone list but every date it tested was August.
+     Parsing the string as UTC never touches local rules, so there is no gap to
+     fall into. Verified identical across UTC, Bogota, Tokyo, Madrid, New York
+     and Kiritimati, for date-times with and without seconds and milliseconds. */
+  if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?$/.test(iso)){
+    var z = Date.parse(iso + 'Z');
+    if(!isNaN(z)) return { ms: z, assumedUTC: true };
+  }
+  /* A non-ISO spelling ("Mar 29 2026 02:30:00") cannot be read as UTC without
+     re-implementing a date parser, so it keeps the local reading re-expressed
+     as UTC — and keeps the spring-forward edge with it. That is DISCLOSED
+     rather than hidden: localFallback travels with the result so a surface can
+     say the reading is approximate, instead of asserting an instant it cannot
+     fully support. */
   var d = new Date(t);
   return { ms: Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(),
                         d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()),
-           assumedUTC: true };
+           assumedUTC: true, localFallback: true };
 }
 
 /** A clock time, or an absolute instant. A bare "15:00" is meaningless without

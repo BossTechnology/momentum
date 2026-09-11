@@ -175,6 +175,58 @@ ok('a date-only form also discloses that UTC was assumed',
    'ECMAScript reads date-only as UTC and date-time as local; the reader ' +
    'was never told either way');
 
+/* ── 4b · dates that cross a DST boundary ───────────────────────────────────
+   The previous version of this suite listed Europe/Madrid in ZONES and still
+   could not see the spring-forward defect, because every date it tested was in
+   August. Parameterising the zones and fixing the dates made these assertions
+   incapable of failing on the one case that mattered — a test that cannot fail
+   is worth nothing, and this is what that looks like in practice.
+
+   A spring-forward gap is a wall time the local zone SKIPS. Reading it locally
+   and correcting back lands an hour late; reading the string as UTC never
+   consults local rules at all. Fall-back is unaffected — that hour exists
+   twice rather than not at all — and is asserted here so the fix is not
+   credited with solving a problem that was never there. */
+console.log('\n4b · a DST boundary does not move an instant');
+const DST = [
+  ['2026-03-29 02:30:00', '2026-03-29T00:00:00Z', 'Europe/Madrid springs forward at 02:00'],
+  ['2026-03-08 02:30:00', '2026-03-08T00:00:00Z', 'America/New_York springs forward at 02:00'],
+  ['2026-10-25 02:30:00', '2026-10-25T00:00:00Z', 'Europe/Madrid falls back at 03:00'],
+  ['2026-11-01 01:30:00', '2026-11-01T00:00:00Z', 'America/New_York falls back at 02:00']
+];
+const DST_ZONES = ZONES.concat(['America/New_York']);
+for (const [input, originISO, why] of DST) {
+  /* Each case needs a calendar that CONTAINS it — the August span used above
+     would refuse a March date, and a refusal must not be misread as agreement
+     or as divergence. */
+  const dctx = () => ({ originMs: Date.parse(originISO), spanMs: 86399000, windows: [] });
+  const got = DST_ZONES.map(tz => underTZ(tz, M => M.Clock.parseOpening(input, dctx())));
+  const okAll = got.every(r => r && r.ok);
+  const one = okAll && new Set(got.map(r => r.atMs)).size === 1;
+  ok('"' + input + '" is the same instant in every zone',
+     one, why + (one ? ' → ' + new Date(got[0].atMs).toISOString()
+                     : okAll ? ' → DIVERGED' : ' → refused in ' +
+                       got.filter(r => !r.ok).length + ' zone(s)'));
+}
+ok('a skipped wall time resolves to the hour it names, not the hour after',
+   underTZ('Europe/Madrid', M => {
+     const r = M.Clock.parseOpening('2026-03-29 02:30:00',
+       { originMs: Date.parse('2026-03-29T00:00:00Z'), spanMs: 86399000, windows: [] });
+     return r.ok && new Date(r.atMs).toISOString() === '2026-03-29T02:30:00.000Z';
+   }),
+   'pre-fix a Madrid machine read this as 03:30Z');
+
+/* The non-ISO spelling keeps the edge, because reading it as UTC would mean
+   re-implementing a date parser. It must SAY so rather than quietly claim the
+   same standing as an ISO form. */
+const nonIso = underTZ('Europe/Madrid', M => M.DataDoc.toInstantMs('Mar 29 2026 02:30:00'));
+ok('a non-ISO spelling discloses that it fell back to a local reading',
+   !!nonIso && nonIso.localFallback === true,
+   'the residual is disclosed, not hidden');
+const isoForm = underTZ('Europe/Madrid', M => M.DataDoc.toInstantMs('2026-03-29 02:30:00'));
+ok('an ISO form does not claim the local fallback',
+   !!isoForm && isoForm.localFallback === undefined);
+
 /* ── 5 · one authority, not two derivations ──────────────────────────────── */
 console.log('\n5 · both cores resolve through one parser');
 ok('DataDoc exposes the single instant parser',

@@ -9,7 +9,7 @@ e5f7c7cd48d93808874292286a72009a  api/_clock-core.js
 71fa154a8bb90fcbcb0d9eeddc2f400b  api/_configapply-core.js
 4756d4014627398e506ddd167c84bae8  api/_configdoc-core.js
 7bdb37f2ec2468ae924afb9015581e93  api/_configtemplate-core.js
-907a676f166b6c2e379c100980ffeeb4  api/_datadoc-core.js
+98e1b392846305018614dc3c81ea337d  api/_datadoc-core.js
 98017b39a80b7d5c59283b1d3b090139  api/_docwrite-core.js
 35e717ec1378f7dd055a65f686419136  api/_generator-core.js
 790f74566b34b93599892720f5b09f46  api/_ingest-core.js
@@ -31,7 +31,7 @@ c9a7d57f35e3b56a3f2df84dc7baf8d5  api/profile.js
 4964e59bd0d6eeab3f9f9d3945c6d164  build/extract.js
 1fcedbf779eb818ad2ca57b771989ee6  build/fixtures.js
 ab340b100bd30bb53c942d190d622631  build/modules.json
-f2fbf16f575ef74fea9aa23a3398c6c5  build/reference.json
+0bcb867c2071bfe174226ae75c721b95  build/reference.json
 3c96a1a67258874b5aada8388fb6e357  config/banking-demo-config.csv
 dea4ed830f15e96b41a2bc746a652bd9  config/data-profile-mineria-schema3.json
 68a101291bcd6f0fd3e7de5e546869a5  config/ecommerce-demo-config.csv
@@ -62,10 +62,10 @@ b497c665b6492b2529c65a8317e0c2ef  harness/probe2.js
 9559773992d9e616fddc44ca0dacb6b1  harness/probe3.js
 5aa9d417581b73b3c519430f5230fa67  harness/probe4.js
 a82e4b128f9168f7def4832f0055fc29  harness/profile-local.js
-8cb4045c0ab5eaad0f775066f0a5c1db  integrity.sh
+87079eb8606c31e1e5419e831d3238d4  integrity.sh
 35a29345d192e692fff30a0d7e53455d  momentum-Simulation_19.html
-7dff78c53432008552033b3a022f09c5  package-lock.json
-590456902c1af98c16e4a7326e90daae  package.json
+ca335ee7593eb6cb9f1b0a48aca2664f  package.json
+a092f42bb429628409943f28f05a207b  pnpm-lock.yaml
 422134a9c0abdc6bfd2fa305489449f3  src/boot.js
 0fd14be8e340e90beb5e1254aeee3e4b  src/shell.html
 3121df9b505c0e156bce411c250529f5  supabase/RUNBOOK.md
@@ -92,7 +92,7 @@ cdc832f278d2d84eadde8be338c65b8a  test/verify-leakage.js
 3c5b1256a0084aede8955706882610ce  test/verify-mining.js
 23d6cd078e0fb355e5a5a4643aea88d2  test/verify-mirror.js
 eb783efa35be19d7fbc6f38e2e8cb461  test/verify-stages.js
-fc0bd600d1492a4ea9baa07fc798e89a  test/verify-timezone.js
+b4e193e0e583e0d31550178e26be44f7  test/verify-timezone.js
 f8a4f86ad3ecb2b20fddb223c8b51cf3  test/verify-windows.js
 1e4a6458ad51aaf50c780604da6d923c  test/verify20.js
 106c03f8e4e4f0ef219d43e90a784601  test/verify45.js
