@@ -32,10 +32,24 @@
 #                           transcript, which is the tamper-resistant register.
 cd "$(dirname "$0")"
 
-# Generated at the root by `npm run pregate`, `node build/build.js` or the
-# visual suites. Excluded because they are outputs, not sources — hashing them
-# would make the baseline depend on whether a build had been run.
-EXCLUDE='^\./(p20\.json|momentum-Simulation_68\.html|shot.*\.png|\.integrity-baseline|\.env)$'
+# Generated at the root by `npm run pregate`, `node build/build.js`, the visual
+# suites, a local Vercel setup, or the operating system. Excluded because they
+# are outputs, not sources — hashing them would make the baseline depend on
+# whether a build had been run, or on whether someone had opened the folder in
+# Finder.
+#
+# These mirror the ROOT-LEVEL file patterns in .gitignore, which is where the
+# project already declares what is generated. Inverting the rule was right;
+# building this list BY HAND was the part that was not, because a
+# hand-maintained exclusion list is a whitelist wearing different clothes. The
+# developer found .DS_Store the only way it could be found — from a working
+# copy, since it is gitignored and so can never appear in a `git archive`
+# reconstruction. .env.local, .env*.local and out/ were the same gap, found by
+# cross-checking .gitignore rather than by waiting for them to bite.
+# test/verify-integrity-cover.js now fails if .gitignore gains a root-level
+# file pattern this line does not cover, so the next one is caught by a test
+# instead of by a false incident on somebody's machine.
+EXCLUDE='^\./(p20\.json|momentum-Simulation_68\.html|shot.*\.png|\.integrity-baseline|\.env|\.env\.local|\.env.*\.local|\.DS_Store)$'
 
 { find src api test build config harness supabase .github -type f 2>/dev/null;
   find . -maxdepth 1 -type f 2>/dev/null | grep -Ev "$EXCLUDE" | sed 's|^\./||'; } \

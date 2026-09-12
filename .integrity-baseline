@@ -62,9 +62,9 @@ b497c665b6492b2529c65a8317e0c2ef  harness/probe2.js
 9559773992d9e616fddc44ca0dacb6b1  harness/probe3.js
 5aa9d417581b73b3c519430f5230fa67  harness/probe4.js
 a82e4b128f9168f7def4832f0055fc29  harness/profile-local.js
-87079eb8606c31e1e5419e831d3238d4  integrity.sh
+f0fa6a54b0fe52e11d1943c9382b843f  integrity.sh
 35a29345d192e692fff30a0d7e53455d  momentum-Simulation_19.html
-ca335ee7593eb6cb9f1b0a48aca2664f  package.json
+c54256062f7d9e1625cd67bb6d5e2775  package.json
 a092f42bb429628409943f28f05a207b  pnpm-lock.yaml
 422134a9c0abdc6bfd2fa305489449f3  src/boot.js
 0fd14be8e340e90beb5e1254aeee3e4b  src/shell.html
@@ -88,6 +88,7 @@ e43f9504f15550a3ce5a96ece19bedbc  test/verify-clock.js
 2580a9e4de0a90aa403c74c335abfa29  test/verify-datadoc.js
 686e6229fd2266bd478e7bb974d516c4  test/verify-docflow.js
 7faa48c23bc25484eb437d56efa9544a  test/verify-elapsed.js
+50aedb1a4ed3b4f1706396cf8e2255f5  test/verify-integrity-cover.js
 cdc832f278d2d84eadde8be338c65b8a  test/verify-leakage.js
 3c5b1256a0084aede8955706882610ce  test/verify-mining.js
 23d6cd078e0fb355e5a5a4643aea88d2  test/verify-mirror.js
