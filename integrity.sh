@@ -44,13 +44,22 @@ cd "$(dirname "$0")"
 # hand-maintained exclusion list is a whitelist wearing different clothes. The
 # developer found .DS_Store the only way it could be found — from a working
 # copy, since it is gitignored and so can never appear in a `git archive`
-# reconstruction. .env.local, .env*.local and out/ were the same gap, found by
+# reconstruction. .env.local and .env*.local were the same gap, found by
 # cross-checking .gitignore rather than by waiting for them to bite.
 # test/verify-integrity-cover.js now fails if .gitignore gains a root-level
 # file pattern this line does not cover, so the next one is caught by a test
 # instead of by a false incident on somebody's machine.
-EXCLUDE='^\./(p20\.json|momentum-Simulation_68\.html|shot.*\.png|\.integrity-baseline|\.env|\.env\.local|\.env.*\.local|\.DS_Store)$'
+#
+# DEPTH. A .gitignore pattern with no slash matches at EVERY depth, not only
+# the root — `git check-ignore` confirms src/.DS_Store and api/.DS_Store are
+# both ignored by the bare `.DS_Store` line. For most patterns root-anchoring
+# is what we want: a .env appearing inside api/ should raise an alarm, not be
+# waved through. .DS_Store is the exception, because Finder writes one into
+# every folder it opens, so it is excluded at ANY depth and everything else
+# stays root-only.
+EXCLUDE_ROOT='^\./(p20\.json|momentum-Simulation_68\.html|shot.*\.png|\.integrity-baseline|\.env|\.env\.local|\.env.*\.local)$'
+EXCLUDE_ANY='(^|/)\.DS_Store$'
 
 { find src api test build config harness supabase .github -type f 2>/dev/null;
-  find . -maxdepth 1 -type f 2>/dev/null | grep -Ev "$EXCLUDE" | sed 's|^\./||'; } \
-  | sort -u | xargs md5sum
+  find . -maxdepth 1 -type f 2>/dev/null | grep -Ev "$EXCLUDE_ROOT"; } \
+  | grep -Ev "$EXCLUDE_ANY" | sed 's|^\./||' | sort -u | xargs md5sum
