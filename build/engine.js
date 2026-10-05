@@ -6,6 +6,10 @@
    placed first in <head>. The file in static/ stays exactly as received; only
    the served copy gains the script.
 
+   It also asks for claude-sonnet-4-20250514, which the API no longer serves
+   (not_found_error through the proxy), so the served copy asks for the model
+   the main build uses. Every occurrence is replaced, and the count is checked.
+
    Side effect, accepted for the demo: the boot line also switches on the heavy
    ingest path, and this build predates the worker fallback, so a data file
    above 8 MB fails while Supabase is not configured for the deployment. */
@@ -20,9 +24,14 @@ let html = fs.readFileSync(src, 'utf8');
 if (html.indexOf('id="mom-boot"') >= 0) throw new Error('engine build already carries mom-boot');
 if (html.split('<head>').length !== 2) throw new Error('expected exactly one <head> in ' + src);
 
+const RETIRED = "model:'claude-sonnet-4-20250514'", CURRENT = "model:'claude-sonnet-4-6'";
+const calls = html.split(RETIRED).length - 1;
+if (calls !== 8) throw new Error('expected 8 BOBee calls on the retired model, found ' + calls);
+html = html.split(RETIRED).join(CURRENT);
+
 const boot = fs.readFileSync(path.join(ROOT, 'src', 'boot.js'), 'utf8').trim();
 html = html.replace('<head>', '<head>\n<script id="mom-boot">\n' + boot + '\n</script>');
 
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, html);
-console.log('public/engine/index.html · ' + (html.length / 1048576).toFixed(2) + ' MB · mom-boot injected');
+console.log('public/engine/index.html · ' + (html.length / 1048576).toFixed(2) + ' MB · mom-boot injected · ' + calls + ' calls on ' + CURRENT.slice(7, -1));
