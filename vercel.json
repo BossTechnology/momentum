@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install --omit=dev",
-  "buildCommand": "node build/build.js",
+  "buildCommand": "node build/build.js && mkdir -p public/engine && cp static/engine/index.html public/engine/index.html",
   "outputDirectory": "public",
   "functions": {
     "api/bobby.mjs": {
@@ -13,11 +13,18 @@
     }
   },
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/engine", "destination": "/engine/index.html" }
   ],
   "headers": [
     {
       "source": "/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/engine/index.html",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
